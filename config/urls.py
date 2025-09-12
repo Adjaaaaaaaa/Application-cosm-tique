@@ -18,7 +18,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from apps.api_views import health_check, comprehensive_routine, analyze_product, get_ingredient_info, user_profile, general_question
+from apps.api_views import health_check, comprehensive_routine, analyze_product, get_ingredient_info, general_question
 from apps.internal_api import get_user_profile_internal, health_check_internal
 
 urlpatterns = [
@@ -37,8 +37,6 @@ urlpatterns = [
     path('api/v1/ai/analyze-product', analyze_product, name='api_analyze_product_no_slash'),
     path('api/v1/ingredients/info/', get_ingredient_info, name='api_ingredient_info'),
     path('api/v1/ingredients/info', get_ingredient_info, name='api_ingredient_info_no_slash'),
-    path('api/v1/user/profile/', user_profile, name='api_user_profile'),
-    path('api/v1/user/profile', user_profile, name='api_user_profile_no_slash'),
     path('api/v1/ai/general-question/', general_question, name='api_general_question'),
     path('api/v1/ai/general-question', general_question, name='api_general_question_no_slash'),
     
