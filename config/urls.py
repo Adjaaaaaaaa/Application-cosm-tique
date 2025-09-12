@@ -18,6 +18,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from django.views.generic import TemplateView
 from apps.api_views import health_check, comprehensive_routine, analyze_product, get_ingredient_info, general_question
 from apps.internal_api import get_user_profile_internal, health_check_internal
 
@@ -45,6 +46,9 @@ urlpatterns = [
     path('internal-api/user-profile/<int:user_id>', get_user_profile_internal, name='internal_user_profile_no_slash'),
     path('internal-api/health/', health_check_internal, name='internal_health'),
     path('internal-api/health', health_check_internal, name='internal_health_no_slash'),
+    
+    # Documentation API Interne
+    path('docs/internal-api/', TemplateView.as_view(template_name='docs/internal_api_docs.html'), name='internal_api_docs'),
 ]
 
 if settings.DEBUG:

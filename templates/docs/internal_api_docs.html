@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documentation API Interne - BeautyScan</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #8B7355, #A0522D);
+            color: white;
+            padding: 2rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .nav {
+            background: white;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        
+        .nav ul {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .nav a {
+            color: #8B7355;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+        
+        .nav a:hover {
+            background: #8B7355;
+            color: white;
+        }
+        
+        .section {
+            background: white;
+            margin-bottom: 2rem;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+        
+        .section h2 {
+            color: #8B7355;
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+            border-bottom: 3px solid #8B7355;
+            padding-bottom: 0.5rem;
+        }
+        
+        .section h3 {
+            color: #A0522D;
+            margin: 1.5rem 0 1rem 0;
+            font-size: 1.3rem;
+        }
+        
+        .endpoint {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            position: relative;
+        }
+        
+        .method {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 0.8rem;
+            margin-right: 1rem;
+        }
+        
+        .method.get {
+            background: #28a745;
+            color: white;
+        }
+        
+        .url {
+            font-family: 'Courier New', monospace;
+            font-size: 1.1rem;
+            color: #495057;
+            font-weight: bold;
+        }
+        
+        .description {
+            margin: 1rem 0;
+            color: #6c757d;
+        }
+        
+        .params {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 5px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+        
+        .params h4 {
+            color: #856404;
+            margin-bottom: 0.5rem;
+        }
+        
+        .param {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.3rem 0;
+            border-bottom: 1px solid #ffeaa7;
+        }
+        
+        .param:last-child {
+            border-bottom: none;
+        }
+        
+        .param-name {
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            color: #856404;
+        }
+        
+        .param-type {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+        
+        .example {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            border-radius: 5px;
+            padding: 1rem;
+            margin: 1rem 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+        }
+        
+        .response {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 5px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+        
+        .response h4 {
+            color: #155724;
+            margin-bottom: 0.5rem;
+        }
+        
+        .status-code {
+            display: inline-block;
+            padding: 0.2rem 0.5rem;
+            border-radius: 3px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-right: 0.5rem;
+        }
+        
+        .status-200 {
+            background: #28a745;
+            color: white;
+        }
+        
+        .status-403 {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .status-404 {
+            background: #ffc107;
+            color: #212529;
+        }
+        
+        .status-500 {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .security {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+        
+        .security h4 {
+            color: #721c24;
+            margin-bottom: 1rem;
+        }
+        
+        .security ul {
+            margin-left: 1.5rem;
+        }
+        
+        .security li {
+            margin: 0.5rem 0;
+        }
+        
+        .test-button {
+            background: #8B7355;
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin: 0.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .test-button:hover {
+            background: #6B5B3F;
+            transform: translateY(-2px);
+        }
+        
+        .copy-button {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 0.3rem 0.8rem;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            margin-left: 1rem;
+        }
+        
+        .copy-button:hover {
+            background: #5a6268;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            color: #6c757d;
+            background: white;
+            border-radius: 15px;
+            margin-top: 2rem;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .nav ul {
+                flex-direction: column;
+            }
+            
+            .section {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔒 API Interne BeautyScan</h1>
+            <p>Documentation complète pour les services internes</p>
+        </div>
+        
+        <nav class="nav">
+            <ul>
+                <li><a href="#overview">Vue d'ensemble</a></li>
+                <li><a href="#authentication">Authentification</a></li>
+                <li><a href="#endpoints">Endpoints</a></li>
+                <li><a href="#examples">Exemples</a></li>
+                <li><a href="#errors">Gestion d'erreurs</a></li>
+            </ul>
+        </nav>
+        
+        <section id="overview" class="section">
+            <h2>📋 Vue d'ensemble</h2>
+            <p>L'API interne BeautyScan est réservée aux services internes uniquement. Elle fournit un accès sécurisé aux données sensibles des utilisateurs, notamment les profils complets nécessaires au service Premium AI.</p>
+            
+            <h3>🎯 Objectifs</h3>
+            <ul>
+                <li>Fournir un accès sécurisé aux profils utilisateur</li>
+                <li>Optimiser les performances pour les services internes</li>
+                <li>Assurer la traçabilité des accès</li>
+                <li>Maintenir la conformité RGPD</li>
+            </ul>
+            
+            <h3>🔧 Caractéristiques</h3>
+            <ul>
+                <li>Authentification par token</li>
+                <li>Restriction d'accès IP</li>
+                <li>Logging complet</li>
+                <li>Pas de mise en cache</li>
+                <li>Réponses JSON structurées</li>
+            </ul>
+        </section>
+        
+        <section id="authentication" class="section">
+            <h2>🔐 Authentification</h2>
+            <p>Toutes les requêtes à l'API interne doivent inclure un token d'authentification dans les headers.</p>
+            
+            <div class="security">
+                <h4>⚠️ Sécurité requise</h4>
+                <ul>
+                    <li><strong>IP autorisée :</strong> Localhost uniquement (127.0.0.1)</li>
+                    <li><strong>Token requis :</strong> Header X-Internal-Token</li>
+                    <li><strong>Token actuel :</strong> <code>internal_beautyscan_2024</code></li>
+                </ul>
+            </div>
+            
+            <h3>📝 Format de la requête</h3>
+            <div class="example">
+GET /internal-api/user-profile/1/ HTTP/1.1
+Host: 127.0.0.1:8000
+X-Internal-Token: internal_beautyscan_2024
+Content-Type: application/json
+            </div>
+        </section>
+        
+        <section id="endpoints" class="section">
+            <h2>🌐 Endpoints</h2>
+            
+            <div class="endpoint">
+                <h3>
+                    <span class="method get">GET</span>
+                    <span class="url">/internal-api/health/</span>
+                    <button class="copy-button" onclick="copyUrl('/internal-api/health/')">Copier</button>
+                </h3>
+                <div class="description">
+                    Vérifie l'état de santé de l'API interne et de la base de données.
+                </div>
+                
+                <h4>📋 Réponse</h4>
+                <div class="response">
+                    <h4>
+                        <span class="status-code status-200">200</span>
+                        Succès
+                    </h4>
+                    <div class="example">
+{
+  "status": "success",
+  "service": "internal-api",
+  "version": "1.0.0",
+  "database": {
+    "connected": true,
+    "users_count": 5,
+    "profiles_count": 5
+  },
+  "timestamp": {
+    "checked_at": "now"
+  }
+}
+                    </div>
+                </div>
+                
+                <button class="test-button" onclick="testEndpoint('/internal-api/health/', 'healthResult')">Tester</button>
+                <pre id="healthResult" style="margin-top: 1rem; display: none;"></pre>
+            </div>
+            
+            <div class="endpoint">
+                <h3>
+                    <span class="method get">GET</span>
+                    <span class="url">/internal-api/user-profile/{user_id}/</span>
+                    <button class="copy-button" onclick="copyUrl('/internal-api/user-profile/1/')">Copier</button>
+                </h3>
+                <div class="description">
+                    Récupère le profil utilisateur complet avec toutes les données sensibles.
+                </div>
+                
+                <div class="params">
+                    <h4>📥 Paramètres</h4>
+                    <div class="param">
+                        <span class="param-name">user_id</span>
+                        <span class="param-type">integer (URL path)</span>
+                    </div>
+                </div>
+                
+                <h4>📋 Réponses</h4>
+                
+                <div class="response">
+                    <h4>
+                        <span class="status-code status-200">200</span>
+                        Profil récupéré avec succès
+                    </h4>
+                    <div class="example">
+{
+  "status": "success",
+  "data": {
+    "user_id": 1,
+    "username": "utilisateur",
+    "email": "user@example.com",
+    "first_name": "Prénom",
+    "last_name": "Nom",
+    "skin_type": "combination",
+    "age_range": "18-25",
+    "budget": "moderate",
+    "skin_concerns": ["acne", "dryness"],
+    "allergies": ["fragrance"],
+    "dermatological_conditions": [],
+    "objectives": ["hydratation", "éclat"],
+    "subscription_type": "premium",
+    "profile_created": "2024-01-01T00:00:00Z",
+    "profile_updated": "2024-09-12T10:30:00Z"
+  },
+  "timestamp": {
+    "retrieved_at": "2024-09-12T10:30:00Z"
+  }
+}
+                    </div>
+                </div>
+                
+                <div class="response">
+                    <h4>
+                        <span class="status-code status-404">404</span>
+                        Utilisateur non trouvé
+                    </h4>
+                    <div class="example">
+{
+  "status": "error",
+  "message": "Utilisateur 999 non trouvé"
+}
+                    </div>
+                </div>
+                
+                <button class="test-button" onclick="testEndpoint('/internal-api/user-profile/1/', 'profileResult')">Tester avec ID 1</button>
+                <pre id="profileResult" style="margin-top: 1rem; display: none;"></pre>
+            </div>
+        </section>
+        
+        <section id="examples" class="section">
+            <h2>💡 Exemples d'utilisation</h2>
+            
+            <h3>🔧 PowerShell</h3>
+            <div class="example">
+# Health Check
+Invoke-WebRequest -Uri "http://127.0.0.1:8000/internal-api/health/" -Method GET -Headers @{"X-Internal-Token"="internal_beautyscan_2024"}
+
+# Profil utilisateur
+Invoke-WebRequest -Uri "http://127.0.0.1:8000/internal-api/user-profile/1/" -Method GET -Headers @{"X-Internal-Token"="internal_beautyscan_2024"}
+            </div>
+            
+            <h3>🐍 Python</h3>
+            <div class="example">
+import requests
+
+headers = {
+    'X-Internal-Token': 'internal_beautyscan_2024',
+    'Content-Type': 'application/json'
+}
+
+# Health Check
+response = requests.get('http://127.0.0.1:8000/internal-api/health/', headers=headers)
+print(response.json())
+
+# Profil utilisateur
+response = requests.get('http://127.0.0.1:8000/internal-api/user-profile/1/', headers=headers)
+profile = response.json()
+print(f"Utilisateur: {profile['data']['username']}")
+            </div>
+            
+            <h3>🌐 JavaScript/Fetch</h3>
+            <div class="example">
+const headers = {
+    'X-Internal-Token': 'internal_beautyscan_2024',
+    'Content-Type': 'application/json'
+};
+
+// Health Check
+fetch('http://127.0.0.1:8000/internal-api/health/', { headers })
+    .then(response => response.json())
+    .then(data => console.log(data));
+
+// Profil utilisateur
+fetch('http://127.0.0.1:8000/internal-api/user-profile/1/', { headers })
+    .then(response => response.json())
+    .then(data => console.log(data.data.username));
+            </div>
+        </section>
+        
+        <section id="errors" class="section">
+            <h2>❌ Gestion d'erreurs</h2>
+            
+            <div class="response">
+                <h4>
+                    <span class="status-code status-403">403</span>
+                    Accès non autorisé
+                </h4>
+                <div class="example">
+{
+  "status": "error",
+  "message": "Accès non autorisé - API interne uniquement"
+}
+                </div>
+                <p><strong>Cause :</strong> Token manquant ou incorrect, IP non autorisée</p>
+            </div>
+            
+            <div class="response">
+                <h4>
+                    <span class="status-code status-404">404</span>
+                    Utilisateur non trouvé
+                </h4>
+                <div class="example">
+{
+  "status": "error",
+  "message": "Utilisateur 999 non trouvé"
+}
+                </div>
+                <p><strong>Cause :</strong> L'ID utilisateur n'existe pas dans la base de données</p>
+            </div>
+            
+            <div class="response">
+                <h4>
+                    <span class="status-code status-500">500</span>
+                    Erreur interne du serveur
+                </h4>
+                <div class="example">
+{
+  "status": "error",
+  "message": "Erreur interne du serveur: [détails]",
+  "error_code": "INTERNAL_ERROR"
+}
+                </div>
+                <p><strong>Cause :</strong> Erreur de base de données ou exception non gérée</p>
+            </div>
+        </section>
+        
+        <div class="footer">
+            <p>📅 Dernière mise à jour : 12 septembre 2025</p>
+            <p>🔒 API Interne BeautyScan - Accès restreint aux services internes</p>
+        </div>
+    </div>
+
+    <script>
+        function copyUrl(url) {
+            navigator.clipboard.writeText(`http://127.0.0.1:8000${url}`).then(() => {
+                alert('URL copiée dans le presse-papiers !');
+            });
+        }
+        
+        async function testEndpoint(url, resultId) {
+            const resultEl = document.getElementById(resultId);
+            resultEl.style.display = 'block';
+            resultEl.textContent = 'Test en cours...';
+            
+            try {
+                const response = await fetch(`http://127.0.0.1:8000${url}`, {
+                    method: 'GET',
+                    headers: {
+                        'X-Internal-Token': 'internal_beautyscan_2024',
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                resultEl.textContent = `Status: ${response.status}\n\n${JSON.stringify(data, null, 2)}`;
+                
+                if (response.status === 200) {
+                    resultEl.style.backgroundColor = '#d4edda';
+                    resultEl.style.border = '1px solid #c3e6cb';
+                } else {
+                    resultEl.style.backgroundColor = '#f8d7da';
+                    resultEl.style.border = '1px solid #f5c6cb';
+                }
+            } catch (error) {
+                resultEl.textContent = `Erreur: ${error.message}`;
+                resultEl.style.backgroundColor = '#f8d7da';
+                resultEl.style.border = '1px solid #f5c6cb';
+            }
+        }
+        
+        // Smooth scrolling pour la navigation
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+</body>
+</html>
