@@ -380,5 +380,12 @@ def privacy_policy_view(request):
     return render(request, 'accounts/privacy_policy.html')
 
 
+def terms_of_service_view(request):
+    """
+    Vue pour afficher les conditions d'utilisation de BeautyScan.
+    """
+    return render(request, 'accounts/terms_of_service.html')
+
+
 
 
