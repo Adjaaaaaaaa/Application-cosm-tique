@@ -1,0 +1,240 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Analyse de Produits - BeautyScan{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="text-center mb-4">
+                <i class="fas fa-microscope"></i> Analyse de Produits IA
+            </h1>
+            <p class="text-center text-muted">
+                Analysez les ingrédients de vos produits et obtenez des conseils personnalisés
+            </p>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Formulaire -->
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-edit"></i> Informations du Produit
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form id="product-analysis-form">
+                        {% csrf_token %}
+                        
+                        <!-- Nom du produit -->
+                        <div class="mb-3">
+                            <label for="product_name" class="form-label">Nom du produit</label>
+                            <input type="text" class="form-control" id="product_name" name="product_name" 
+                                   placeholder="Ex: Crème hydratante" required>
+                        </div>
+
+                        <!-- Marque -->
+                        <div class="mb-3">
+                            <label for="product_brand" class="form-label">Marque</label>
+                            <input type="text" class="form-control" id="product_brand" name="product_brand" 
+                                   placeholder="Ex: La Roche-Posay" required>
+                        </div>
+
+                        <!-- Ingrédients -->
+                        <div class="mb-3">
+                            <label for="product_ingredients" class="form-label">Liste des ingrédients</label>
+                            <textarea class="form-control" id="product_ingredients" name="product_ingredients" 
+                                      rows="5" placeholder="Ex: Aqua, Glycerin, Niacinamide, Hyaluronic Acid..." required></textarea>
+                            <div class="form-text">
+                                Copiez la liste des ingrédients depuis l'emballage du produit
+                            </div>
+                        </div>
+
+                        <!-- Question -->
+                        <div class="mb-3">
+                            <label for="user_question" class="form-label">Votre question</label>
+                            <textarea class="form-control" id="user_question" name="user_question" 
+                                      rows="3" placeholder="Ex: Ce produit est-il adapté à ma peau sensible ?" required></textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-success w-100" id="submit-btn">
+                            <i class="fas fa-search"></i> Analyser le produit
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Résultat -->
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-line"></i> Analyse Personnalisée
+                    </h5>
+                </div>
+                <div class="card-body" id="result-container">
+                    <div class="text-center text-muted">
+                        <i class="fas fa-microscope fa-3x mb-3"></i>
+                        <p>Votre analyse personnalisée apparaîtra ici</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Gestion du formulaire
+    const form = document.getElementById('product-analysis-form');
+    const submitBtn = document.getElementById('submit-btn');
+    const resultContainer = document.getElementById('result-container');
+
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Afficher le loading
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analyse en cours...';
+        
+        resultContainer.innerHTML = `
+            <div class="text-center">
+                <i class="fas fa-spinner fa-spin fa-2x text-success mb-3"></i>
+                <p>Analyse de votre produit en cours...</p>
+            </div>
+        `;
+
+        // Préparer les données
+        const formData = new FormData(form);
+        const data = {
+            user_id: {{ request.user.id }},
+            product_ingredients: formData.get('product_ingredients'),
+            user_question: formData.get('user_question'),
+            product_info: {
+                name: formData.get('product_name'),
+                brand: formData.get('product_brand'),
+                description: `${formData.get('product_brand')} - ${formData.get('product_name')}`
+            }
+        };
+
+        // Appeler l'API
+        fetch('{% url "ai_routines:api_product_analysis" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                displayAnalysis(data.data);
+            } else {
+                displayError(data.message || 'Erreur lors de l\'analyse');
+            }
+        })
+        .catch(error => {
+            displayError('Erreur de connexion au serveur');
+        })
+        .finally(() => {
+            // Réactiver le bouton
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-search"></i> Analyser le produit';
+        });
+    });
+});
+
+function displayAnalysis(analysis) {
+    const resultContainer = document.getElementById('result-container');
+    
+    let safetyHtml = '';
+    if (analysis.safety_analysis) {
+        const safety = analysis.safety_analysis;
+        safetyHtml = `
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="fas fa-shield-alt"></i> Analyse de Sécurité</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-6">
+                            <strong>Score de sécurité :</strong> ${safety.safety_score}/100
+                        </div>
+                        <div class="col-6">
+                            <strong>Recommandation :</strong> ${safety.recommendation}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    let aiAnalysisHtml = '';
+    if (analysis.ai_analysis) {
+        const ai = analysis.ai_analysis;
+        aiAnalysisHtml = `
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="fas fa-robot"></i> Analyse IA</h6>
+                </div>
+                <div class="card-body">
+                    <p><strong>Réponse :</strong> ${ai.answer}</p>
+                    ${ai.analysis ? `
+                        <div class="mt-3">
+                            <strong>Compatibilité :</strong> ${ai.analysis.compatibility_score}/100<br>
+                            <strong>Notation :</strong> ${ai.analysis.risk_level}<br>
+                            <strong>Recommandation :</strong> ${ai.analysis.recommendation}
+                        </div>
+                    ` : ''}
+                </div>
+            </div>
+        `;
+    }
+
+    let userProfileHtml = '';
+    if (analysis.user_profile) {
+        const profile = analysis.user_profile;
+        userProfileHtml = `
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="fas fa-user"></i> Votre Profil</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-6">
+                            <strong>Utilisateur :</strong> ${profile.username}
+                        </div>
+                        <div class="col-6">
+                            <strong>Type de peau :</strong> ${profile.skin_type}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    resultContainer.innerHTML = `
+        <div class="text-success mb-3">
+            <i class="fas fa-check-circle"></i> Analyse terminée avec succès !
+        </div>
+        ${userProfileHtml}
+        ${safetyHtml}
+        ${aiAnalysisHtml}
+    `;
+}
+
+function displayError(message) {
+    const resultContainer = document.getElementById('result-container');
+    resultContainer.innerHTML = `
+        <div class="text-danger">
+            <i class="fas fa-exclamation-triangle"></i> ${message}
+        </div>
+    `;
+}
+</script>
+{% endblock %}

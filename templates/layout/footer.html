@@ -1,0 +1,60 @@
+{% load static %}
+<footer class="footer mt-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="footer-brand">
+                
+                    <h5 class="text-light">BeautyScan</h5>
+                    <p class="text-light">Analyse cosmétique intelligente propulsée par l'IA. Scannez les produits et analysez les ingrédients pour des choix éclairés.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <h5 class="text-light">Liens rapides</h5>
+                <ul class="list-unstyled">
+                    <li><a href="{% url 'accounts:home' %}" class="text-light text-decoration-none">Accueil</a></li>
+                    {% if user.is_authenticated %}
+                        <li><a href="{% url 'scans:scan_list' %}" class="text-light text-decoration-none">Historique des scans</a></li>
+                        <li><a href="{% url 'accounts:profile' %}" class="text-light text-decoration-none">Mon profil</a></li>
+                        {% if user.profile.is_premium %}
+                            <li><a href="{% url 'ai_routines:beauty_assistant' %}" class="text-light text-decoration-none">IA Beauté</a></li>
+                        {% else %}
+                            <li><a href="{% url 'payments:subscription' %}" class="text-light text-decoration-none">Passer à Premium</a></li>
+                        {% endif %}
+                    {% else %}
+                        <li><a href="{% url 'scans:demo_scan' %}" class="text-light text-decoration-none">Scanner</a></li>
+                        <li><a href="{% url 'accounts:signup' %}" class="text-light text-decoration-none">S'inscrire</a></li>
+                        <li><a href="{% url 'accounts:login' %}" class="text-light text-decoration-none">Se connecter</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+            <div class="col-md-4">
+                <h5 class="text-light">Contact & Support</h5>
+                <ul class="list-unstyled">
+                    <li class="mb-2">
+                        <i class="fas fa-envelope me-2 text-light"></i>
+                        <a href="mailto:support@beautyscan.com" class="text-light text-decoration-none">support@beautyscan.com</a>
+                    </li>
+
+                </ul>
+                
+                <div class="social-links mt-3">
+                    <h6 class="text-light mb-2">Suivez-nous</h6>
+                    <a href="https://www.facebook.com/" target="_blank" rel="noopener noreferrer" class="text-light me-3" title="Facebook"><i class="fab fa-facebook fa-lg"></i></a>
+                    <a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer" class="text-light me-3" title="Instagram"><i class="fab fa-instagram fa-lg"></i></a>
+                    <a href="https://twitter.com/" target="_blank" rel="noopener noreferrer" class="text-light me-3" title="Twitter"><i class="fab fa-twitter fa-lg"></i></a>
+                </div>
+            </div>
+        </div>
+                        <hr class="my-4 footer-divider">
+        <div class="row">
+            <div class="col-md-6">
+                <p class="text-light mb-0">&copy; 2025 BeautyScan. Tous droits réservés.</p>
+            </div>
+            <div class="col-md-6 text-end">
+                <a href="#" class="text-light text-decoration-none me-3">Politique de confidentialité</a>
+                <a href="#" class="text-light text-decoration-none">Conditions d'utilisation</a>
+            </div>
+        </div>
+    </div>
+</footer>

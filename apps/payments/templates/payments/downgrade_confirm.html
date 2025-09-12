@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+
+{% block title %}Annuler l'abonnement Premium - BeautyScan{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-gradient-primary text-white text-center py-4">
+                    <div class="d-flex align-items-center justify-content-center mb-3">
+                        <i class="fas fa-crown text-warning me-3 crown-icon"></i>
+                        <h3 class="mb-0">Annuler l'abonnement Premium</h3>
+                    </div>
+                    <p class="mb-0 opacity-75">Êtes-vous sûr de vouloir annuler votre abonnement Premium ?</p>
+                </div>
+                
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <div class="alert alert-warning border-0" role="alert">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <strong>Attention :</strong> Cette action est irréversible
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h5 class="text-dark mb-3" style="color: #5D4037 !important;">
+                                <i class="fas fa-times-circle text-danger me-2"></i>
+                                Ce que vous perdrez :
+                            </h5>
+                            <ul class="list-unstyled">
+                                <li class="mb-2">
+                                    <i class="fas fa-times text-danger me-2"></i>
+                                    Assistant IA personnalisé
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-times text-danger me-2"></i>
+                                    Génération de routines sur mesure
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-times text-danger me-2"></i>
+                                    Analyse avancée d'ingrédients
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-times text-danger me-2"></i>
+                                    Recommandations intelligentes
+                                </li>
+
+                            </ul>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <h5 class="text-dark mb-3" style="color: #5D4037 !important;">
+                                <i class="fas fa-check-circle text-success me-2"></i>
+                                Ce que vous conserverez :
+                            </h5>
+                            <ul class="list-unstyled">
+                                <li class="mb-2">
+                                    <i class="fas fa-check text-success me-2"></i>
+                                    Scan de produits basique
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-check text-success me-2"></i>
+                                    Analyse d'ingrédients standard
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-check text-success me-2"></i>
+                                    Historique de vos scans
+                                </li>
+
+                                <li class="mb-2">
+                                    <i class="fas fa-check text-success me-2"></i>
+                                    Votre profil utilisateur
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center">
+                        <p class="text-muted mb-4">
+                            Vous pourrez toujours réactiver votre abonnement Premium à tout moment.
+                        </p>
+                        
+                        <form method="post" class="d-inline">
+                            {% csrf_token %}
+                            <input type="hidden" name="confirm_downgrade" value="yes">
+                            <button type="submit" class="btn btn-danger btn-lg me-3">
+                                <i class="fas fa-times me-2"></i>
+                                Oui, annuler Premium
+                            </button>
+                        </form>
+                        
+                        <a href="{% url 'payments:subscription' %}" class="btn btn-outline-secondary btn-lg">
+                            <i class="fas fa-arrow-left me-2"></i>
+                            Non, garder Premium
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .bg-gradient-primary {
+        background: linear-gradient(135deg, #b8a890 0%, #7a6347 100%);
+    }
+    
+    .card {
+        border-radius: 20px;
+        overflow: hidden;
+    }
+    
+    .card-header {
+        border: none;
+    }
+    
+    .btn {
+        border-radius: 12px;
+        padding: 12px 24px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    
+    .alert {
+        border-radius: 12px;
+    }
+    
+    .list-unstyled li {
+        padding: 8px 0;
+        border-bottom: 1px solid #f8f9fa;
+    }
+    
+    .list-unstyled li:last-child {
+        border-bottom: none;
+    }
+</style>
+{% endblock %}

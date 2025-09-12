@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Routines IA - BeautyScan{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="text-center mb-4">
+                <i class="fas fa-magic"></i> Routines IA BeautyScan
+            </h1>
+            <p class="text-center text-muted">
+                Découvrez nos fonctionnalités IA avancées pour vos soins beauté
+            </p>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <!-- Assistant Beauté -->
+        <div class="col-md-6 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="fas fa-spa fa-3x text-primary mb-3"></i>
+                    <h5 class="card-title">Assistant Beauté</h5>
+                    <p class="card-text">
+                        Générez des routines personnalisées avec notre IA spécialisée en cosmétiques.
+                    </p>
+                    <a href="{% url 'ai_routines:beauty_assistant' %}" class="btn btn-primary">
+                        <i class="fas fa-arrow-right"></i> Commencer
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analyse de Produits -->
+        <div class="col-md-6 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="fas fa-microscope fa-3x text-success mb-3"></i>
+                    <h5 class="card-title">Analyse de Produits</h5>
+                    <p class="card-text">
+                        Analysez les ingrédients de vos produits et obtenez des conseils personnalisés.
+                    </p>
+                    <a href="{% url 'ai_routines:product_analysis' %}" class="btn btn-success">
+                        <i class="fas fa-arrow-right"></i> Analyser
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statut des Services -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-server"></i> Statut des Services
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-check-circle text-success me-2"></i>
+                                <span>Frontend Django</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-spinner fa-spin text-warning me-2" id="backend-status-icon"></i>
+                                <span id="backend-status-text">Vérification du backend...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Vérification du statut du backend
+document.addEventListener('DOMContentLoaded', function() {
+    checkBackendStatus();
+});
+
+function checkBackendStatus() {
+    fetch('{% url "ai_routines:health_check" %}')
+        .then(response => response.json())
+        .then(data => {
+            const icon = document.getElementById('backend-status-icon');
+            const text = document.getElementById('backend-status-text');
+            
+            if (data.status === 'healthy') {
+                icon.className = 'fas fa-check-circle text-success me-2';
+                text.textContent = 'API Intégrée';
+            } else {
+                icon.className = 'fas fa-times-circle text-danger me-2';
+                text.textContent = 'Backend indisponible';
+            }
+        })
+        .catch(error => {
+            const icon = document.getElementById('backend-status-icon');
+            const text = document.getElementById('backend-status-text');
+            icon.className = 'fas fa-times-circle text-danger me-2';
+            text.textContent = 'Erreur de connexion';
+        });
+}
+</script>
+{% endblock %}

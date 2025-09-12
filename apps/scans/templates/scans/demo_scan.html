@@ -1,0 +1,736 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load scan_extras %}
+
+{% block title %}Scanner - BeautyScan{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/scans/demo_scan.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="mb-2">
+                        <i class="fas fa-qrcode text-primary"></i> {{ demo_title }}
+                    </h1>
+                    <p class="text-muted mb-0">{{ demo_subtitle }}</p>
+                </div>
+                {% if user.is_authenticated %}
+                <div>
+                    <a href="{% url 'scans:scan_list' %}" class="btn btn-outline-primary">
+                        <i class="fas fa-history me-2"></i>Historique des Scans
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Formulaire manuel -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-keyboard"></i> Saisie Manuelle
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" novalidate id="scan-form">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="barcode" class="form-label">Code-barres</label>
+                            <input type="text" name="barcode" id="barcode" class="form-control" placeholder="Entrez le code-barres..." required>
+                        </div>
+                        <button type="submit" class="btn btn-primary" id="submit-btn">
+                            <i class="fas fa-search"></i> Analyser
+                        </button>
+                    </form>
+                    
+                                         {% if error %}
+                         <div class="alert alert-danger mt-3">
+                             <i class="fas fa-exclamation-triangle"></i> {{ error }}
+                         </div>
+                     {% endif %}
+                     
+                     <!-- Barre de progression du scan -->
+                     <div id="scan-progress" class="mt-3" style="display: none;">
+                         <div class="progress" style="height: 8px;">
+                             <div id="progress-bar" class="progress-bar progress-bar-striped progress-bar-animated" 
+                                  role="progressbar" style="width: 0%" 
+                                  aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                             </div>
+                         </div>
+                         <div class="progress-steps mt-2">
+                             <small class="text-muted">
+                                 <i class="fas fa-spinner fa-spin me-2"></i>
+                                 <span id="current-step">Recherche du produit...</span>
+                             </small>
+                         </div>
+                     </div>
+                 </div>
+            </div>
+        </div>
+
+        <!-- Scanner -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-camera"></i> Scanner
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <div class="btn-group w-100" role="group">
+                            <button id="start-scan" class="btn btn-success">
+                                <i class="fas fa-play"></i> Démarrer
+                            </button>
+                            <button id="stop-scan" class="btn btn-danger" disabled>
+                                <i class="fas fa-stop"></i> Arrêter
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center">
+                        <video id="video-preview" style="width:100%; max-height:320px; background:#000; border-radius: 8px;" muted playsinline autoplay></video>
+                    </div>
+                    
+                    <div id="scan-status" class="mt-3">
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i> 
+                            <span id="status-text">Cliquez sur "Démarrer" pour commencer le scan</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Résultat du produit -->
+    {% if product %}
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-box"></i> Résultat de l'Analyse
+                        {% if found_in_db %}
+                            <span class="badge bg-success ms-2">Base de données</span>
+                        {% elif found_in_api %}
+                            <span class="badge bg-info ms-2">API OpenBeautyFacts</span>
+                        {% endif %}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% if product.image_url %}
+                        <div class="col-md-4 text-center">
+                            <img src="{{ product.image_url }}" alt="{{ product.name }}" 
+                                 class="img-fluid rounded" style="max-height: 300px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                        </div>
+                        {% endif %}
+                        
+                        <div class="col-md-{% if product.image_url %}8{% else %}12{% endif %}">
+                            <h3>{{ product.name|default:"Produit inconnu" }}</h3>
+                            
+                            {% if product.brand %}
+                            <p><strong>Marque :</strong> {{ product.brand }}</p>
+                            {% endif %}
+                            
+                            {% if product.barcode %}
+                            <p><strong>Code-barres :</strong> {{ product.barcode }}</p>
+                            {% endif %}
+                            
+                            <!-- Score Global Enhanced -->
+                            {% if enhanced_analysis and enhanced_analysis.score_produit is not None %}
+                            <div class="mt-3">
+                                <h5>
+                                    <i class="fas fa-star me-2"></i>Score de sécurité
+                                </h5>
+                                <div class="d-flex align-items-center mb-2">
+                                    <div class="score-bar-container">
+                                        <div class="score-display-simple">
+                                            <span class="score-number score-{% if enhanced_analysis.score_produit >= 50 %}excellent{% elif enhanced_analysis.score_produit >= 25 %}moderate{% else %}poor{% endif %}">{{ enhanced_analysis.score_produit }}/100</span>
+                                            <span class="score-emoji score-{% if enhanced_analysis.score_produit >= 50 %}excellent{% elif enhanced_analysis.score_produit >= 25 %}moderate{% else %}poor{% endif %}">{% if enhanced_analysis.score_produit >= 50 %}🟢{% elif enhanced_analysis.score_produit >= 25 %}🟠{% else %}🔴{% endif %}</span>
+                                            <span class="score-label score-{% if enhanced_analysis.score_produit >= 50 %}excellent{% elif enhanced_analysis.score_produit >= 25 %}moderate{% else %}poor{% endif %}">{{ enhanced_analysis.notation }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <small class="text-muted">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Score calculé avec analyse H-codes et données PubChem ({{ enhanced_analysis.score_type }})
+                                </small>
+                            </div>
+                            {% elif safety_score is not None and product.ingredients_text %}
+                            <div class="mt-3">
+                                <h5>
+                                    <i class="fas fa-star me-2"></i>Score de sécurité
+                                </h5>
+                                <div class="d-flex align-items-center mb-2">
+                                    <span class="badge bg-info me-2">📊 Score: {{ safety_score }}/100</span>
+                                </div>
+                                <small class="text-muted">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Analyse basique disponible
+                                </small>
+                            </div>
+                            {% elif not product.ingredients_text %}
+                            <div class="mt-3">
+                                <p class="text-muted">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Aucun score disponible - informations d'ingrédients manquantes
+                                </p>
+                            </div>
+                            {% else %}
+                            <div class="mt-3">
+                                <p class="text-muted">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Analyse de sécurité en cours...
+                                </p>
+                            </div>
+                            {% endif %}
+                            
+                            {% if product.description %}
+                            <p class="mt-3"><strong>Description :</strong> {{ product.description }}</p>
+                            {% endif %}
+                            
+                            <h5 class="mt-4">Ingrédients</h5>
+                            {% if product.ingredients_text %}
+                            <div class="bg-light p-3 rounded">
+                                <pre style="white-space: pre-line; margin: 0; font-family: inherit;">{{ product.ingredients_text }}</pre>
+                            </div>
+                            {% else %}
+                            <p class="text-muted">Pas d'informations sur les ingrédients disponibles.</p>
+                            {% endif %}
+
+                            <!-- Analyse détaillée des ingrédients avec système à deux niveaux -->
+                            {% if enhanced_analysis and enhanced_analysis.details_ingredients %}
+                            <h5 class="mt-4">
+                                <i class="fas fa-microscope me-2"></i>Analyse de sécurité détaillée
+                            </h5>
+                            <div class="row">
+                                {% for detail in enhanced_analysis.details_ingredients %}
+                                <div class="col-md-6 mb-3">
+                                    <div class="card h-100">
+                                        <div class="card-body">
+                                            <h6 class="card-title">
+                                                {{ detail.ingredient }}
+                                                <span class="badge bg-{% if detail.score_ingrédient >= 90 %}success{% elif detail.score_ingrédient >= 60 %}warning{% else %}danger{% endif %} ms-2">
+                                                    {{ detail.score_ingrédient }}/100
+                                                </span>
+                                            </h6>
+
+                                            <!-- Niveau 1: Affichage simple des catégories de dangers -->
+                                            {% if detail.H_codes_info and detail.H_codes_info.items %}
+                                            <div class="mb-2">
+                                                <small class="text-muted d-block mb-1">Dangers identifiés:</small>
+                                                {% for category, info in detail.H_codes_info.items %}
+                                                <button type="button"
+                                                        class="btn btn-sm btn-outline-{% if info.color == 'red' %}danger{% elif info.color == 'orange' %}warning{% else %}success{% endif %} me-1 mb-1"
+                                                        onclick="showHCodeDetails('{{ detail.ingredient|escapejs }}', '{{ category|escapejs }}', JSON.parse('{{ info.details|to_json|escapejs }}'))">
+                                                    {% if info.color == 'red' %}🔴{% elif info.color == 'orange' %}🟠{% else %}🟢{% endif %}
+                                                    {{ category }} ({{ info.count }})
+                                                </button>
+                                                {% endfor %}
+                                            </div>
+                                            {% else %}
+                                            <div class="mb-2">
+                                                <small class="text-success">
+                                                    <i class="fas fa-check-circle me-1"></i>Aucun danger identifié
+                                                </small>
+                                            </div>
+                                            {% endif %}
+
+                                            <small class="text-muted">
+                                                <i class="fas fa-database me-1"></i>Source: {{ detail.source }}
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Avantages du compte - Affiché uniquement pour les utilisateurs non connectés -->
+    {% if show_account_benefits %}
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card bg-light">
+                <div class="card-body">
+                    <h5 class="card-title text-center">
+                        <i class="fas fa-star text-warning"></i> Pourquoi créer un compte ?
+                    </h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="text-center mb-3">
+                                <h6 class="text-primary mb-2">
+                                    <i class="fas fa-user me-2"></i>Compte standard
+                                </h6>
+                                <div class="border rounded p-3 bg-white">
+                                    <i class="fas fa-history fa-2x text-primary mb-2"></i>
+                                    <h6 class="mt-2">Historique des scans</h6>
+                                    <p class="text-muted small">Sauvegardez et consultez tous vos scans précédents pour un suivi complet</p>
+                                </div>
+                            </div>
+                        </div>
+ 
+                        <div class="col-md-6">
+                            <div class="text-center mb-3">
+                                <h6 class="text-warning mb-2">
+                                    <i class="fas fa-crown me-2"></i>Compte premium
+                                </h6>
+                                <div class="border rounded p-3 bg-white">
+                                    <i class="fas fa-robot fa-2x text-info mb-2"></i>
+                                    <h6 class="mt-2">Assistant IA</h6>
+                                    <p class="text-muted small">Conseils et recommandations personnalisés et adaptés</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-md-6 text-center">
+                            <a href="{% url 'accounts:signup' %}" class="btn btn-primary">
+                                <i class="fas fa-user-plus"></i> Créer un compte gratuit
+                            </a>
+                        </div>
+                        <div class="col-md-6 text-center">
+                            <a href="{% url 'payments:subscription' %}" class="btn btn-warning">
+                                <i class="fas fa-crown"></i> Découvrir Premium
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Modal pour affichage détaillé des dangers (Niveau 2) -->
+    <div class="modal fade" id="dangerDetailsModal" tabindex="-1" aria-labelledby="dangerDetailsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="dangerDetailsModalLabel">
+                        <i class="fas fa-exclamation-triangle text-warning me-2"></i>
+                        Détails des dangers - <span id="modalIngredientName"></span>
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <h6>Catégorie: <span id="modalCategoryName" class="badge"></span></h6>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th><i class="fas fa-exclamation-triangle me-2"></i>H-code</th>
+                                    <th><i class="fas fa-tag me-2"></i>Classe GHS</th>
+                                    <th><i class="fas fa-layer-group me-2"></i>Catégorie</th>
+                                    <th><i class="fas fa-info-circle me-2"></i>Description du risque</th>
+                                    <th><i class="fas fa-weight-hanging me-2"></i>Poids</th>
+                                </tr>
+                            </thead>
+                            <tbody id="modalDangerDetails">
+                                <!-- Contenu dynamique -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://unpkg.com/@zxing/library@0.21.2/umd/index.min.js"></script>
+<script>
+(function() {
+    const startBtn = document.getElementById('start-scan');
+    const stopBtn = document.getElementById('stop-scan');
+    const videoElem = document.getElementById('video-preview');
+    const statusText = document.getElementById('status-text');
+    const barcodeInput = document.getElementById('barcode');
+    
+    function setStatus(msg, type = 'info') {
+        console.log('Status:', msg);
+        const statusDiv = document.getElementById('scan-status');
+        const iconClass = type === 'error' ? 'fa-exclamation-triangle' : 
+                         type === 'success' ? 'fa-check-circle' : 'fa-info-circle';
+        const alertClass = type === 'error' ? 'alert-danger' : 
+                          type === 'success' ? 'alert-success' : 'alert-info';
+        
+        statusDiv.innerHTML = `
+            <div class="alert ${alertClass}">
+                <i class="fas ${iconClass}"></i> 
+                <span id="status-text">${msg}</span>
+            </div>
+        `;
+    }
+
+    // Vérifier si la bibliothèque ZXing est chargée
+    const ZX = window.ZXing || (typeof ZXing !== 'undefined' ? ZXing : null);
+    if (!ZX || !ZX.BrowserMultiFormatReader) {
+        setStatus('Librairie de scan non chargée. Vérifiez votre connexion Internet.', 'error');
+        if (startBtn) startBtn.disabled = true;
+        return;
+    }
+
+    const codeReader = new ZX.BrowserMultiFormatReader();
+    let currentDeviceId = null;
+    let running = false;
+
+    async function listCameras() {
+        try {
+            const devices = await codeReader.listVideoInputDevices();
+            if (!devices || devices.length === 0) {
+                setStatus('Aucun périphérique vidéo détecté.', 'error');
+                startBtn.disabled = true;
+                return [];
+            }
+            return devices;
+        } catch (err) {
+            console.error('Erreur liste périphériques:', err);
+            setStatus('Erreur d\'accès aux périphériques: ' + (err.message || err), 'error');
+            return [];
+        }
+    }
+
+    function configureCamera(devices) {
+        if (devices && devices.length > 0) {
+            const backCamera = devices.find(device => 
+                /back|rear|arrière|environment/gi.test(device.label || '')
+            );
+            currentDeviceId = backCamera ? backCamera.deviceId : devices[0].deviceId;
+        }
+    }
+
+    async function startScan() {
+        if (running) return;
+        
+        setStatus('Initialisation du scanner...', 'info');
+        startBtn.disabled = true;
+        stopBtn.disabled = false;
+        running = true;
+        
+        try {
+            const constraints = currentDeviceId 
+                ? { deviceId: { exact: currentDeviceId } }
+                : { facingMode: 'environment' };
+            
+            const stream = await navigator.mediaDevices.getUserMedia({
+                video: constraints,
+                audio: false
+            });
+            
+            videoElem.srcObject = stream;
+            await videoElem.play();
+            
+            codeReader.decodeFromVideoDevice(currentDeviceId, videoElem, (result, err) => {
+                if (result) {
+                    handleResult(result);
+                }
+                if (err && !(err instanceof ZX.NotFoundException)) {
+                    console.error('Erreur scan:', err);
+                    setStatus('Erreur: ' + (err.message || err), 'error');
+                }
+            });
+            
+            setStatus('Recherche de code-barres...', 'info');
+            
+        } catch (err) {
+            console.error('Erreur démarrage scan:', err);
+            setStatus('Erreur: ' + (err.message || err), 'error');
+            stopScan();
+        }
+    }
+
+    function stopScan() {
+        if (!running) return;
+        
+        try {
+            codeReader.reset();
+            if (videoElem.srcObject) {
+                const tracks = videoElem.srcObject.getTracks();
+                tracks.forEach(track => track.stop());
+                videoElem.srcObject = null;
+            }
+        } catch (err) {
+            console.error('Erreur arrêt scan:', err);
+        } finally {
+            running = false;
+            startBtn.disabled = false;
+            stopBtn.disabled = true;
+            setStatus('Scanner arrêté. Cliquez sur "Démarrer" pour recommencer.', 'info');
+        }
+    }
+
+    function handleResult(result) {
+        if (!result || !result.text) return;
+        
+        console.log('Code-barres détecté:', result.text);
+        setStatus('Code détecté: ' + result.text, 'success');
+        
+        if (barcodeInput && barcodeInput.form) {
+            barcodeInput.value = result.text;
+            
+            // Démarrer la barre de progression
+            startProgressBar();
+            
+            // Désactiver le bouton de soumission
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Analyse en cours...';
+            }
+            
+            setTimeout(() => {
+                stopScan();
+                barcodeInput.form.submit();
+            }, 1000);
+        }
+    }
+
+    startBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        startScan();
+    });
+    
+    stopBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        stopScan();
+    });
+    
+    // Gestion de la soumission du formulaire avec barre de progression
+    const scanForm = document.getElementById('scan-form');
+    const submitBtn = document.getElementById('submit-btn');
+    
+    scanForm.addEventListener('submit', function(e) {
+        // Démarrer la barre de progression
+        startProgressBar();
+        
+        // Désactiver le bouton de soumission
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Analyse en cours...';
+        
+        // Le formulaire se soumet normalement
+    });
+
+    // =============================================================================
+    // GESTION DE LA BARRE DE PROGRESSION
+    // =============================================================================
+    
+    let progressInterval;
+    let currentProgress = 0;
+    
+    /**
+     * Affiche et démarre la barre de progression
+     */
+         function startProgressBar() {
+         const progressDiv = document.getElementById('scan-progress');
+         const progressBar = document.getElementById('progress-bar');
+         const currentStep = document.getElementById('current-step');
+        
+        // Afficher la barre de progression
+        progressDiv.style.display = 'block';
+        progressDiv.classList.add('show');
+        
+        // Réinitialiser la progression
+        currentProgress = 0;
+        progressBar.style.width = '0%';
+        progressBar.setAttribute('aria-valuenow', '0');
+        
+        // Démarrer l'animation de progression
+        progressInterval = setInterval(() => {
+            if (currentProgress < 90) {
+                currentProgress += Math.random() * 15 + 5; // Progression aléatoire entre 5-20%
+                currentProgress = Math.min(currentProgress, 90); // Ne pas dépasser 90%
+                
+                progressBar.style.width = currentProgress + '%';
+                progressBar.setAttribute('aria-valuenow', Math.round(currentProgress));
+                
+                // Mettre à jour le texte de progression
+                if (currentProgress < 30) {
+                    currentStep.textContent = 'Recherche du produit...';
+                } else if (currentProgress < 60) {
+                    currentStep.textContent = 'Vérification des ingrédients...';
+                } else {
+                    currentStep.textContent = 'Calcul du score de sécurité...';
+                }
+            }
+        }, 800);
+    }
+    
+    /**
+     * Termine la barre de progression
+     */
+         function completeProgressBar() {
+         const progressBar = document.getElementById('progress-bar');
+         const currentStep = document.getElementById('current-step');
+        
+        // Arrêter l'intervalle
+        if (progressInterval) {
+            clearInterval(progressInterval);
+        }
+        
+        // Terminer la progression à 100%
+        currentProgress = 100;
+        progressBar.style.width = '100%';
+        progressBar.setAttribute('aria-valuenow', '100');
+        
+                 // Mettre à jour le texte final
+         currentStep.textContent = 'Résultats disponibles';
+        
+        // Masquer la barre après 2 secondes
+        setTimeout(() => {
+            const progressDiv = document.getElementById('scan-progress');
+            progressDiv.classList.remove('show');
+            setTimeout(() => {
+                progressDiv.style.display = 'none';
+            }, 500);
+        }, 2000);
+    }
+    
+    /**
+     * Masque la barre de progression en cas d'erreur
+     */
+    function hideProgressBar() {
+        if (progressInterval) {
+            clearInterval(progressInterval);
+        }
+        
+        const progressDiv = document.getElementById('scan-progress');
+        progressDiv.classList.remove('show');
+        setTimeout(() => {
+            progressDiv.style.display = 'none';
+        }, 500);
+    }
+
+    async function init() {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            setStatus('Votre navigateur ne supporte pas l\'accès aux périphériques vidéo.', 'error');
+            startBtn.disabled = true;
+            return;
+        }
+        
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            stream.getTracks().forEach(track => track.stop());
+            
+            const devices = await listCameras();
+            if (devices.length > 0) {
+                configureCamera(devices);
+                startBtn.disabled = false;
+                setStatus('Scanner prêt. Cliquez sur "Démarrer" pour commencer.', 'info');
+            }
+        } catch (err) {
+            console.error('Erreur initialisation:', err);
+            setStatus('Erreur d\'accès au périphérique vidéo: ' + (err.message || err), 'error');
+            startBtn.disabled = true;
+        }
+    }
+    
+    // Masquer la barre de progression si on a des résultats
+    if (document.querySelector('.card-body h3')) {
+        hideProgressBar();
+    }
+    
+    init();
+})();
+
+// Fonction pour afficher les détails des dangers
+function showDangerDetails(ingredientName, categoryName, categoryInfo) {
+    document.getElementById('modalIngredientName').textContent = ingredientName;
+
+    const categoryBadge = document.getElementById('modalCategoryName');
+    categoryBadge.textContent = categoryName;
+    categoryBadge.className = 'badge bg-' +
+        (categoryInfo.color === 'red' ? 'danger' :
+         categoryInfo.color === 'orange' ? 'warning' : 'success');
+
+    const tbody = document.getElementById('modalDangerDetails');
+    tbody.innerHTML = '';
+
+    if (categoryInfo.details && categoryInfo.details.length > 0) {
+        categoryInfo.details.forEach(detail => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td><strong>${detail.code}</strong></td>
+                <td>${detail.ghs_class}</td>
+                <td>${detail.category}</td>
+                <td>${detail.description}</td>
+                <td>${detail.weight}</td>
+            `;
+            tbody.appendChild(row);
+        });
+    } else {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td colspan="5" class="text-center text-muted">
+                <i class="fas fa-info-circle me-1"></i>
+                Aucun détail disponible pour cette catégorie
+            </td>
+        `;
+        tbody.appendChild(row);
+    }
+
+    const modal = new bootstrap.Modal(document.getElementById('dangerDetailsModal'));
+    modal.show();
+}
+
+// Fonction pour afficher les H-codes
+function showHCodeDetails(ingredientName, category, hCodesData) {
+    console.log('showHCodeDetails called with:', { ingredientName, category, hCodesData });
+    
+    document.getElementById('modalIngredientName').textContent = ingredientName;
+    
+    const categoryBadge = document.getElementById('modalCategoryName');
+    categoryBadge.textContent = category;
+    categoryBadge.className = 'badge ' + (category === 'Santé' ? 'bg-danger' : category === 'Physique' ? 'bg-warning' : 'bg-info');
+
+    const tbody = document.getElementById('modalDangerDetails');
+    tbody.innerHTML = '';
+
+    if (Array.isArray(hCodesData) && hCodesData.length > 0) {
+        hCodesData.forEach(detail => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td><strong>${detail.code || ''}</strong></td>
+                <td>${detail.ghs_class || ''}</td>
+                <td>${detail.category || ''}</td>
+                <td>${detail.description || ''}</td>
+                <td>${detail.weight || ''}</td>
+            `;
+            tbody.appendChild(row);
+        });
+    } else {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td colspan="5" class="text-center text-muted">
+                <i class="fas fa-info-circle me-1"></i>
+                Aucun détail disponible pour cette catégorie
+            </td>
+        `;
+        tbody.appendChild(row);
+    }
+
+    const modal = new bootstrap.Modal(document.getElementById('dangerDetailsModal'));
+    modal.show();
+}
+</script>
+{% endblock %}

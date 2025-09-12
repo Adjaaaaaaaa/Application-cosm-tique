@@ -1,0 +1,169 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Paiement PayPal - BeautyScan Premium{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-primary text-white text-center py-4">
+                    <h2 class="mb-0">
+                        <i class="fab fa-paypal me-3"></i>Paiement PayPal
+                    </h2>
+                    <p class="mb-0 mt-2">Paiement sécurisé pour votre abonnement Premium</p>
+                </div>
+                
+                <div class="card-body p-5">
+                    <!-- Informations de paiement -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="payment-info-card">
+                                <h4 class="text-primary mb-3">
+                                    <i class="fas fa-info-circle me-2"></i>Détails de l'abonnement
+                                </h4>
+                                <div class="info-item">
+                                    <span class="label">Plan :</span>
+                                    <span class="value">Premium</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="label">Prix :</span>
+                                    <span class="value">{{ payment_amount }}€ / {{ payment_period }}</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="label">Devise :</span>
+                                    <span class="value">{{ payment_currency }}</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="label">Utilisateur :</span>
+                                    <span class="value">{{ user_profile.user.username }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="features-card">
+                                <h4 class="text-success mb-3">
+                                    <i class="fas fa-star me-2"></i>Fonctionnalités Premium
+                                </h4>
+                                <ul class="feature-list">
+                                    <li><i class="fas fa-comments text-primary me-2"></i>Conseils personnalisés</li>
+                                    <li><i class="fas fa-magic text-warning me-2"></i>Routines personnalisées</li>
+                                    <li><i class="fas fa-chart-line text-info me-2"></i>Analyses avancées</li>
+                                    <li><i class="fas fa-shield-alt text-success me-2"></i>Alertes de sécurité</li>
+                                    <li><i class="fas fa-lightbulb text-warning me-2"></i>Recommandations intelligentes</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Options de paiement -->
+                    <div class="payment-options mb-4">
+                        <h4 class="text-center mb-4">
+                            <i class="fas fa-credit-card me-2"></i>Choisissez votre méthode de paiement
+                        </h4>
+                        
+                        <div class="row justify-content-center">
+                            <!-- Option PayPal -->
+                            <div class="col-md-6 mb-3">
+                                <div class="payment-option-card active" onclick="selectPaymentMethod('paypal')">
+                                    <div class="payment-option-header">
+                                        <i class="fab fa-paypal fa-2x text-primary"></i>
+                                        <h5 class="mb-0">PayPal</h5>
+                                    </div>
+                                    <p class="text-muted mb-0">Paiement sécurisé et rapide</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Option Carte bancaire (à venir) -->
+                            <div class="col-md-6 mb-3">
+                                <div class="payment-option-card disabled" onclick="showComingSoon()">
+                                    <div class="payment-option-header">
+                                        <i class="fas fa-credit-card fa-2x text-muted"></i>
+                                        <h5 class="mb-0">Carte bancaire</h5>
+                                        <span class="badge bg-warning text-dark">Bientôt disponible</span>
+                                    </div>
+                                    <p class="text-muted mb-0">Paiement par carte à venir</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Bouton de paiement -->
+                    <div class="text-center mb-4">
+                        <div class="paypal-button-container">
+                            <form method="post" action="{% url 'payments:paypal_payment' %}">
+                                {% csrf_token %}
+                                <button type="submit" id="paymentButton" class="btn btn-paypal btn-lg">
+                                    <i class="fab fa-paypal me-3"></i>
+                                    Payer {{ payment_amount }}€ avec PayPal
+                                </button>
+                            </form>
+                        </div>
+                        <p class="text-muted mt-2">
+                            <i class="fas fa-lock me-1"></i>
+                            Vous serez redirigé vers PayPal pour un paiement sécurisé
+                        </p>
+                    </div>
+                    
+                    <!-- Informations de sécurité -->
+                    <div class="security-info">
+                        <div class="row">
+                            <div class="col-md-4 text-center">
+                                <i class="fas fa-shield-alt text-success fa-2x mb-2"></i>
+                                <h6>Paiement Sécurisé</h6>
+                                <small class="text-muted">SSL 256-bit</small>
+                            </div>
+                            <div class="col-md-4 text-center">
+                                <i class="fas fa-undo text-info fa-2x mb-2"></i>
+                                <h6>Annulation Gratuite</h6>
+                                <small class="text-muted">À tout moment</small>
+                            </div>
+                            <div class="col-md-4 text-center">
+                                <i class="fas fa-headset text-warning fa-2x mb-2"></i>
+                                <h6>Support 24/7</h6>
+                                <small class="text-muted">Assistance Premium</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Liens alternatifs -->
+                    <div class="text-center mt-4">
+                        <a href="{% url 'payments:subscription' %}" class="btn btn-outline-secondary me-2">
+                            <i class="fas fa-arrow-left me-1"></i>Retour
+                        </a>
+                        <a href="{% url 'accounts:home' %}" class="btn btn-outline-primary">
+                            <i class="fas fa-home me-1"></i>Accueil
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/payments/paypal_payment.css' %}">
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function showComingSoon() {
+    // Afficher une alerte pour indiquer que la fonctionnalité arrive bientôt
+    alert('Le paiement par carte bancaire sera bientôt disponible !\n\nPour le moment, veuillez utiliser PayPal.');
+}
+
+// Gestion des erreurs
+$(document).ready(function() {
+    // En cas d'erreur de paiement, rediriger vers la page d'abonnement
+    if (window.location.search.includes('error=payment_failed')) {
+        alert('Erreur lors du paiement. Veuillez réessayer.');
+        window.location.href = "{% url 'payments:subscription' %}";
+    }
+});
+</script>
+{% endblock %}

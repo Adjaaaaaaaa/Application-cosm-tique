@@ -1,0 +1,377 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Scanner un Produit - BeautyScan{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="mb-4">
+                <i class="fas fa-qrcode text-primary"></i> Scanner un Produit
+            </h1>
+            <p class="text-muted">Scannez le code-barres de votre produit cosmétique pour l'analyser</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Formulaire manuel -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-keyboard"></i> Saisie Manuelle
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="id_barcode" class="form-label">Code-barres</label>
+                            <input type="text" name="barcode" id="id_barcode" class="form-control" placeholder="Entrez le code-barres..." required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="id_scan_type" class="form-label">Type de scan</label>
+                            <select name="scan_type" id="id_scan_type" class="form-select">
+                                <option value="barcode">Code-barres</option>
+                                <option value="manual">Saisie manuelle</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="id_notes" class="form-label">Notes (optionnel)</label>
+                            <textarea name="notes" id="id_notes" class="form-control" rows="3" placeholder="Ajoutez des notes sur ce produit..."></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search"></i> Rechercher
+                        </button>
+                    </form>
+                    
+                    {% if error %}
+                        <div class="alert alert-danger mt-3">
+                            <i class="fas fa-exclamation-triangle"></i> {{ error }}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Scanner -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-camera"></i> Scanner
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <div class="btn-group w-100" role="group">
+                            <button id="start-scan" class="btn btn-success">
+                                <i class="fas fa-play"></i> Démarrer
+                            </button>
+                            <button id="stop-scan" class="btn btn-danger" disabled>
+                                <i class="fas fa-stop"></i> Arrêter
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center">
+                        <video id="video-preview" style="width:100%; max-height:320px; background:#000; border-radius: 8px;" muted playsinline autoplay></video>
+                    </div>
+                    
+                    <div id="scan-status" class="mt-3">
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i> 
+                            <span id="status-text">Cliquez sur "Démarrer" pour commencer le scan</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Résultat du produit -->
+    {% if product %}
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-box"></i> Résultat de la Recherche
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% if product.image_url %}
+                        <div class="col-md-4 text-center">
+                            <img src="{{ product.image_url }}" alt="{{ product.name }}" 
+                                 class="img-fluid rounded" style="max-height: 300px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                        </div>
+                        {% endif %}
+                        
+                        <div class="col-md-{% if product.image_url %}8{% else %}12{% endif %}">
+                            <h3>{{ product.name|default:"Produit inconnu" }}</h3>
+                            
+                            {% if product.brands %}
+                            <p><strong>Marque :</strong> {{ product.brands }}</p>
+                            {% endif %}
+                            
+                            {% if product.quantity %}
+                            <p><strong>Quantité :</strong> {{ product.quantity }}</p>
+                            {% endif %}
+                            
+                            {% if product.barcode %}
+                            <p><strong>Code-barres :</strong> {{ product.barcode }}</p>
+                            {% endif %}
+                            
+                            <h5 class="mt-4">Ingrédients</h5>
+                            {% if product.ingredients_text %}
+                            <div class="bg-light p-3 rounded">
+                                <pre style="white-space: pre-line; margin: 0; font-family: inherit;">{{ product.ingredients_text }}</pre>
+                            </div>
+                            {% else %}
+                            <p class="text-muted">Pas d'informations sur les ingrédients disponibles.</p>
+                            {% endif %}
+                            
+                            <div class="mt-4">
+                                <a href="{% url 'scans:scan_create' %}" class="btn btn-outline-primary">
+                                    <i class="fas fa-plus"></i> Scanner un autre produit
+                                </a>
+                                <a href="{% url 'scans:dashboard' %}" class="btn btn-primary">
+                                    <i class="fas fa-chart-bar"></i> Voir le Dashboard
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    #video-preview {
+        border: 2px solid #dee2e6;
+    }
+    
+    .btn-group .btn {
+        border-radius: 0;
+    }
+    
+    .btn-group .btn:first-child {
+        border-top-left-radius: 0.375rem;
+        border-bottom-left-radius: 0.375rem;
+    }
+    
+    .btn-group .btn:last-child {
+        border-top-right-radius: 0.375rem;
+        border-bottom-right-radius: 0.375rem;
+    }
+    
+    #scan-status .alert {
+        margin-bottom: 0;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://unpkg.com/@zxing/library@0.21.2/umd/index.min.js"></script>
+<script>
+(function() {
+    const startBtn = document.getElementById('start-scan');
+    const stopBtn = document.getElementById('stop-scan');
+    const videoElem = document.getElementById('video-preview');
+    const statusText = document.getElementById('status-text');
+    const barcodeInput = document.getElementById('id_barcode');
+    
+    function setStatus(msg, type = 'info') {
+        console.log('Status:', msg);
+        const statusDiv = document.getElementById('scan-status');
+        const iconClass = type === 'error' ? 'fa-exclamation-triangle' : 
+                         type === 'success' ? 'fa-check-circle' : 'fa-info-circle';
+        const alertClass = type === 'error' ? 'alert-danger' : 
+                          type === 'success' ? 'alert-success' : 'alert-info';
+        
+        statusDiv.innerHTML = `
+            <div class="alert ${alertClass}">
+                <i class="fas ${iconClass}"></i> 
+                <span id="status-text">${msg}</span>
+            </div>
+        `;
+    }
+
+    // Vérifier si la bibliothèque ZXing est chargée
+    const ZX = window.ZXing || (typeof ZXing !== 'undefined' ? ZXing : null);
+    if (!ZX || !ZX.BrowserMultiFormatReader) {
+        setStatus('Librairie de scan non chargée. Vérifiez votre connexion Internet.', 'error');
+        if (startBtn) startBtn.disabled = true;
+        return;
+    }
+
+    const codeReader = new ZX.BrowserMultiFormatReader();
+    let currentDeviceId = null;
+    let running = false;
+
+    // Fonction pour lister les périphériques vidéo disponibles
+    async function listCameras() {
+        try {
+            const devices = await codeReader.listVideoInputDevices();
+            if (!devices || devices.length === 0) {
+                setStatus('Aucun périphérique vidéo détecté.', 'error');
+                startBtn.disabled = true;
+                return [];
+            }
+            return devices;
+        } catch (err) {
+            console.error('Erreur liste périphériques:', err);
+            setStatus('Erreur d\'accès aux périphériques: ' + (err.message || err), 'error');
+            return [];
+        }
+    }
+
+    // Configuration automatique du périphérique vidéo
+    function configureCamera(devices) {
+        if (devices && devices.length > 0) {
+            // Essayer de sélectionner le périphérique arrière par défaut
+            const backCamera = devices.find(device => 
+                /back|rear|arrière|environment/gi.test(device.label || '')
+            );
+            
+            currentDeviceId = backCamera ? backCamera.deviceId : devices[0].deviceId;
+        }
+    }
+
+    // Démarrer le scan
+    async function startScan() {
+        if (running) return;
+        
+        setStatus('Initialisation du scanner...', 'info');
+        startBtn.disabled = true;
+        stopBtn.disabled = false;
+        running = true;
+        
+        try {
+            // Si pas de deviceId spécifique, essayer de détecter automatiquement
+            const constraints = currentDeviceId 
+                ? { deviceId: { exact: currentDeviceId } }
+                : { facingMode: 'environment' };
+            
+            // Démarrer le périphérique vidéo
+            const stream = await navigator.mediaDevices.getUserMedia({
+                video: constraints,
+                audio: false
+            });
+            
+            videoElem.srcObject = stream;
+            await videoElem.play();
+            
+            // Démarrer la détection de codes-barres
+            codeReader.decodeFromVideoDevice(currentDeviceId, videoElem, (result, err) => {
+                if (result) {
+                    handleResult(result);
+                }
+                if (err && !(err instanceof ZX.NotFoundException)) {
+                    console.error('Erreur scan:', err);
+                    setStatus('Erreur: ' + (err.message || err), 'error');
+                }
+            });
+            
+            setStatus('Recherche de code-barres...', 'info');
+            
+        } catch (err) {
+            console.error('Erreur démarrage scan:', err);
+            setStatus('Erreur: ' + (err.message || err), 'error');
+            stopScan();
+        }
+    }
+
+    // Arrêter le scan
+    function stopScan() {
+        if (!running) return;
+        
+        try {
+            codeReader.reset();
+            if (videoElem.srcObject) {
+                const tracks = videoElem.srcObject.getTracks();
+                tracks.forEach(track => track.stop());
+                videoElem.srcObject = null;
+            }
+        } catch (err) {
+            console.error('Erreur arrêt scan:', err);
+        } finally {
+            running = false;
+            startBtn.disabled = false;
+            stopBtn.disabled = true;
+            setStatus('Scanner arrêté. Cliquez sur "Démarrer" pour recommencer.', 'info');
+        }
+    }
+
+    // Gérer le résultat du scan
+    function handleResult(result) {
+        if (!result || !result.text) return;
+        
+        console.log('Code-barres détecté:', result.text);
+        setStatus('Code détecté: ' + result.text, 'success');
+        
+        if (barcodeInput && barcodeInput.form) {
+            barcodeInput.value = result.text;
+            // Petit délai avant la soumission pour laisser le temps de voir le résultat
+            setTimeout(() => {
+                stopScan();
+                barcodeInput.form.submit();
+            }, 1000);
+        }
+    }
+
+    // Événements
+    startBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        startScan();
+    });
+    
+    stopBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        stopScan();
+    });
+    
+    // Initialisation
+    async function init() {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            setStatus('Votre navigateur ne supporte pas l\'accès aux périphériques vidéo.', 'error');
+            startBtn.disabled = true;
+            return;
+        }
+        
+        try {
+            // D'abord, demander la permission d'accéder au périphérique vidéo
+            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            // Libérer immédiatement le flux
+            stream.getTracks().forEach(track => track.stop());
+            
+            // Ensuite, configurer le périphérique vidéo automatiquement
+            const devices = await listCameras();
+            if (devices.length > 0) {
+                configureCamera(devices);
+                startBtn.disabled = false;
+                setStatus('Scanner prêt. Cliquez sur "Démarrer" pour commencer.', 'info');
+            }
+        } catch (err) {
+            console.error('Erreur initialisation:', err);
+            setStatus('Erreur d\'accès au périphérique vidéo: ' + (err.message || err), 'error');
+            startBtn.disabled = true;
+        }
+    }
+    
+    // Démarrer l'initialisation
+    init();
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Connexion - BeautyScan{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white text-center">
+                    <h4 class="mb-0">Connexion à votre compte</h4>
+                </div>
+                <div class="card-body p-4">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        {% if form.errors %}
+                            <div class="alert alert-danger">
+                                Nom d'utilisateur ou mot de passe incorrect. Veuillez réessayer.
+                            </div>
+                        {% endif %}
+                        
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Nom d'utilisateur ou Email</label>
+                            <input type="text" name="username" id="username" 
+                                   class="form-control form-control-custom" 
+                                   placeholder="Entrez votre nom d'utilisateur ou votre adresse email" required>
+                            <div class="form-text">Vous pouvez vous connecter avec votre nom d'utilisateur ou votre adresse email</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Mot de passe</label>
+                            <input type="password" name="password" id="password" 
+                                   class="form-control form-control-custom" 
+                                   placeholder="Entrez votre mot de passe" required>
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary-custom btn-lg">Se connecter</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="card-footer text-center">
+                    <p class="mb-0">Pas encore de compte ? <a href="{% url 'accounts:signup' %}">S'inscrire ici</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/accounts/login.css' %}">
+{% endblock %}

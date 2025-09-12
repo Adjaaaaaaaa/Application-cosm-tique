@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+
+
+{% block title %}Ajouter une allergie - BeautyScan{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white">
+                    <h3 class="mb-0">Ajouter une allergie</h3>
+                </div>
+                <div class="card-body p-4">
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.ingredient_name.id_for_label }}" class="form-label">Nom de l'ingrédient</label>
+                            {{ form.ingredient_name }}
+                            {% if form.ingredient_name.errors %}
+                                <div class="text-danger">{{ form.ingredient_name.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.severity.id_for_label }}" class="form-label">Sévérité</label>
+                            {{ form.severity }}
+                            {% if form.severity.errors %}
+                                <div class="text-danger">{{ form.severity.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.notes.id_for_label }}" class="form-label">Notes</label>
+                            {{ form.notes }}
+                            {% if form.notes.errors %}
+                                <div class="text-danger">{{ form.notes.errors }}</div>
+                            {% endif %}
+                            <div class="form-text">Notes optionnelles sur votre allergie ou sensibilité</div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'accounts:profile' %}" class="btn btn-secondary">Annuler</a>
+                            <button type="submit" class="btn btn-success">Ajouter l'allergie</button>
+                        </div>
+                    </form>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-control, .form-select, .form-textarea {
+        border-radius: 8px;
+        border: 2px solid #E9ECEF;
+        padding: 10px 15px;
+        transition: border-color 0.3s ease;
+    }
+    
+    .form-control:focus, .form-select:focus, .form-textarea:focus {
+        border-color: #28a745;
+        box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+        outline: none;
+    }
+    
+    .btn-success {
+        background: #28a745;
+        border-color: #28a745;
+        border-radius: 8px;
+        padding: 12px 24px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-success:hover {
+        background: #218838;
+        border-color: #218838;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+    }
+    
+    .card {
+        border-radius: 16px;
+        border: none;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+    
+    .card-header {
+        border-radius: 16px 16px 0 0 !important;
+        background: #28a745 !important;
+        border: none;
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,48 @@
+{% comment %}
+Template partiel pour afficher les messages de restriction Premium.
+Ce template peut être inclus dans n'importe quelle page pour informer les utilisateurs
+qu'une fonctionnalité nécessite un accès Premium.
+{% endcomment %}
+
+{% if not is_premium_user %}
+<div class="premium-restriction-alert">
+    <div class="alert alert-warning border-warning">
+        <div class="d-flex align-items-start">
+            <div class="flex-shrink-0">
+                <i class="fas fa-crown text-warning fa-2x me-3"></i>
+            </div>
+            <div class="flex-grow-1">
+                <h5 class="alert-heading mb-2">
+                    <i class="fas fa-lock me-2"></i>Fonctionnalité Premium
+                </h5>
+                <p class="mb-3">
+                    <strong>Cette page est réservée aux utilisateurs Premium.</strong><br>
+                    Accédez à toutes les fonctionnalités avancées de BeautyScan avec un abonnement Premium.
+                </p>
+                
+                <div class="premium-features-list mb-3">
+                    <h6 class="mb-2">Fonctionnalités Premium incluses :</h6>
+                    <ul class="list-unstyled mb-0">
+                        <li><i class="fas fa-check text-success me-2"></i>Interface IA Beauté personnalisée</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Génération de routines personnalisées</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Analyse détaillée des ingrédients</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Recommandations de produits avancées</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Filtrage par budget en temps réel</li>
+                    </ul>
+                </div>
+                
+                <div class="d-flex gap-2">
+                    <a href="{% url 'payments:upgrade' %}" class="btn btn-warning">
+                        <i class="fas fa-crown me-2"></i>Passer à Premium
+                    </a>
+                    <a href="{% url 'accounts:home' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Retour à l'accueil
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endif %}

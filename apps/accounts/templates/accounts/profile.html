@@ -1,0 +1,326 @@
+{% extends 'base.html' %}
+
+
+{% block title %}Profile - BeautyScan{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">Profile</h3>
+                </div>
+                <div class="card-body p-4">
+                    
+                    <!-- Messages -->
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                    
+                    <!-- Profile Form -->
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <!-- Personal Information -->
+                        <div class="form-section mb-4">
+                            <h5><i class="fas fa-user"></i> Informations personnelles</h5>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.first_name.id_for_label }}" class="form-label">Prénom</label>
+                                    {{ form.first_name }}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.last_name.id_for_label }}" class="form-label">Nom</label>
+                                    {{ form.last_name }}
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12 mb-3">
+                                    <label for="{{ form.email.id_for_label }}" class="form-label">Adresse email</label>
+                                    {{ form.email }}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Skin Type -->
+                        <div class="form-section mb-4">
+                            <h5><i class="fas fa-user"></i> Type de peau</h5>
+                            <div class="row">
+                                {% for choice in form.skin_type %}
+                                <div class="col-md-4 mb-2">
+                                    <div class="form-check">
+                                        {{ choice.tag }}
+                                        <label class="form-check-label" for="{{ choice.id_for_label }}">
+                                            {{ choice.choice_label }}
+                                        </label>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
+                        <!-- Age Range -->
+                        <div class="form-section mb-4">
+                            <h5><i class="fas fa-birthday-cake"></i> Âge</h5>
+                            <div class="row">
+                                {% for choice in form.age_range %}
+                                <div class="col-md-4 mb-2">
+                                    <div class="form-check">
+                                        {{ choice.tag }}
+                                        <label class="form-check-label" for="{{ choice.id_for_label }}">
+                                            {{ choice.choice_label }}
+                                        </label>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
+                        <!-- Skin Concerns -->
+                        <div class="form-section mb-4">
+                            <h5><i class="fas fa-heart"></i> Problèmes de peau</h5>
+                            <div class="row">
+                                {% for choice in form.skin_concerns %}
+                                <div class="col-md-4 mb-2">
+                                    <div class="form-check">
+                                        {{ choice.tag }}
+                                        <label class="form-check-label" for="{{ choice.id_for_label }}">
+                                            {{ choice.choice_label }}
+                                        </label>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
+                        <!-- Dermatological Conditions -->
+                        <div class="form-section mb-4">
+                            <h5><i class="fas fa-stethoscope"></i> Pathologies dermatologiques connues</h5>
+                            <div class="row">
+                                {% for choice in form.dermatological_conditions %}
+                                <div class="col-md-6 mb-2">
+                                    <div class="form-check">
+                                        {{ choice.tag }}
+                                        <label class="form-check-label" for="{{ choice.id_for_label }}">
+                                            {{ choice.choice_label }}
+                                        </label>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            <div class="mt-3">
+                                <label for="{{ form.dermatological_other.id_for_label }}" class="form-label">Autre pathologie</label>
+                                {{ form.dermatological_other }}
+                            </div>
+                        </div>
+                        
+                        <!-- Allergies -->
+                        <div class="form-section mb-4">
+                            <h5><i class="fas fa-exclamation-triangle"></i> Allergies connues</h5>
+                            <div class="row">
+                                {% for choice in form.allergies %}
+                                <div class="col-md-6 mb-2">
+                                    <div class="form-check">
+                                        {{ choice.tag }}
+                                        <label class="form-check-label" for="{{ choice.id_for_label }}">
+                                            {{ choice.choice_label }}
+                                        </label>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            <div class="mt-3">
+                                <label for="{{ form.allergies_other.id_for_label }}" class="form-label">Autre allergie</label>
+                                {{ form.allergies_other }}
+                            </div>
+                        </div>
+                        
+                        <!-- Product Style -->
+                        <div class="form-section mb-4">
+                            <h5><i class="fas fa-palette"></i> Style de produits préféré</h5>
+                            <div class="row">
+                                {% for choice in form.product_style %}
+                                <div class="col-md-6 mb-2">
+                                    <div class="form-check">
+                                        {{ choice.tag }}
+                                        <label class="form-check-label" for="{{ choice.id_for_label }}">
+                                            {{ choice.choice_label }}
+                                        </label>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
+                        <!-- Routine Frequency -->
+                        <div class="form-section mb-4">
+                            <h5><i class="fas fa-clock"></i> Fréquence souhaitée de la routine</h5>
+                            <div class="row">
+                                {% for choice in form.routine_frequency %}
+                                <div class="col-md-4 mb-2">
+                                    <div class="form-check">
+                                        {{ choice.tag }}
+                                        <label class="form-check-label" for="{{ choice.id_for_label }}">
+                                            {{ choice.choice_label }}
+                                        </label>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
+                        <!-- Objectives -->
+                        <div class="form-section mb-4">
+                            <h5><i class="fas fa-bullseye"></i> Objectifs principaux</h5>
+                            <div class="row">
+                                {% for choice in form.objectives %}
+                                <div class="col-md-4 mb-2">
+                                    <div class="form-check">
+                                        {{ choice.tag }}
+                                        <label class="form-check-label" for="{{ choice.id_for_label }}">
+                                            {{ choice.choice_label }}
+                                        </label>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
+                        <!-- Budget -->
+                        <div class="form-section mb-4">
+                            <h5><i class="fas fa-euro-sign"></i> Budget mensuel</h5>
+                            <div class="row">
+                                {% for choice in form.budget %}
+                                <div class="col-md-4 mb-2">
+                                    <div class="form-check">
+                                        {{ choice.tag }}
+                                        <label class="form-check-label" for="{{ choice.id_for_label }}">
+                                            {{ choice.choice_label }}
+                                        </label>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="fas fa-save me-2"></i>Mettre à jour le profil
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <hr class="my-4">
+                    
+                    <!-- Allergies Section -->
+                    <div class="row">
+                        <div class="col-12">
+                            <h4>Allergies</h4>
+                            
+                            {% if allergies %}
+                                <div class="table-responsive">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Ingrédient</th>
+                                                <th>Sévérité</th>
+                                                <th>Notes</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for allergy in allergies %}
+                                            <tr>
+                                                <td><strong>{{ allergy.ingredient_name }}</strong></td>
+                                                <td>
+                                                    <span class="badge {% if allergy.severity == 'mild' %}bg-success{% elif allergy.severity == 'moderate' %}bg-warning{% else %}bg-danger{% endif %}">
+                                                        {% if allergy.severity == 'mild' %}Légère
+                                                        {% elif allergy.severity == 'moderate' %}Modérée
+                                                        {% else %}Sévère{% endif %}
+                                                    </span>
+                                                </td>
+                                                <td>{{ allergy.notes|default:"-" }}</td>
+                                                <td>
+                                                    <a href="{% url 'accounts:delete_allergy' allergy.id %}" 
+                                                       class="btn btn-sm btn-outline-danger"
+                                                       onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette allergie ?')">
+                                                        <i class="fas fa-trash"></i> Supprimer
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% else %}
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    Aucune allergie enregistrée pour le moment.
+                                </div>
+                            {% endif %}
+                            
+                            <div class="mt-3">
+                                <a href="{% url 'accounts:add_allergy' %}" class="btn btn-success">
+                                    <i class="fas fa-plus me-2"></i>Ajouter une allergie
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-control, .form-select {
+        border-radius: 8px;
+        border: 2px solid #E9ECEF;
+        padding: 10px 15px;
+        transition: border-color 0.3s ease;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: #2F6B72;
+        box-shadow: 0 0 0 0.2rem rgba(47, 107, 114, 0.25);
+        outline: none;
+    }
+    
+    .btn-primary {
+        background: #2F6B72;
+        border-color: #2F6B72;
+        border-radius: 8px;
+        padding: 12px 24px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-primary:hover {
+        background: #4A8A91;
+        border-color: #4A8A91;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(47, 107, 114, 0.3);
+    }
+    
+    .card {
+        border-radius: 16px;
+        border: none;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+    
+    .card-header {
+        border-radius: 16px 16px 0 0 !important;
+        background: #2F6B72 !important;
+        border: none;
+    }
+</style>
+{% endblock %}

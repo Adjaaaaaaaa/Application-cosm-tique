@@ -1,0 +1,403 @@
+{% extends 'base.html' %}
+{% load static %}
+
+
+{% block title %}{{ routine.name }} - Routine Details{% endblock %}
+
+{% block extra_css %}
+<style>
+    .routine-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 30px;
+        border-radius: 15px;
+        margin-bottom: 30px;
+    }
+    
+    .routine-steps {
+        background: white;
+        border-radius: 12px;
+        padding: 25px;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+        margin-bottom: 25px;
+    }
+    
+    .step-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 15px;
+        padding: 15px 0;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    
+    .step-item:last-child {
+        border-bottom: none;
+    }
+    
+    .step-number {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        flex-shrink: 0;
+    }
+    
+    .step-content {
+        flex: 1;
+    }
+    
+    .step-title {
+        font-weight: 600;
+        margin-bottom: 5px;
+        color: #333;
+    }
+    
+    .step-description {
+        color: #666;
+        font-size: 0.9rem;
+        line-height: 1.5;
+    }
+    
+    .step-duration {
+        color: #999;
+        font-size: 0.8rem;
+        margin-top: 5px;
+    }
+    
+    .routine-summary {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 25px;
+    }
+    
+    .summary-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+        border-bottom: 1px solid #e9ecef;
+    }
+    
+    .summary-item:last-child {
+        border-bottom: none;
+    }
+    
+    .recent-logs {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+    }
+    
+    .log-item {
+        padding: 10px 0;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    
+    .log-item:last-child {
+        border-bottom: none;
+    }
+    
+    .log-date {
+        font-weight: 600;
+        color: #333;
+    }
+    
+    .log-rating {
+        color: #ffd700;
+        margin-left: 10px;
+    }
+    
+    .log-notes {
+        color: #666;
+        font-size: 0.9rem;
+        margin-top: 5px;
+    }
+    
+    .action-buttons {
+        display: flex;
+        gap: 10px;
+        margin-top: 20px;
+    }
+    
+    .premium-badge {
+        background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+        color: #333;
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        margin-left: 10px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <!-- Routine Header -->
+            <div class="routine-header">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <h1 class="h2 mb-2">
+                            {{ routine.name }}
+                            {% if is_premium_user %}
+                                <span class="premium-badge">Premium</span>
+                            {% endif %}
+                        </h1>
+                        <p class="mb-0 opacity-75">{{ routine.description }}</p>
+                    </div>
+                    <div class="text-end">
+                        <div class="badge bg-light text-dark mb-2">
+                            {% if routine.routine_type == 'morning' %}
+                                Morning Routine
+                            {% elif routine.routine_type == 'evening' %}
+                                Evening Routine
+                            {% else %}
+                                Custom Routine
+                            {% endif %}
+                        </div>
+                        <div class="text-white-50">
+                            <small>Created {{ routine.created_at|date:"M d, Y" }}</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-lg-8">
+                    <!-- Routine Steps -->
+                    <div class="routine-steps">
+                        <h3 class="mb-4">
+                            <i class="fas fa-list-ol"></i> Routine Steps
+                        </h3>
+                        
+                        {% if routine.steps %}
+                            {% for step in routine.steps %}
+                            <div class="step-item">
+                                <div class="step-number">{{ forloop.counter }}</div>
+                                <div class="step-content">
+                                    <div class="step-title">{{ step.title }}</div>
+                                    <div class="step-description">{{ step.description }}</div>
+                                    {% if step.duration %}
+                                    <div class="step-duration">
+                                        <i class="fas fa-clock"></i> {{ step.duration }} minutes
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="text-center text-muted py-4">
+                                <i class="fas fa-info-circle fa-2x mb-3"></i>
+                                <p>No steps defined for this routine yet.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="col-lg-4">
+                    <!-- Routine Summary -->
+                    {% if summary %}
+                    <div class="routine-summary">
+                        <h4 class="mb-3">
+                            <i class="fas fa-chart-pie"></i> Summary
+                        </h4>
+                        
+                        <div class="summary-item">
+                            <span>Total Steps:</span>
+                            <strong>{{ summary.total_steps }}</strong>
+                        </div>
+                        <div class="summary-item">
+                            <span>Estimated Duration:</span>
+                            <strong>{{ summary.total_duration }} min</strong>
+                        </div>
+                        <div class="summary-item">
+                            <span>Difficulty Level:</span>
+                            <strong>{{ summary.difficulty }}</strong>
+                        </div>
+                        <div class="summary-item">
+                            <span>Skin Type:</span>
+                            <strong>{{ summary.skin_type }}</strong>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Recent Logs -->
+                    {% if recent_logs %}
+                    <div class="recent-logs">
+                        <h4 class="mb-3">
+                            <i class="fas fa-history"></i> Recent Completions
+                        </h4>
+                        
+                        {% for log in recent_logs %}
+                        <div class="log-item">
+                            <div class="log-date">
+                                {{ log.created_at|date:"M d, Y" }}
+                                {% if log.rating %}
+                                <span class="log-rating">
+                                    {% for i in "12345" %}
+                                        {% if forloop.counter <= log.rating %}
+                                            ★
+                                        {% else %}
+                                            ☆
+                                        {% endif %}
+                                    {% endfor %}
+                                </span>
+                                {% endif %}
+                            </div>
+                            {% if log.notes %}
+                            <div class="log-notes">{{ log.notes }}</div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Action Buttons -->
+                    <div class="action-buttons">
+                        <button class="btn btn-success flex-fill" onclick="logCompletion({{ routine.id }})">
+                            <i class="fas fa-check"></i> Complete Routine
+                        </button>
+                        <a href="{% url 'ai_routines:routine_list' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left"></i> Back
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Completion Modal -->
+<div class="modal fade" id="completionModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Log Routine Completion</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="completionForm">
+                    <div class="mb-3">
+                        <label class="form-label">How did it feel?</label>
+                        <div class="rating-stars">
+                            <input type="radio" name="rating" value="5" id="star5">
+                            <label for="star5">★</label>
+                            <input type="radio" name="rating" value="4" id="star4">
+                            <label for="star4">★</label>
+                            <input type="radio" name="rating" value="3" id="star3">
+                            <label for="star3">★</label>
+                            <input type="radio" name="rating" value="2" id="star2">
+                            <label for="star2">★</label>
+                            <input type="radio" name="rating" value="1" id="star1">
+                            <label for="star1">★</label>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Notes (optional)</label>
+                        <textarea class="form-control" name="notes" rows="3" 
+                                  placeholder="Comment votre peau s'est-elle sentie ? Des réactions ?"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    Cancel
+                </button>
+                <button type="button" class="btn btn-success" onclick="submitCompletion()">
+                    Log Completion
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function logCompletion(routineId) {
+    $('#completionModal').modal('show');
+}
+
+function submitCompletion() {
+    const formData = new FormData(document.getElementById('completionForm'));
+    
+    fetch(`/ai-routines/routines/{{ routine.id }}/log-completion/`, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            $('#completionModal').modal('hide');
+            showAlert('success', data.message);
+            // Reload page to show new log
+            setTimeout(() => {
+                location.reload();
+            }, 2000);
+        } else {
+            showAlert('error', data.error);
+        }
+    })
+    .catch(error => {
+        showAlert('error', 'An error occurred while logging completion.');
+    });
+}
+
+function showAlert(type, message) {
+    const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+    const alertHtml = `
+        <div class="alert ${alertClass} alert-dismissible fade show" role="alert">
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    `;
+    
+    const container = document.querySelector('.container');
+    container.insertAdjacentHTML('afterbegin', alertHtml);
+    
+    // Auto-dismiss after 5 seconds
+    setTimeout(() => {
+        const alert = document.querySelector('.alert');
+        if (alert) {
+            alert.remove();
+        }
+    }, 5000);
+}
+</script>
+
+<style>
+.rating-stars {
+    display: flex;
+    flex-direction: row-reverse;
+    gap: 5px;
+}
+
+.rating-stars input {
+    display: none;
+}
+
+.rating-stars label {
+    font-size: 1.5rem;
+    color: #ddd;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.rating-stars label:hover,
+.rating-stars label:hover ~ label,
+.rating-stars input:checked ~ label {
+    color: #ffd700;
+}
+</style>
+{% endblock %}

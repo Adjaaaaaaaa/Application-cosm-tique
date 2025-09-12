@@ -1,0 +1,345 @@
+{% extends 'base.html' %}
+
+
+{% block title %}Passer à Premium - BeautyScan{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow">
+                <div class="card-header bg-warning text-dark text-center">
+                    <h3 class="mb-0">
+                        <i class="fas fa-crown me-2"></i>Passer à Premium
+                    </h3>
+                    <p class="mb-0 mt-2"><strong>9.99€/mois</strong></p>
+                </div>
+                <div class="card-body p-4">
+                    
+                    <!-- Payment Method Selection -->
+                    <div class="mb-4">
+                        <h4 class="mb-3">
+                            <i class="fas fa-credit-card me-2"></i>Choisir la méthode de paiement
+                        </h4>
+                        
+                        <form method="post" id="payment-form">
+                            {% csrf_token %}
+                            
+                            <div class="payment-methods">
+                                <div class="payment-method-option" data-method="paypal">
+                                    <div class="payment-method-card">
+                                        <div class="payment-method-icon">
+                                            <i class="fab fa-paypal fa-2x text-primary"></i>
+                                        </div>
+                                        <div class="payment-method-info">
+                                            <h5>PayPal</h5>
+                                            <p class="text-muted mb-0">Paiement sécurisé avec PayPal</p>
+                                        </div>
+                                        <div class="payment-method-radio">
+                                            <input type="radio" name="payment_method" value="paypal" id="paypal" checked>
+                                            <label for="paypal"></label>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="payment-method-option" data-method="stripe">
+                                    <div class="payment-method-card">
+                                        <div class="payment-method-icon">
+                                            <i class="fas fa-credit-card fa-2x text-success"></i>
+                                        </div>
+                                        <div class="payment-method-info">
+                                            <h5>Carte de crédit</h5>
+                                            <p class="text-muted mb-0">Visa, Mastercard, American Express</p>
+                                        </div>
+                                        <div class="payment-method-radio">
+                                            <input type="radio" name="payment_method" value="stripe" id="stripe">
+                                            <label for="stripe"></label>
+                                        </div>
+                                    </div>
+                                    <div class="payment-method-note">
+                                        <small class="text-success">
+                                            <i class="fas fa-check-circle me-1"></i>
+                                            Paiement sécurisé avec Stripe
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Payment Summary -->
+                            <div class="payment-summary mt-4">
+                                <div class="card bg-light">
+                                    <div class="card-body">
+                                        <h5 class="mb-3">Résumé du paiement</h5>
+                                        <div class="d-flex justify-content-between mb-2">
+                                            <span>Plan Premium</span>
+                                            <span>9.99€</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between mb-2">
+                                            <span>Cycle de facturation</span>
+                                            <span>Mensuel</span>
+                                        </div>
+                                        <hr>
+                                        <div class="d-flex justify-content-between">
+                                            <strong>Total</strong>
+                                            <strong>9.99€/mois</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Terms and Conditions -->
+                            <div class="mt-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="terms" required>
+                                    <label class="form-check-label" for="terms">
+                                        J'accepte les 
+                                        <a href="#" target="_blank">Conditions d'utilisation</a> 
+                                        et la 
+                                        <a href="#" target="_blank">Politique de confidentialité</a>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <!-- Submit Button -->
+                            <div class="text-center mt-4">
+                                <button type="submit" class="btn btn-warning btn-lg px-5" id="pay-button">
+                                    <i class="fas fa-lock me-2"></i>Payer avec PayPal
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <!-- Security Notice -->
+                    <div class="mt-4">
+                        <div class="alert alert-info">
+                            <h6><i class="fas fa-shield-alt me-2"></i>Paiement sécurisé</h6>
+                            <p class="mb-0 small">Vos informations de paiement sont chiffrées et sécurisées. Nous utilisons le chiffrement SSL standard pour protéger vos données.</p>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.payment-methods {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.payment-method-option {
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.payment-method-option:hover {
+    transform: translateY(-2px);
+}
+
+.payment-method-card {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    border: 2px solid #e9ecef;
+    border-radius: 12px;
+    background: white;
+    transition: all 0.3s ease;
+}
+
+.payment-method-option.selected .payment-method-card {
+    border-color: #ffc107;
+    background: #fff8e1;
+}
+
+.payment-method-icon {
+    margin-right: 1rem;
+    width: 60px;
+    text-align: center;
+}
+
+.payment-method-info {
+    flex: 1;
+}
+
+.payment-method-info h5 {
+    margin: 0;
+    font-size: 1.1rem;
+}
+
+.payment-method-info p {
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+.payment-method-radio {
+    margin-left: 1rem;
+}
+
+.payment-method-radio input[type="radio"] {
+    display: none;
+}
+
+.payment-method-radio label {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #dee2e6;
+    border-radius: 50%;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.payment-method-radio input[type="radio"]:checked + label {
+    border-color: #ffc107;
+    background: #ffc107;
+}
+
+.payment-method-radio input[type="radio"]:checked + label::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 8px;
+    height: 8px;
+    background: white;
+    border-radius: 50%;
+}
+
+.payment-method-note {
+    margin-top: 0.5rem;
+    margin-left: 4rem;
+}
+
+.payment-summary .card {
+    border: none;
+    border-radius: 12px;
+}
+
+.btn-warning {
+    background: #FFC107;
+    border-color: #FFC107;
+    color: #212529;
+    font-weight: 600;
+    border-radius: 12px;
+    padding: 12px 24px;
+    transition: all 0.3s ease;
+}
+
+.btn-warning:hover {
+    background: #FFB300;
+    border-color: #FFB300;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3);
+}
+
+.btn-warning:disabled {
+    background: #6c757d;
+    border-color: #6c757d;
+    transform: none;
+    box-shadow: none;
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const paymentOptions = document.querySelectorAll('.payment-method-option');
+    const payButton = document.getElementById('pay-button');
+    const termsCheckbox = document.getElementById('terms');
+    
+         // Handle payment method selection
+     paymentOptions.forEach(option => {
+         option.addEventListener('click', function() {
+             const method = this.dataset.method;
+             const radio = this.querySelector('input[type="radio"]');
+             
+             // Skip if disabled
+             if (radio.disabled) {
+                 return;
+             }
+             
+             // Remove selected class from all options
+             paymentOptions.forEach(opt => {
+                 opt.classList.remove('selected');
+             });
+             
+             // Add selected class to clicked option
+             this.classList.add('selected');
+             
+             // Check the radio button
+             radio.checked = true;
+             
+             // Update button text based on selected method
+             updateButtonText(method);
+         });
+     });
+     
+     // Function to update button text
+     function updateButtonText(method) {
+         const payButton = document.getElementById('pay-button');
+         if (method === 'paypal') {
+             payButton.innerHTML = '<i class="fas fa-lock me-2"></i>Payer avec PayPal';
+         } else if (method === 'stripe') {
+             payButton.innerHTML = '<i class="fas fa-credit-card me-2"></i>Payer avec Stripe';
+         }
+     }
+    
+    // Handle form submission
+    const form = document.getElementById('payment-form');
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        if (!termsCheckbox.checked) {
+            alert('Veuillez accepter les Conditions d\'utilisation et la Politique de confidentialité.');
+            return;
+        }
+        
+        const selectedMethod = document.querySelector('input[name="payment_method"]:checked').value;
+        
+        if (selectedMethod === 'paypal') {
+            // Disable button and show loading
+            payButton.disabled = true;
+            payButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Redirection vers PayPal...';
+            
+            // Redirect directly to PayPal
+            // In development: PayPal sandbox, in production: live PayPal
+            const isDev = {% if debug %}true{% else %}false{% endif %};
+            const paypalUrl = isDev 
+                ? 'https://www.sandbox.paypal.com/'
+                : 'https://www.paypal.com/';
+            
+            setTimeout(() => {
+                window.location.href = paypalUrl;
+            }, 1500);
+        } else if (selectedMethod === 'stripe') {
+            // Disable button and show loading
+            payButton.disabled = true;
+            payButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Redirection vers Stripe...';
+            
+            // Submit form to Django view for Stripe processing
+            setTimeout(() => {
+                document.getElementById('payment-form').submit();
+            }, 1500);
+        } else {
+            alert('Méthode de paiement invalide sélectionnée.');
+        }
+    });
+    
+    // Handle terms checkbox
+    termsCheckbox.addEventListener('change', function() {
+        payButton.disabled = !this.checked;
+    });
+    
+    // Initialize button state
+    payButton.disabled = !termsCheckbox.checked;
+});
+</script>
+{% endblock %}

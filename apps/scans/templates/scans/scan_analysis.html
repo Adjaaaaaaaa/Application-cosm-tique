@@ -1,0 +1,794 @@
+{% extends 'base.html' %}
+
+{% block title %}Analyse du Scan - {{ scan.product_name|default:"Produit inconnu" }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/scans/demo_scan.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'scans:dashboard' %}">Scans</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'scans:scan_detail' scan.pk %}">Détails</a></li>
+                    <li class="breadcrumb-item active">Analyse</li>
+                </ol>
+            </nav>
+            
+            <h1 class="mb-4">
+                <i class="fas fa-chart-bar"></i> Analyse du Scan
+            </h1>
+        </div>
+    </div>
+
+    {% if scan.product_name %}
+        <!-- Informations du produit -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-box"></i> Informations du Produit
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <h4>{{ scan.product_name }}</h4>
+                        <p class="text-muted">{{ scan.product_brand }}</p>
+                        
+                        <div class="row">
+                            <div class="col-6">
+                                <strong>Code-barres:</strong><br>
+                                <code>{{ scan.barcode }}</code>
+                            </div>
+                            <div class="col-6">
+                                <strong>Type:</strong><br>
+                                {{ scan.get_scan_type_display }}
+                            </div>
+                        </div>
+                        
+                        {% if scan.product_description %}
+                            <hr>
+                            <strong>Description:</strong><br>
+                            {{ scan.product_description }}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-shield-alt"></i> Score de Sécurité
+                        </h5>
+                    </div>
+                    <div class="card-body text-center">
+                        <div class="display-4 mb-3">
+                            {% if scan.product_score %}
+                                <span class="text-{% if scan.product_score >= 50 %}success{% elif scan.product_score >= 25 %}warning{% else %}danger{% endif %}">
+                                    {{ scan.product_score }}/100
+                                </span>
+                            {% else %}
+                                <span class="text-muted">Non calculé</span>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <span class="badge bg-{% if scan.product_risk_level == 'Excellent' %}success{% elif scan.product_risk_level == 'Bon' %}info{% elif scan.product_risk_level == 'Médiocre' %}warning{% elif scan.product_risk_level == 'Mauvais' %}danger{% else %}secondary{% endif %} fs-6">
+                                {{ scan.product_risk_level }}
+                            </span>
+                        </div>
+                        
+                        <button class="btn btn-primary" onclick="calculateScore()">
+                            <i class="fas fa-calculator"></i> Recalculer le Score
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% if analysis_data %}
+            <!-- Statistiques des ingrédients -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="card bg-success text-white">
+                        <div class="card-body text-center">
+                            <h3>{{ analysis_data.total_ingredients }}</h3>
+                            <p class="mb-0">Total Ingrédients</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-3">
+                    <div class="card bg-success text-white">
+                        <div class="card-body text-center">
+                            <h3>{{ analysis_data.low_risk }}</h3>
+                            <p class="mb-0">Faible Risque</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-3">
+                    <div class="card bg-warning text-white">
+                        <div class="card-body text-center">
+                            <h3>{{ analysis_data.medium_risk }}</h3>
+                            <p class="mb-0">Risque Modéré</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-3">
+                    <div class="card bg-danger text-white">
+                        <div class="card-body text-center">
+                            <h3>{{ analysis_data.high_risk }}</h3>
+                            <p class="mb-0">Haut Risque</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analyse de Sécurité Détaillée par Ingrédient -->
+            {% if analysis_data.enhanced_analysis and analysis_data.enhanced_analysis.details_ingredients %}
+            <div class="row mb-4 h-codes-section">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-exclamation-triangle"></i> Analyse de Sécurité Détaillée par Ingrédient
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <!-- Onglets par catégorie -->
+                            <ul class="nav nav-tabs mb-3 ingredient-tabs" id="ingredientTabs" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" id="all-tab" data-bs-toggle="tab" data-bs-target="#all" type="button" role="tab">
+                                        <i class="fas fa-list"></i> Tous les Ingrédients
+                                    </button>
+                                </li>
+                                {% if analysis_data.h_codes_categories.Santé %}
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="sante-tab" data-bs-toggle="tab" data-bs-target="#sante" type="button" role="tab">
+                                        <i class="fas fa-heart text-danger"></i> Santé ({{ analysis_data.h_codes_categories.Santé.count }})
+                                    </button>
+                                </li>
+                                {% endif %}
+                                {% if analysis_data.h_codes_categories.Physique %}
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="physique-tab" data-bs-toggle="tab" data-bs-target="#physique" type="button" role="tab">
+                                        <i class="fas fa-fire text-warning"></i> Physique ({{ analysis_data.h_codes_categories.Physique.count }})
+                                    </button>
+                                </li>
+                                {% endif %}
+                                {% if analysis_data.h_codes_categories.Environnement %}
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="environnement-tab" data-bs-toggle="tab" data-bs-target="#environnement" type="button" role="tab">
+                                        <i class="fas fa-leaf text-success"></i> Environnement ({{ analysis_data.h_codes_categories.Environnement.count }})
+                                    </button>
+                                </li>
+                                {% endif %}
+                            </ul>
+
+                            <!-- Contenu des onglets -->
+                            <div class="tab-content" id="ingredientTabsContent">
+                                <!-- Onglet Tous les ingrédients -->
+                                <div class="tab-pane fade show active" id="all" role="tabpanel">
+                                    <div class="row">
+                                        {% for ingredient_detail in analysis_data.enhanced_analysis.details_ingredients %}
+                                        <div class="col-md-6 mb-3">
+                                            <div class="card h-code-card">
+                                                <div class="card-header d-flex justify-content-between align-items-center">
+                                                    <h6 class="mb-0">
+                                                        <i class="fas fa-flask"></i> {{ ingredient_detail.ingredient }}
+                                                    </h6>
+                                                    <span class="badge bg-{% if ingredient_detail.score_ingrédient >= 70 %}success{% elif ingredient_detail.score_ingrédient >= 40 %}warning{% else %}danger{% endif %}">
+                                                        {{ ingredient_detail.score_ingrédient }}/100
+                                                    </span>
+                                                </div>
+                                                <div class="card-body">
+                                                    {% if ingredient_detail.H_codes %}
+                                                        <!-- Catégories de danger cliquables -->
+                                                        <div class="mb-3">
+                                                            <strong>Catégories de danger:</strong>
+                                                            <div class="mt-2">
+                                                                                                                                 {% if ingredient_detail.H_codes_info.Santé %}
+                                                                 <button class="btn btn-sm btn-outline-danger me-2 mb-2" 
+                                                                         onclick="showHCodeDetails('{{ ingredient_detail.ingredient }}', 'Santé', {{ ingredient_detail.H_codes_info.Santé.details|to_json }})">
+                                                                     <i class="fas fa-heart"></i> Santé ({{ ingredient_detail.H_codes_info.Santé.count }})
+                                                                 </button>
+                                                                 {% endif %}
+                                                                
+                                                                                                                                 {% if ingredient_detail.H_codes_info.Physique %}
+                                                                 <button class="btn btn-sm btn-outline-warning me-2 mb-2" 
+                                                                         onclick="showHCodeDetails('{{ ingredient_detail.ingredient }}', 'Physique', {{ ingredient_detail.H_codes_info.Physique.details|to_json }})">
+                                                                     <i class="fas fa-fire"></i> Physique ({{ ingredient_detail.H_codes_info.Physique.count }})
+                                                                 </button>
+                                                                 {% endif %}
+                                                                
+                                                                                                                                 {% if ingredient_detail.H_codes_info.Environnement %}
+                                                                 <button class="btn btn-sm btn-outline-success me-2 mb-2" 
+                                                                         onclick="showHCodeDetails('{{ ingredient_detail.ingredient }}', 'Environnement', {{ ingredient_detail.H_codes_info.Environnement.details|to_json }})">
+                                                                     <i class="fas fa-leaf"></i> Environnement ({{ ingredient_detail.H_codes_info.Environnement.count }})
+                                                                 </button>
+                                                                 {% endif %}
+                                                            </div>
+                                                        </div>
+                                                        
+                                                        <div class="mb-2">
+                                                            <strong>Codes H détectés:</strong>
+                                                            {% for h_code in ingredient_detail.H_codes %}
+                                                                <span class="badge bg-secondary me-1">{{ h_code }}</span>
+                                                            {% endfor %}
+                                                        </div>
+                                                        <div class="mb-2">
+                                                            <strong>Poids total:</strong> 
+                                                            <span class="badge bg-info">{{ ingredient_detail.poids }}</span>
+                                                        </div>
+                                                        <div class="mb-2">
+                                                            <strong>Source:</strong> {{ ingredient_detail.source }}
+                                                        </div>
+                                                    {% else %}
+                                                        <p class="text-muted mb-0">Aucun code H détecté - Ingrédient sûr</p>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+
+                                <!-- Onglet Santé -->
+                                {% if analysis_data.h_codes_categories.Santé %}
+                                <div class="tab-pane fade" id="sante" role="tabpanel">
+                                    <div class="row">
+                                        {% for ingredient_detail in analysis_data.enhanced_analysis.details_ingredients %}
+                                            {% if 'Santé' in ingredient_detail.H_codes_info %}
+                                            <div class="col-md-6 mb-3">
+                                                <div class="card h-code-card border-danger">
+                                                    <div class="card-header bg-danger text-white">
+                                                        <h6 class="mb-0">
+                                                            <i class="fas fa-heart"></i> {{ ingredient_detail.ingredient }}
+                                                        </h6>
+                                                    </div>
+                                                    <div class="card-body">
+                                                        <div class="mb-3">
+                                                            <strong>Score:</strong> 
+                                                            <span class="badge bg-{% if ingredient_detail.score_ingrédient >= 70 %}success{% elif ingredient_detail.score_ingrédient >= 40 %}warning{% else %}danger{% endif %}">
+                                                                {{ ingredient_detail.score_ingrédient }}/100
+                                                            </span>
+                                                        </div>
+                                                        <div class="mb-2">
+                                                            <strong>Codes H Santé:</strong>
+                                                            {% for h_code in ingredient_detail.H_codes %}
+                                                                {% if h_code|slice:":3" == "H3" %}
+                                                                <span class="badge bg-danger me-1">{{ h_code }}</span>
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                        </div>
+                                                        <div class="mb-2">
+                                                            <strong>Poids total:</strong> 
+                                                            <span class="badge bg-info">{{ ingredient_detail.poids }}</span>
+                                                        </div>
+                                                        <div class="mb-2">
+                                                            <strong>Source:</strong> {{ ingredient_detail.source }}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                {% endif %}
+
+                                <!-- Onglet Physique -->
+                                {% if analysis_data.h_codes_categories.Physique %}
+                                <div class="tab-pane fade" id="physique" role="tabpanel">
+                                    <div class="row">
+                                        {% for ingredient_detail in analysis_data.enhanced_analysis.details_ingredients %}
+                                            {% if 'Physique' in ingredient_detail.H_codes_info %}
+                                            <div class="col-md-6 mb-3">
+                                                <div class="card h-code-card border-warning">
+                                                    <div class="card-header bg-warning text-white">
+                                                        <h6 class="mb-0">
+                                                            <i class="fas fa-fire"></i> {{ ingredient_detail.ingredient }}
+                                                        </h6>
+                                                    </div>
+                                                    <div class="card-body">
+                                                        <div class="mb-3">
+                                                            <strong>Score:</strong> 
+                                                            <span class="badge bg-{% if ingredient_detail.score_ingrédient >= 70 %}success{% elif ingredient_detail.score_ingrédient >= 40 %}warning{% else %}danger{% endif %}">
+                                                                {{ ingredient_detail.score_ingrédient }}/100
+                                                            </span>
+                                                        </div>
+                                                        <div class="mb-2">
+                                                            <strong>Codes H Physique:</strong>
+                                                            {% for h_code in ingredient_detail.H_codes %}
+                                                                {% if h_code|slice:":3" == "H2" %}
+                                                                <span class="badge bg-warning me-1">{{ h_code }}</span>
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                        </div>
+                                                        <div class="mb-2">
+                                                            <strong>Poids total:</strong> 
+                                                            <span class="badge bg-info">{{ ingredient_detail.poids }}</span>
+                                                        </div>
+                                                        <div class="mb-2">
+                                                            <strong>Source:</strong> {{ ingredient_detail.source }}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                {% endif %}
+
+                                <!-- Onglet Environnement -->
+                                {% if analysis_data.h_codes_categories.Environnement %}
+                                <div class="tab-pane fade" id="environnement" role="tabpanel">
+                                    <div class="row">
+                                        {% for ingredient_detail in analysis_data.enhanced_analysis.details_ingredients %}
+                                            {% if 'Environnement' in ingredient_detail.H_codes_info %}
+                                            <div class="col-md-6 mb-3">
+                                                <div class="card h-code-card border-success">
+                                                    <div class="card-header bg-success text-white">
+                                                        <h6 class="mb-0">
+                                                            <i class="fas fa-leaf"></i> {{ ingredient_detail.ingredient }}
+                                                        </h6>
+                                                    </div>
+                                                    <div class="card-body">
+                                                        <div class="mb-3">
+                                                            <strong>Score:</strong> 
+                                                            <span class="badge bg-{% if ingredient_detail.score_ingrédient >= 70 %}success{% elif ingredient_detail.score_ingrédient >= 40 %}warning{% else %}danger{% endif %}">
+                                                                {{ ingredient_detail.score_ingrédient }}/100
+                                                            </span>
+                                                        </div>
+                                                        <div class="mb-2">
+                                                            <strong>Codes H Environnement:</strong>
+                                                            {% for h_code in ingredient_detail.H_codes %}
+                                                                {% if h_code|slice:":3" == "H4" %}
+                                                                <span class="badge bg-success me-1">{{ h_code }}</span>
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                        </div>
+                                                        <div class="mb-2">
+                                                            <strong>Poids total:</strong> 
+                                                            <span class="badge bg-info">{{ ingredient_detail.poids }}</span>
+                                                        </div>
+                                                        <div class="mb-2">
+                                                            <strong>Source:</strong> {{ ingredient_detail.source }}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Distribution des risques -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-pie-chart"></i> Distribution des Risques
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="riskChart" width="400" height="200"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-info-circle"></i> Légende
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex align-items-center mb-2">
+                                <div class="bg-success rounded me-2 risk-indicator"></div>
+                                <span>Faible Risque ({{ analysis_data.risk_distribution.Low|floatformat:1 }}%)</span>
+                            </div>
+                            <div class="d-flex align-items-center mb-2">
+                                <div class="bg-warning rounded me-2 risk-indicator"></div>
+                                <span>Risque Modéré ({{ analysis_data.risk_distribution.Medium|floatformat:1 }}%)</span>
+                            </div>
+                            <div class="d-flex align-items-center mb-2">
+                                <div class="bg-danger rounded me-2 risk-indicator"></div>
+                                <span>Haut Risque ({{ analysis_data.risk_distribution.High|floatformat:1 }}%)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Liste des ingrédients -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-list"></i> Analyse des Ingrédients
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Position</th>
+                                            <th>Ingrédient</th>
+                                            <th>Nom INCI</th>
+                                            <th>Concentration</th>
+                                            <th>Notation</th>
+                                            <th>Description</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for pi in analysis_data.ingredients %}
+                                        <tr>
+                                            <td>
+                                                <span class="badge bg-secondary">{{ pi.position }}</span>
+                                            </td>
+                                            <td>
+                                                <strong>{{ pi.ingredient.name }}</strong>
+                                            </td>
+                                            <td>
+                                                <code>{{ pi.ingredient.inci_name }}</code>
+                                            </td>
+                                            <td>
+                                                {% if pi.concentration %}
+                                                    <span class="badge bg-info">{{ pi.concentration }}</span>
+                                                {% else %}
+                                                    <span class="text-muted">-</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-{% if pi.ingredient.hazard_level == 'Excellent' %}success{% elif pi.ingredient.hazard_level == 'Bon' %}info{% elif pi.ingredient.hazard_level == 'Médiocre' %}warning{% elif pi.ingredient.hazard_level == 'Mauvais' %}danger{% else %}secondary{% endif %}">
+                                                    {{ pi.ingredient.hazard_level }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                {% if pi.ingredient.description %}
+                                                    <small>{{ pi.ingredient.description }}</small>
+                                                {% else %}
+                                                    <span class="text-muted">-</span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    {% else %}
+        <div class="row">
+            <div class="col-12">
+                <div class="alert alert-warning">
+                    <h4 class="alert-heading">
+                        <i class="fas fa-exclamation-triangle"></i> Produit non trouvé
+                    </h4>
+                    <p>Ce scan n'a pas pu être associé à un produit dans notre base de données.</p>
+                    <hr>
+                    <p class="mb-0">
+                        <strong>Code-barres scanné:</strong> {{ scan.barcode|default:"Non fourni" }}
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Exemple de démonstration des codes H -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-info-circle"></i> Exemple de Démonstration - Codes H
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="mb-3">
+                            <strong>Voici un exemple de ce que vous verrez quand vous scannerez un produit avec des ingrédients à risque :</strong>
+                        </p>
+                        
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <div class="card h-code-card border-danger">
+                                    <div class="card-header h-code-header bg-danger text-white">
+                                        <h6 class="mb-0">
+                                            <i class="fas fa-heart"></i> Santé (2)
+                                        </h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="list-group list-group-flush">
+                                            <div class="list-group-item p-3 h-code-detail">
+                                                <div class="d-flex justify-content-between align-items-start">
+                                                    <div class="flex-grow-1">
+                                                        <strong class="text-danger h-code-badge">H315</strong>
+                                                        <br>
+                                                        <small class="h-code-class">Irritation cutanée</small>
+                                                        <br>
+                                                        <small class="h-code-description">Provoque une irritation cutanée</small>
+                                                    </div>
+                                                    <div class="text-end">
+                                                        <span class="badge bg-secondary h-code-badge">Cat. 2</span>
+                                                        <br>
+                                                        <span class="badge bg-info h-code-weight">-10</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="list-group-item p-3 h-code-detail">
+                                                <div class="d-flex justify-content-between align-items-start">
+                                                    <div class="flex-grow-1">
+                                                        <strong class="text-danger h-code-badge">H319</strong>
+                                                        <br>
+                                                        <small class="h-code-class">Irritation oculaire</small>
+                                                        <br>
+                                                        <small class="h-code-description">Provoque une sévère irritation des yeux</small>
+                                                    </div>
+                                                    <div class="text-end">
+                                                        <span class="badge bg-secondary h-code-badge">Cat. 2</span>
+                                                        <br>
+                                                        <span class="badge bg-info h-code-weight">-10</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-4 mb-3">
+                                <div class="card h-code-card border-warning">
+                                    <div class="card-header h-code-header bg-warning text-white">
+                                        <h6 class="mb-0">
+                                            <i class="fas fa-fire"></i> Physique (1)
+                                        </h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="list-group list-group-flush">
+                                            <div class="list-group-item p-3 h-code-detail">
+                                                <div class="d-flex justify-content-between align-items-start">
+                                                    <div class="flex-grow-1">
+                                                        <strong class="text-warning h-code-badge">H225</strong>
+                                                        <br>
+                                                        <small class="h-code-class">Liquides inflammables</small>
+                                                        <br>
+                                                        <small class="h-code-description">Liquide et vapeurs très inflammables</small>
+                                                    </div>
+                                                    <div class="text-end">
+                                                        <span class="badge bg-secondary h-code-badge">Cat. 2</span>
+                                                        <br>
+                                                        <span class="badge bg-info h-code-weight">-35</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-4 mb-3">
+                                <div class="card h-code-card border-success">
+                                    <div class="card-header h-code-header bg-success text-white">
+                                        <h6 class="mb-0">
+                                            <i class="fas fa-leaf"></i> Environnement (1)
+                                        </h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="list-group list-group-flush">
+                                            <div class="list-group-item p-3 h-code-detail">
+                                                <div class="d-flex justify-content-between align-items-start">
+                                                    <div class="flex-grow-1">
+                                                        <strong class="text-success h-code-badge">H400</strong>
+                                                        <br>
+                                                        <small class="h-code-class">Danger aquatique aigu</small>
+                                                        <br>
+                                                        <small class="h-code-description">Très toxique pour les organismes aquatiques</small>
+                                                    </div>
+                                                    <div class="text-end">
+                                                        <span class="badge bg-secondary h-code-badge">Cat. 1</span>
+                                                        <br>
+                                                        <span class="badge bg-info h-code-weight">-20</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="alert alert-info mt-3">
+                            <h6 class="alert-heading">
+                                <i class="fas fa-lightbulb"></i> Comment lire les codes H :
+                            </h6>
+                            <ul class="mb-0">
+                                <li><strong>H-code :</strong> Code d'identification du danger (ex: H315)</li>
+                                <li><strong>Classe GHS :</strong> Classification selon le système GHS</li>
+                                <li><strong>Catégorie :</strong> Niveau de danger (1 = très dangereux, 4 = peu dangereux)</li>
+                                <li><strong>Description :</strong> Explication du risque</li>
+                                <li><strong>Poids :</strong> Impact sur le score de sécurité (plus négatif = plus dangereux)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Actions -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'scans:scan_detail' scan.pk %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Retour aux détails
+                        </a>
+                        
+                        <div>
+                            <a href="{% url 'scans:scan_list' %}" class="btn btn-outline-primary">
+                                <i class="fas fa-list"></i> Tous les scans
+                            </a>
+                            <a href="{% url 'scans:scan_create' %}" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Nouveau scan
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal pour afficher les détails des codes H -->
+<div class="modal fade" id="hCodeModal" tabindex="-1" aria-labelledby="hCodeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="hCodeModalLabel">
+                    <i class="fas fa-exclamation-triangle"></i> Détails des Codes H - <span id="ingredientName"></span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <h6 class="text-muted">Catégorie: <span id="categoryName" class="badge"></span></h6>
+                </div>
+                <div id="hCodeDetails">
+                    <!-- Les détails des codes H seront affichés ici -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Graphique de distribution des risques
+const ctx = document.getElementById('riskChart').getContext('2d');
+const riskChart = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+        labels: ['Faible Risque', 'Risque Modéré', 'Haut Risque'],
+        datasets: [{
+            data: [
+                {{ analysis_data.risk_distribution.Low|default:0 }},
+                {{ analysis_data.risk_distribution.Medium|default:0 }},
+                {{ analysis_data.risk_distribution.High|default:0 }}
+            ],
+            backgroundColor: [
+                '#28a745',
+                '#ffc107',
+                '#dc3545'
+            ],
+            borderWidth: 2,
+            borderColor: '#fff'
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: false
+            }
+        }
+    }
+});
+
+function calculateScore() {
+    // Fonction pour recalculer le score (à implémenter)
+    alert('Fonctionnalité de recalcul du score à implémenter');
+}
+
+// Fonction pour afficher les détails des codes H
+function showHCodeDetails(ingredientName, category, hCodesData) {
+    console.log('Affichage des détails pour:', ingredientName, category, hCodesData);
+    
+    // Mettre à jour le titre du modal
+    document.getElementById('ingredientName').textContent = ingredientName;
+    
+    // Mettre à jour la catégorie
+    const categoryBadge = document.getElementById('categoryName');
+    categoryBadge.textContent = category;
+    categoryBadge.className = 'badge ';
+    
+    // Appliquer la couleur selon la catégorie
+    if (category === 'Santé') {
+        categoryBadge.className += 'bg-danger';
+    } else if (category === 'Physique') {
+        categoryBadge.className += 'bg-warning';
+    } else if (category === 'Environnement') {
+        categoryBadge.className += 'bg-success';
+    }
+    
+    // Générer le contenu HTML pour les détails des codes H
+    let detailsHTML = '';
+    
+    if (hCodesData && hCodesData.length > 0) {
+        detailsHTML = '<div class="row">';
+        
+        hCodesData.forEach(hCodeInfo => {
+            detailsHTML += `
+                <div class="col-md-6 mb-3">
+                    <div class="card h-code-detail-card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0">
+                                <span class="badge bg-secondary me-2">${hCodeInfo.code}</span>
+                                ${hCodeInfo.ghs_class}
+                            </h6>
+                            <span class="badge bg-info">${hCodeInfo.weight}</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-2">
+                                <strong>Catégorie:</strong> 
+                                <span class="badge bg-secondary">${hCodeInfo.category}</span>
+                            </div>
+                            <div class="mb-2">
+                                <strong>Description:</strong>
+                                <p class="mb-0">${hCodeInfo.description}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        
+        detailsHTML += '</div>';
+    } else {
+        detailsHTML = '<div class="alert alert-info">Aucun détail disponible pour cette catégorie.</div>';
+    }
+    
+    // Mettre à jour le contenu du modal
+    document.getElementById('hCodeDetails').innerHTML = detailsHTML;
+    
+    // Afficher le modal
+    const modal = new bootstrap.Modal(document.getElementById('hCodeModal'));
+    modal.show();
+}
+</script>
+{% endblock %}

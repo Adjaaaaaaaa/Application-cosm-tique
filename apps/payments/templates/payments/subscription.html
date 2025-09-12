@@ -1,0 +1,252 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Abonnement - BeautyScan{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/payments/subscription.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow-lg border-0 premium-subscription-card">
+                <div class="card-header bg-gradient-primary text-white text-center py-5">
+                    <div class="d-flex align-items-center justify-content-center mb-3">
+                        <div class="premium-logo-container me-4">
+                            <i class="fas fa-crown premium-logo"></i>
+                        </div>
+                        <div>
+                            <h1 class="display-4 fw-bold mb-0">Choisissez votre plan</h1>
+                            <p class="lead mb-0 opacity-75">Découvrez nos offres adaptées à vos besoins</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body p-5">
+                    
+                    <!-- Current User Status -->
+                    {% if user.is_authenticated %}
+                    <div class="row mb-5">
+                        <div class="col-12">
+                            <div class="user-status-card {% if user.profile.is_premium %}premium-status{% else %}free-status{% endif %}">
+                                <div class="d-flex align-items-center">
+                                    <div class="status-icon me-4">
+                                        {% if user.profile.is_premium %}
+                                            <i class="fas fa-crown"></i>
+                                        {% else %}
+                                            <i class="fas fa-user"></i>
+                                        {% endif %}
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <h4 class="mb-2">
+                                            {% if user.profile.is_premium %}
+                                                <strong>Statut Premium Actif</strong>
+                                            {% else %}
+                                                <strong>Compte Gratuit</strong>
+                                            {% endif %}
+                                        </h4>
+                                        <p class="mb-3">
+                                            {% if user.profile.is_premium %}
+                                                Vous bénéficiez actuellement de toutes les fonctionnalités Premium avec un accès exclusif à l'intelligence artificielle.
+                                            {% else %}
+                                                Passez à Premium pour débloquer toutes les fonctionnalités avancées et l'assistant IA personnalisé.
+                                            {% endif %}
+                                        </p>
+                                        {% if user.profile.is_premium %}
+                                            <a href="{% url 'payments:downgrade' %}" class="btn btn-outline-danger">
+                                                <i class="fas fa-times me-2"></i>Annuler Premium
+                                            </a>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Plans Comparison -->
+                    <div class="row mb-5">
+                        <!-- Free Plan -->
+                        <div class="col-md-6 mb-4">
+                            <div class="plan-card free-plan {% if not user.profile.is_premium %}current-plan{% endif %}">
+                                <div class="plan-header">
+                                    <div class="plan-icon">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                    <h3 class="plan-title">Gratuit</h3>
+                                    <p class="plan-subtitle">Accès de base</p>
+                                </div>
+                                <div class="plan-body">
+                                    <div class="plan-features">
+                                        <div class="feature-item">
+                                            <i class="fas fa-check"></i>
+                                            <span><strong>Scan de produits</strong> - Analyse de codes-barres</span>
+                                        </div>
+                                        <div class="feature-item">
+                                            <i class="fas fa-check"></i>
+                                            <span><strong>Analyse d'ingrédients</strong> - Scoring de sécurité</span>
+                                        </div>
+                                        <div class="feature-item">
+                                            <i class="fas fa-check"></i>
+                                            <span><strong>Historique </strong> - Historique des scans</span>
+                                        </div>
+                                    </div>
+                                    
+                                    {% if not user.profile.is_premium %}
+                                    <div class="plan-action">
+                                        <div class="btn btn-outline-primary btn-lg disabled">
+                                            <i class="fas fa-check me-2"></i>Plan actuel
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Premium Plan -->
+                        <div class="col-md-6 mb-4">
+                            <div class="plan-card premium-plan {% if user.profile.is_premium %}current-plan{% endif %}">
+                                <div class="plan-badge">
+                                    <i class="fas fa-star"></i> Recommandé
+                                </div>
+                                <div class="plan-header">
+                                    <div class="plan-icon premium-icon">
+                                        <i class="fas fa-crown"></i>
+                                    </div>
+                                    <h3 class="plan-title">Premium</h3>
+                                    <div class="plan-price">
+                                        <span class="price-amount">9,99€</span>
+                                        <span class="price-period">/mois</span>
+                                    </div>
+                                </div>
+                                <div class="plan-body">
+                                    <div class="plan-features">
+                                        <div class="feature-item premium-feature">
+                                            <i class="fas fa-star"></i>
+                                            <span><strong>Assistant IA personnalisé</strong> - Réponses à vos questions beauté</span>
+                                        </div>
+                                        <div class="feature-item premium-feature">
+                                            <i class="fas fa-star"></i>
+                                            <span><strong>Routines sur mesure</strong> - Adaptées à votre peau et besoins</span>
+                                        </div>
+                                      
+                                        <div class="feature-item premium-feature">
+                                            <i class="fas fa-star"></i>
+                                            <span><strong>Recommandations intelligentes</strong> - Optimisation de l'efficacité</span>
+                                        </div>
+                                       
+                                    </div>
+                                    
+                                    <div class="plan-action">
+                                        {% if user.profile.is_premium %}
+                                            <div class="btn btn-success btn-lg disabled">
+                                                <i class="fas fa-crown me-2"></i>Plan actuel
+                                            </div>
+                                        {% else %}
+                                            <a href="{% url 'payments:upgrade' %}" class="btn btn-warning btn-lg">
+                                                <i class="fas fa-arrow-up me-2"></i>Passer à Premium
+                                            </a>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Additional Information -->
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="info-card">
+                                <div class="d-flex align-items-start">
+                                    <div class="info-icon">
+                                        <i class="fas fa-info-circle"></i>
+                                    </div>
+                                    <div>
+                                        <h5 class="info-title">Pourquoi choisir Premium ?</h5>
+                                        <p class="info-text">Obtenez des conseils personnalisés, des routines sur mesure et des informations avancées pour prendre des décisions éclairées sur vos produits de beauté. Notre assistant IA vous accompagne dans votre routine beauté quotidienne.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Developer Mode Information -->
+                    {% if show_dev_warnings %}
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="dev-mode-card">
+                                <div class="d-flex align-items-start">
+                                    <div class="dev-icon">
+                                        <i class="fas fa-code"></i>
+                                    </div>
+                                    <div>
+                                        <h5 class="dev-title">Mode Développeur Actif</h5>
+                                        <p class="dev-text"><strong>Le mode Premium dev est activé.</strong> Vous êtes un développeur autorisé et pouvez tester les fonctionnalités Premium.</p>
+                                        <p class="dev-note"><small>Ce mode n'est actif qu'en développement et sera désactivé en production.</small></p>
+                                        
+                                        <!-- Developer Tools -->
+                                        {% if user.is_authenticated %}
+                                        <div class="dev-tools mt-3">
+                                            <h6 class="dev-tools-title">Outils de Test</h6>
+                                            <div class="btn-group" role="group">
+                                                <form method="post" action="{% url 'payments:toggle_premium_dev' %}" class="d-inline">
+                                                    {% csrf_token %}
+                                                    <button type="submit" class="btn btn-sm btn-outline-warning">
+                                                        <i class="fas fa-sync-alt me-1"></i>
+                                                        Basculer Premium/Free
+                                                    </button>
+                                                </form>
+                                                <form method="post" action="{% url 'payments:force_premium_dev' %}" class="d-inline ms-2">
+                                                    {% csrf_token %}
+                                                    <button type="submit" class="btn btn-sm btn-outline-success">
+                                                        <i class="fas fa-crown me-1"></i>
+                                                        Forcer Premium
+                                                    </button>
+                                                </form>
+                                                <form method="post" action="{% url 'payments:force_free_dev' %}" class="d-inline ms-2">
+                                                    {% csrf_token %}
+                                                    <button type="submit" class="btn btn-sm btn-outline-secondary">
+                                                        <i class="fas fa-user me-1"></i>
+                                                        Forcer Free
+                                                    </button>
+                                                </form>
+                                            </div>
+                                            <p class="dev-tools-note mt-2">
+                                                <small>Statut actuel: <strong>{{ user_subscription_type|title }}</strong></small>
+                                            </p>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% elif is_dev_mode and is_development_environment and user.is_authenticated and not is_authorized_developer %}
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="dev-mode-card">
+                                <div class="d-flex align-items-start">
+                                    <div class="dev-icon">
+                                        <i class="fas fa-user-lock"></i>
+                                    </div>
+                                    <div>
+                                        <h5 class="dev-title">Mode Développeur Actif - Accès Limité</h5>
+                                        <p class="dev-text"><strong>Le mode Premium dev est activé mais vous n'êtes pas un développeur autorisé.</strong> Seuls les développeurs autorisés peuvent tester les fonctionnalités Premium.</p>
+                                        <p class="dev-note"><small>Contactez l'administrateur pour être ajouté à la liste des développeurs autorisés.</small></p>
+                                        <p class="dev-tools-note mt-2">
+                                            <small>Utilisateur: <strong>{{ user.username }}</strong> | Statut: <strong>{{ user_subscription_type|title }}</strong></small>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
