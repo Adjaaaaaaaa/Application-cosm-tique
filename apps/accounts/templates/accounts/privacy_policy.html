@@ -1,0 +1,289 @@
+{% extends 'base.html' %}
+
+{% block title %}Politique de Confidentialité - BeautyScan{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="mb-0"><i class="fas fa-shield-alt me-2"></i>Politique de Confidentialité</h2>
+                    <p class="mb-0 mt-2">BeautyScan - Protection de vos données personnelles</p>
+                </div>
+                <div class="card-body p-4">
+                    
+                    <div class="alert alert-info">
+                        <strong>📅 Dernière mise à jour :</strong> {{ "now"|date:"d F Y" }}
+                    </div>
+                    
+                    <div class="mb-4">
+                        <h3 class="text-primary">1. Introduction</h3>
+                        <p>
+                            BeautyScan s'engage à protéger votre vie privée et vos données personnelles. 
+                            Cette politique de confidentialité explique comment nous collectons, utilisons, 
+                            stockons et protégeons vos informations personnelles lorsque vous utilisez 
+                            notre application d'analyse de produits cosmétiques.
+                        </p>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <h3 class="text-primary">2. Données que nous collectons</h3>
+                        
+                        <h4>2.1 Informations personnelles</h4>
+                        <ul>
+                            <li><strong>Nom et prénom</strong> - Pour personnaliser votre expérience</li>
+                            <li><strong>Adresse e-mail</strong> - Pour l'authentification et la communication</li>
+                            <li><strong>Âge</strong> - Pour adapter les recommandations cosmétiques</li>
+                        </ul>
+                        
+                        <h4>2.2 Données de profil cosmétique</h4>
+                        <ul>
+                            <li><strong>Type de peau</strong> - Mixte, sèche, grasse, normale</li>
+                            <li><strong>Problèmes de peau</strong> - Acné, sécheresse, sensibilité, etc.</li>
+                            <li><strong>Allergies connues</strong> - Ingrédients à éviter</li>
+                            <li><strong>Pathologies dermatologiques</strong> - Eczéma, psoriasis, etc.</li>
+                            <li><strong>Objectifs beauté</strong> - Anti-âge, hydratation, éclat, etc.</li>
+                            <li><strong>Style de produits</strong> - Naturel, scientifique, luxe</li>
+                            <li><strong>Fréquence de routine</strong> - Quotidienne, hebdomadaire</li>
+                        </ul>
+                        
+                        <h4>2.3 Données d'utilisation</h4>
+                        <ul>
+                            <li><strong>Analyses de produits</strong> - Photos et résultats d'analyse</li>
+                            <li><strong>Routines personnalisées</strong> - Recommandations IA générées</li>
+                            <li><strong>Messages de chat</strong> - Conversations avec l'assistant beauté</li>
+                            <li><strong>Données de navigation</strong> - Pages visitées, temps passé</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <h3 class="text-primary">3. Comment nous utilisons vos données</h3>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="card bg-light">
+                                    <div class="card-body">
+                                        <h5><i class="fas fa-brain text-primary"></i> Intelligence Artificielle</h5>
+                                        <ul class="small">
+                                            <li>Génération de routines personnalisées</li>
+                                            <li>Analyse de compatibilité des produits</li>
+                                            <li>Recommandations adaptées à votre profil</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card bg-light">
+                                    <div class="card-body">
+                                        <h5><i class="fas fa-user text-primary"></i> Personnalisation</h5>
+                                        <ul class="small">
+                                            <li>Adaptation de l'interface utilisateur</li>
+                                            <li>Suggestions de produits pertinents</li>
+                                            <li>Historique de vos préférences</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <h3 class="text-primary">4. Partage de vos données</h3>
+                        <div class="alert alert-warning">
+                            <strong>🔒 Engagement BeautyScan :</strong> Nous ne vendons JAMAIS vos données personnelles à des tiers.
+                        </div>
+                        
+                        <p>Nous pouvons partager vos données uniquement dans ces cas :</p>
+                        <ul>
+                            <li><strong>Services tiers nécessaires</strong> - Analyse d'images (OpenAI), paiements (Stripe)</li>
+                            <li><strong>Obligation légale</strong> - Réponse aux demandes des autorités compétentes</li>
+                            <li><strong>Protection des droits</strong> - Défense de nos droits légaux</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <h3 class="text-primary">5. Sécurité de vos données</h3>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="text-center">
+                                    <i class="fas fa-lock fa-3x text-success mb-3"></i>
+                                    <h5>Chiffrement</h5>
+                                    <p class="small">Toutes les données sont chiffrées en transit et au repos</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="text-center">
+                                    <i class="fas fa-shield-alt fa-3x text-success mb-3"></i>
+                                    <h5>Protection</h5>
+                                    <p class="small">Serveurs sécurisés avec accès restreint</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="text-center">
+                                    <i class="fas fa-eye fa-3x text-success mb-3"></i>
+                                    <h5>Surveillance</h5>
+                                    <p class="small">Monitoring 24/7 des accès et activités</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <h3 class="text-primary">6. Vos droits (RGPD)</h3>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h5>Droits d'accès et de rectification</h5>
+                                <ul>
+                                    <li>Consulter vos données personnelles</li>
+                                    <li>Modifier vos informations de profil</li>
+                                    <li>Corriger les données inexactes</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h5>Droits de suppression et d'opposition</h5>
+                                <ul>
+                                    <li>Supprimer votre compte définitivement</li>
+                                    <li>Vous opposer au traitement de vos données</li>
+                                    <li>Limiter l'utilisation de vos données</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <h3 class="text-primary">7. Cookies et technologies similaires</h3>
+                        <p>
+                            Nous utilisons des cookies essentiels pour le fonctionnement de l'application 
+                            (authentification, préférences). Aucun cookie de tracking ou de publicité 
+                            n'est utilisé sans votre consentement explicite.
+                        </p>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <h3 class="text-primary">8. Conservation des données</h3>
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <thead class="table-primary">
+                                    <tr>
+                                        <th>Type de données</th>
+                                        <th>Durée de conservation</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Profil utilisateur</td>
+                                        <td>Jusqu'à suppression du compte</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Analyses de produits</td>
+                                        <td>2 ans maximum</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Routines IA</td>
+                                        <td>1 an maximum</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Messages de chat</td>
+                                        <td>6 mois maximum</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <h3 class="text-primary">9. Modifications de cette politique</h3>
+                        <p>
+                            Nous nous réservons le droit de modifier cette politique de confidentialité. 
+                            Toute modification sera communiquée par e-mail et publiée sur cette page 
+                            avec une nouvelle date de mise à jour.
+                        </p>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <h3 class="text-primary">10. Contact</h3>
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <h5><i class="fas fa-envelope text-primary"></i> Questions sur la confidentialité</h5>
+                                <p>
+                                    Pour toute question concernant cette politique de confidentialité 
+                                    ou l'utilisation de vos données personnelles, contactez-nous :
+                                </p>
+                                <ul>
+                                    <li><strong>E-mail :</strong> privacy@beautyscan.com</li>
+                                    <li><strong>Adresse :</strong> BeautyScan SAS, 123 Rue de la Beauté, 75001 Paris</li>
+                                    <li><strong>Délégué à la protection des données :</strong> dpo@beautyscan.com</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center mt-5">
+                        <a href="{% url 'accounts:profile' %}" class="btn btn-primary btn-lg">
+                            <i class="fas fa-arrow-left me-2"></i>Retour au profil
+                        </a>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .card {
+        border-radius: 12px;
+        border: none;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+    
+    .card-header {
+        border-radius: 12px 12px 0 0 !important;
+        background: linear-gradient(135deg, #2F6B72, #4A8A91) !important;
+        border: none;
+    }
+    
+    h3 {
+        border-bottom: 2px solid #2F6B72;
+        padding-bottom: 0.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .alert-info {
+        background-color: #e3f2fd;
+        border-color: #2196f3;
+        color: #0d47a1;
+    }
+    
+    .alert-warning {
+        background-color: #fff3cd;
+        border-color: #ffc107;
+        color: #856404;
+    }
+    
+    .table th {
+        background-color: #2F6B72 !important;
+        color: white !important;
+        border-color: #2F6B72 !important;
+    }
+    
+    .btn-primary {
+        background: #2F6B72;
+        border-color: #2F6B72;
+        border-radius: 8px;
+        padding: 12px 24px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-primary:hover {
+        background: #4A8A91;
+        border-color: #4A8A91;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(47, 107, 114, 0.3);
+    }
+</style>
+{% endblock %}

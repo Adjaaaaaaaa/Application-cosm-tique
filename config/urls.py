@@ -19,6 +19,7 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from apps.api_views import health_check, comprehensive_routine, analyze_product, get_ingredient_info, user_profile, general_question
+from apps.internal_api import get_user_profile_internal, health_check_internal
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -40,6 +41,12 @@ urlpatterns = [
     path('api/v1/user/profile', user_profile, name='api_user_profile_no_slash'),
     path('api/v1/ai/general-question/', general_question, name='api_general_question'),
     path('api/v1/ai/general-question', general_question, name='api_general_question_no_slash'),
+    
+    # API Interne - Accès restreint aux services internes uniquement
+    path('internal-api/user-profile/<int:user_id>/', get_user_profile_internal, name='internal_user_profile'),
+    path('internal-api/user-profile/<int:user_id>', get_user_profile_internal, name='internal_user_profile_no_slash'),
+    path('internal-api/health/', health_check_internal, name='internal_health'),
+    path('internal-api/health', health_check_internal, name='internal_health_no_slash'),
 ]
 
 if settings.DEBUG:

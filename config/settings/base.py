@@ -156,6 +156,12 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # BigAutoField provides larger range than AutoField for scalability
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# =============================================================================
+# API INTERNE - SÉCURITÉ
+# =============================================================================
+# Token d'authentification pour l'API interne (services internes uniquement)
+INTERNAL_API_TOKEN = 'internal_beautyscan_2024'
+
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 

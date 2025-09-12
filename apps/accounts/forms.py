@@ -160,13 +160,13 @@ class UserProfileForm(forms.ModelForm):
     # Objectives (multiple choice)
     objectives = forms.MultipleChoiceField(
         choices=[
-            ('anti_aging', 'Anti-âge'),
-            ('acne_treatment', 'Traitement de l\'acné'),
-            ('hydration', 'Hydratation'),
-            ('brightening', 'Éclat du teint'),
-            ('firming', 'Raffermissement'),
-            ('soothing', 'Apaisement'),
-            ('protection', 'Protection solaire'),
+            ('anti-âge', 'Anti-âge'),
+            ('traitement acné', 'Traitement de l\'acné'),
+            ('hydratation', 'Hydratation'),
+            ('éclat', 'Éclat du teint'),
+            ('raffermissement', 'Raffermissement'),
+            ('apaisement', 'Apaisement'),
+            ('protection solaire', 'Protection solaire'),
             ('exfoliation', 'Exfoliation'),
         ],
         widget=forms.CheckboxSelectMultiple,

@@ -23,7 +23,10 @@ class UserService:
     
     def get_user_profile(self, user_id: int) -> Optional[Dict[str, Any]]:
         """
-        Retrieve user profile via FastAPI service ONLY (no ORM fallback).
+        Retrieve user profile via internal API (conforme aux exigences de formation).
+        
+        Cette méthode utilise l'API interne Django pour récupérer les données utilisateur
+        et les injecter dans les prompts du service Premium.
         
         Args:
             user_id: User ID
@@ -31,20 +34,51 @@ class UserService:
         Returns:
             User profile data or None if not available
         """
-        fastapi_url = os.environ.get("PROFILE_API_URL", "http://127.0.0.1:8002")
+        return self._get_user_profile_via_internal_api(user_id)
+    
+    def _get_user_profile_via_internal_api(self, user_id: int) -> Optional[Dict[str, Any]]:
+        """
+        Retrieve user profile via internal Django API.
+        
+        Conforme aux exigences de formation : utiliser une API pour récupérer
+        les données utilisateur et les utiliser dans les prompts IA.
+        """
         try:
             import requests
-            resp = requests.get(f"{fastapi_url}/user/profile", params={"user_id": user_id}, timeout=5)
-            if resp.status_code == 200:
-                data = resp.json()
+            from backend.core.config import BACKEND_CONFIG
+            
+            # URL de l'API interne Django
+            internal_api_url = f"http://127.0.0.1:8000/internal-api/user-profile/{user_id}/"
+            
+            # Headers avec token d'authentification interne
+            headers = {
+                'X-Internal-Token': 'internal_beautyscan_2024',
+                'Content-Type': 'application/json'
+            }
+            
+            # Appel à l'API interne
+            logger.info(f"Récupération du profil utilisateur {user_id} via API interne")
+            response = requests.get(internal_api_url, headers=headers, timeout=5)
+            
+            if response.status_code == 200:
+                data = response.json()
                 if isinstance(data, dict) and data.get("status") == "success":
-                    return data.get("data")
-            logger.error(f"FastAPI profile fetch failed: {resp.status_code} {resp.text}")
+                    profile_data = data.get("data")
+                    logger.info(f"Profil utilisateur {user_id} récupéré avec succès via API interne")
+                    return profile_data
+                else:
+                    logger.error(f"Erreur API interne - Réponse invalide: {data}")
+            else:
+                logger.error(f"Erreur API interne - Status: {response.status_code}, Response: {response.text}")
+                
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Erreur de connexion API interne: {e}")
         except Exception as e:
-            logger.error(f"FastAPI profile fetch error: {e}")
+            logger.error(f"Erreur inattendue API interne: {e}")
         
-        # No fallback to ORM per requirement; return None to allow caller to handle default
-        return None
+        # Fallback vers ORM si l'API interne échoue
+        logger.warning(f"Fallback vers ORM pour le profil utilisateur {user_id}")
+        return self._get_user_profile_via_orm(user_id)
     
     def _get_user_profile_via_orm(self, user_id: int) -> Optional[Dict[str, Any]]:
         """Retrieve user profile using Django ORM (fallback)."""

@@ -223,6 +223,17 @@ class EnhancedRoutineService:
         dermatological_conditions_text = ", ".join(dermatological_conditions) if dermatological_conditions else "aucune"
         objectives_text = ", ".join(objectives) if objectives else "aucun"
         
+        # Traduire le type de routine en français
+        routine_type_french = {
+            'morning': 'matin',
+            'evening': 'soir',
+            'daily': 'quotidienne',
+            'weekly': 'hebdomadaire',
+            'hair': 'cheveux',
+            'body': 'corps',
+            'general': 'générale'
+        }.get(routine_type, routine_type)
+        
         # Déterminer le type de demande
         if routine_type == "general" or routine_type == "":
             # Question générale - réponse directe et concise
@@ -363,17 +374,19 @@ Profil utilisateur COMPLET:
 - Objectifs: {objectives_text}
 - Budget: {budget}€
 
-Type de routine: {routine_type}
+Type de routine: {routine_type_french}
 
 Question personnalisée: {custom_question if custom_question else "Aucune"}
 
 IMPORTANT: Réponds UNIQUEMENT au format JSON suivant avec des informations COMPLÈTES et PERSONNALISÉES:
 
+CRITIQUE: Le "total_budget" doit être la SOMME EXACTE de tous les budgets des étapes (step.budget). Calcule-le correctement !
+
 {{
     "routine_name": "Nom de la routine personnalisée",
     "description": "Description détaillée de la routine adaptée au profil",
     "total_budget": 0,
-    "routine_type": "{routine_type}",
+    "routine_type": "{routine_type_french}",
     "total_duration": "15-20 minutes",
     "average_tolerance_score": "8/10",
     "steps": [
