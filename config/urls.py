@@ -19,8 +19,11 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from django.views.generic import TemplateView
-from apps.api_views import health_check, comprehensive_routine, analyze_product, get_ingredient_info, general_question
-from apps.internal_api import get_user_profile_internal, health_check_internal
+from apps.internal_api import (
+    get_user_profile_internal, health_check_internal,
+    comprehensive_routine_internal, analyze_product_internal,
+    get_ingredient_info_internal, general_question_internal
+)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -29,23 +32,22 @@ urlpatterns = [
     path('payments/', include('apps.payments.urls')),
     path('ai-routines/', include('apps.ai_routines.urls')),
     
-    # API Endpoints
-    path('api/v1/health/', health_check, name='api_health'),
-    path('api/v1/health', health_check, name='api_health_no_slash'),
-    path('api/v1/enhanced-ai/comprehensive-routine/', comprehensive_routine, name='api_comprehensive_routine'),
-    path('api/v1/enhanced-ai/comprehensive-routine', comprehensive_routine, name='api_comprehensive_routine_no_slash'),
-    path('api/v1/ai/analyze-product/', analyze_product, name='api_analyze_product'),
-    path('api/v1/ai/analyze-product', analyze_product, name='api_analyze_product_no_slash'),
-    path('api/v1/ingredients/info/', get_ingredient_info, name='api_ingredient_info'),
-    path('api/v1/ingredients/info', get_ingredient_info, name='api_ingredient_info_no_slash'),
-    path('api/v1/ai/general-question/', general_question, name='api_general_question'),
-    path('api/v1/ai/general-question', general_question, name='api_general_question_no_slash'),
     
     # API Interne - Accès restreint aux services internes uniquement
     path('internal-api/user-profile/<int:user_id>/', get_user_profile_internal, name='internal_user_profile'),
     path('internal-api/user-profile/<int:user_id>', get_user_profile_internal, name='internal_user_profile_no_slash'),
     path('internal-api/health/', health_check_internal, name='internal_health'),
     path('internal-api/health', health_check_internal, name='internal_health_no_slash'),
+    
+    # API Interne - Endpoints fonctionnels sécurisés
+    path('internal-api/enhanced-ai/comprehensive-routine/', comprehensive_routine_internal, name='internal_comprehensive_routine'),
+    path('internal-api/enhanced-ai/comprehensive-routine', comprehensive_routine_internal, name='internal_comprehensive_routine_no_slash'),
+    path('internal-api/ai/analyze-product/', analyze_product_internal, name='internal_analyze_product'),
+    path('internal-api/ai/analyze-product', analyze_product_internal, name='internal_analyze_product_no_slash'),
+    path('internal-api/ingredients/info/', get_ingredient_info_internal, name='internal_ingredient_info'),
+    path('internal-api/ingredients/info', get_ingredient_info_internal, name='internal_ingredient_info_no_slash'),
+    path('internal-api/ai/general-question/', general_question_internal, name='internal_general_question'),
+    path('internal-api/ai/general-question', general_question_internal, name='internal_general_question_no_slash'),
     
     # Documentation API Interne
     path('docs/internal-api/', TemplateView.as_view(template_name='docs/internal_api_docs.html'), name='internal_api_docs'),

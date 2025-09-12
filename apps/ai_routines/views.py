@@ -12,8 +12,9 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from django.conf import settings
 
-# Configuration du backend API - PORT 8000
-API_BASE_URL = "http://127.0.0.1:8000/api/v1"
+# Configuration du backend API - PORT 8000 (API interne sécurisée)
+API_BASE_URL = "http://127.0.0.1:8000/internal-api"
+INTERNAL_API_TOKEN = "internal_beautyscan_2024"
 
 
 @login_required
@@ -46,10 +47,15 @@ def beauty_assistant_view(request):
             if product_ingredients:
                 payload["product_ingredients"] = product_ingredients
             
-            # Faire l'appel à l'API
+            # Faire l'appel à l'API interne sécurisée
+            headers = {
+                'X-Internal-Token': INTERNAL_API_TOKEN,
+                'Content-Type': 'application/json'
+            }
             response = requests.post(
                 api_url,
                 json=payload,
+                headers=headers,
                 timeout=30
             )
             
@@ -103,10 +109,15 @@ def product_analysis_view(request):
                 }
             }
             
-            # Faire l'appel à l'API
+            # Faire l'appel à l'API interne sécurisée
+            headers = {
+                'X-Internal-Token': INTERNAL_API_TOKEN,
+                'Content-Type': 'application/json'
+            }
             response = requests.post(
                 api_url,
                 json=payload,
+                headers=headers,
                 timeout=30
             )
             
@@ -143,9 +154,14 @@ def routine_history_view(request):
         # Appeler l'API pour récupérer l'historique
         api_url = f"{API_BASE_URL}/routines/history"
         
+        headers = {
+            'X-Internal-Token': INTERNAL_API_TOKEN,
+            'Content-Type': 'application/json'
+        }
         response = requests.get(
             api_url,
             params={"user_id": request.user.id},
+            headers=headers,
             timeout=10
         )
         
@@ -169,9 +185,14 @@ def routine_detail_view(request, routine_id):
         # Appeler l'API pour récupérer le détail
         api_url = f"{API_BASE_URL}/routines/{routine_id}"
         
+        headers = {
+            'X-Internal-Token': INTERNAL_API_TOKEN,
+            'Content-Type': 'application/json'
+        }
         response = requests.get(
             api_url,
             params={"user_id": request.user.id},
+            headers=headers,
             timeout=10
         )
         
@@ -210,12 +231,17 @@ def user_profile_view(request):
             # Appeler l'API pour mettre à jour le profil
             api_url = f"{API_BASE_URL}/user/profile"
             
+            headers = {
+                'X-Internal-Token': INTERNAL_API_TOKEN,
+                'Content-Type': 'application/json'
+            }
             response = requests.put(
                 api_url,
                 json={
                     "user_id": request.user.id,
                     "profile_updates": profile_data
                 },
+                headers=headers,
                 timeout=10
             )
             
@@ -231,9 +257,14 @@ def user_profile_view(request):
     try:
         api_url = f"{API_BASE_URL}/user/profile"
         
+        headers = {
+            'X-Internal-Token': INTERNAL_API_TOKEN,
+            'Content-Type': 'application/json'
+        }
         response = requests.get(
             api_url,
             params={"user_id": request.user.id},
+            headers=headers,
             timeout=10
         )
         
@@ -288,10 +319,15 @@ def api_beauty_assistant(request):
                 "budget": budget
             }
             
-            # Faire l'appel à l'API
+            # Faire l'appel à l'API interne sécurisée
+            headers = {
+                'X-Internal-Token': INTERNAL_API_TOKEN,
+                'Content-Type': 'application/json'
+            }
             response = requests.post(
                 api_url,
                 json=payload,
+                headers=headers,
                 timeout=30
             )
             

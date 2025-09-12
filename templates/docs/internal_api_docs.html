@@ -403,6 +403,43 @@ Content-Type: application/json
             <div class="endpoint">
                 <h3>
                     <span class="method get">GET</span>
+                    <span class="url">/internal-api/health/</span>
+                    <button class="copy-button" onclick="copyUrl('/internal-api/health/')">Copier</button>
+                </h3>
+                <div class="description">
+                    Vérifie l'état de santé de l'API interne et de la base de données.
+                </div>
+                
+                <h4>📋 Réponse</h4>
+                <div class="response">
+                    <h4>
+                        <span class="status-code status-200">200</span>
+                        Succès
+                    </h4>
+                    <div class="example">
+{
+  "status": "success",
+  "service": "internal-api",
+  "version": "1.0.0",
+  "database": {
+    "connected": true,
+    "users_count": 5,
+    "profiles_count": 5
+  },
+  "timestamp": {
+    "checked_at": "now"
+  }
+}
+                    </div>
+                </div>
+                
+                <button class="test-button" onclick="testEndpoint('/internal-api/health/', 'healthResult')">Tester</button>
+                <pre id="healthResult" style="margin-top: 1rem; display: none;"></pre>
+            </div>
+            
+            <div class="endpoint">
+                <h3>
+                    <span class="method get">GET</span>
                     <span class="url">/internal-api/user-profile/{user_id}/</span>
                     <button class="copy-button" onclick="copyUrl('/internal-api/user-profile/1/')">Copier</button>
                 </h3>

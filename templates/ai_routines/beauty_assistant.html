@@ -422,11 +422,12 @@ document.addEventListener('DOMContentLoaded', function() {
             product_ingredients: null
         };
 
-        // Appeler l'API
-        fetch('/api/v1/enhanced-ai/comprehensive-routine/', {
+        // Appeler l'API interne sécurisée
+        fetch('/internal-api/enhanced-ai/comprehensive-routine/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'X-Internal-Token': 'internal_beautyscan_2024',
                 'X-CSRFToken': formData.get('csrfmiddlewaretoken')
             },
             body: JSON.stringify(data)
