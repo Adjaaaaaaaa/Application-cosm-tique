@@ -109,7 +109,10 @@ class UserProfile(models.Model):
         """Get skin concerns as a list from JSON field."""
         import json
         try:
-            return json.loads(self.skin_concerns) if self.skin_concerns else []
+            if self.skin_concerns:
+                # Decode with ensure_ascii=False to handle Unicode properly
+                return json.loads(self.skin_concerns) if self.skin_concerns else []
+            return []
         except (json.JSONDecodeError, TypeError):
             return []
     
@@ -122,7 +125,9 @@ class UserProfile(models.Model):
         """Get dermatological conditions as a list from JSON field."""
         import json
         try:
-            return json.loads(self.dermatological_conditions) if self.dermatological_conditions else []
+            if self.dermatological_conditions:
+                return json.loads(self.dermatological_conditions)
+            return []
         except (json.JSONDecodeError, TypeError):
             return []
     
@@ -135,7 +140,9 @@ class UserProfile(models.Model):
         """Get allergies as a list from JSON field."""
         import json
         try:
-            return json.loads(self.allergies) if self.allergies else []
+            if self.allergies:
+                return json.loads(self.allergies)
+            return []
         except (json.JSONDecodeError, TypeError):
             return []
     
@@ -148,7 +155,9 @@ class UserProfile(models.Model):
         """Get objectives as a list from JSON field."""
         import json
         try:
-            return json.loads(self.objectives) if self.objectives else []
+            if self.objectives:
+                return json.loads(self.objectives)
+            return []
         except (json.JSONDecodeError, TypeError):
             return []
     

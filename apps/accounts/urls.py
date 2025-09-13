@@ -16,5 +16,8 @@ urlpatterns = [
     path('profile/', views.profile_view, name='profile'),
     path('allergies/add/', views.add_allergy_view, name='add_allergy'),
     path('allergies/<int:allergy_id>/delete/', views.delete_allergy_view, name='delete_allergy'),
+    path('delete-account/', views.delete_account, name='delete_account'),
+    path('privacy-policy/', views.privacy_policy_view, name='privacy_policy'),
+    path('terms-of-service/', views.terms_of_service_view, name='terms_of_service'),
 
 ]

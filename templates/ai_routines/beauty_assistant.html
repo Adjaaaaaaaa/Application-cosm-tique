@@ -336,6 +336,20 @@ h1, h2, h3, h4, h5, h6 {
 </style>
 
 <script>
+// Fonction pour traduire le type de routine en français
+function getRoutineTypeInFrench(routineType) {
+    const translations = {
+        'morning': 'Matin',
+        'evening': 'Soir',
+        'daily': 'Quotidienne',
+        'weekly': 'Hebdomadaire',
+        'hair': 'Cheveux',
+        'body': 'Corps',
+        'general': 'Générale'
+    };
+    return translations[routineType] || routineType;
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     
     // Mise à jour de l'affichage du budget
@@ -408,11 +422,12 @@ document.addEventListener('DOMContentLoaded', function() {
             product_ingredients: null
         };
 
-        // Appeler l'API
-        fetch('/api/v1/enhanced-ai/comprehensive-routine/', {
+        // Appeler l'API interne sécurisée
+        fetch('/internal-api/enhanced-ai/comprehensive-routine/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'X-Internal-Token': 'internal_beautyscan_2024',
                 'X-CSRFToken': formData.get('csrfmiddlewaretoken')
             },
             body: JSON.stringify(data)
@@ -633,7 +648,9 @@ function displayRoutine(routine) {
 
     // Calcul des métriques disponibles
     const computedStepsBudget = (steps && steps.length > 0) ? steps.reduce((sum, step) => sum + (step.budget || step.prix || 0), 0) : 0;
-    const hasBudget = Boolean(aiRoutine.total_budget) || computedStepsBudget > 0;
+    // Utiliser le budget calculé à partir des produits si disponible, sinon le budget total de l'IA
+    const finalBudget = computedStepsBudget > 0 ? computedStepsBudget : (aiRoutine.total_budget || 0);
+    const hasBudget = finalBudget > 0;
     const hasDuration = Boolean(aiRoutine.total_duration);
     const hasTolerance = Boolean(aiRoutine.average_tolerance_score);
     const hasTypeMetric = Boolean(aiRoutine.routine_type) && !isGeneralQuestion;
@@ -646,7 +663,7 @@ function displayRoutine(routine) {
             <div class="col-md-3 col-6">
                 <div class="card border-0 shadow-sm text-center">
                     <div class="card-body py-3">
-                        <div class="text-sand-dark fw-bold fs-5">${aiRoutine.total_budget || computedStepsBudget}€</div>
+                        <div class="text-sand-dark fw-bold fs-5">${finalBudget}€</div>
                         <small class="text-brown-medium">Budget total</small>
                     </div>
                 </div>
@@ -656,7 +673,7 @@ function displayRoutine(routine) {
             <div class="col-md-3 col-6">
                 <div class="card border-0 shadow-sm text-center">
                     <div class="card-body py-3">
-                        <div class="text-brown-light fw-bold fs-5">${aiRoutine.routine_type}</div>
+                        <div class="text-brown-light fw-bold fs-5">${getRoutineTypeInFrench(aiRoutine.routine_type)}</div>
                         <small class="text-brown-medium">Type</small>
                     </div>
                 </div>

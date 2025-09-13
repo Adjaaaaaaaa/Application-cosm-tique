@@ -23,6 +23,7 @@
                         {% endfor %}
                     {% endif %}
                     
+                    
                     <!-- Profile Form -->
                     <form method="post">
                         {% csrf_token %}
@@ -82,14 +83,18 @@
                             </div>
                         </div>
                         
-                        <!-- Skin Concerns -->
-                        <div class="form-section mb-4">
-                            <h5><i class="fas fa-heart"></i> Problèmes de peau</h5>
+                         <!-- Skin Concerns -->
+                         <div class="form-section mb-4">
+                             <h5><i class="fas fa-exclamation-triangle"></i> Problèmes de peau</h5>
                             <div class="row">
                                 {% for choice in form.skin_concerns %}
                                 <div class="col-md-4 mb-2">
                                     <div class="form-check">
-                                        {{ choice.tag }}
+                                        {% if choice.data.value in initial_values.skin_concerns %}
+                                            <input type="checkbox" name="{{ choice.data.name }}" value="{{ choice.data.value }}" id="{{ choice.id_for_label }}" class="form-check-input" checked>
+                                        {% else %}
+                                            {{ choice.tag }}
+                                        {% endif %}
                                         <label class="form-check-label" for="{{ choice.id_for_label }}">
                                             {{ choice.choice_label }}
                                         </label>
@@ -106,7 +111,11 @@
                                 {% for choice in form.dermatological_conditions %}
                                 <div class="col-md-6 mb-2">
                                     <div class="form-check">
-                                        {{ choice.tag }}
+                                        {% if choice.data.value in initial_values.dermatological_conditions %}
+                                            <input type="checkbox" name="{{ choice.data.name }}" value="{{ choice.data.value }}" id="{{ choice.id_for_label }}" class="form-check-input" checked>
+                                        {% else %}
+                                            {{ choice.tag }}
+                                        {% endif %}
                                         <label class="form-check-label" for="{{ choice.id_for_label }}">
                                             {{ choice.choice_label }}
                                         </label>
@@ -127,18 +136,18 @@
                                 {% for choice in form.allergies %}
                                 <div class="col-md-6 mb-2">
                                     <div class="form-check">
-                                        {{ choice.tag }}
+                                        {% if choice.data.value in initial_values.allergies %}
+                                            <input type="checkbox" name="{{ choice.data.name }}" value="{{ choice.data.value }}" id="{{ choice.id_for_label }}" class="form-check-input" checked>
+                                        {% else %}
+                                            {{ choice.tag }}
+                                        {% endif %}
                                         <label class="form-check-label" for="{{ choice.id_for_label }}">
                                             {{ choice.choice_label }}
                                         </label>
                                     </div>
                                 </div>
                                 {% endfor %}
-                            </div>
-                            <div class="mt-3">
-                                <label for="{{ form.allergies_other.id_for_label }}" class="form-label">Autre allergie</label>
-                                {{ form.allergies_other }}
-                            </div>
+                             </div>
                         </div>
                         
                         <!-- Product Style -->
@@ -182,7 +191,11 @@
                                 {% for choice in form.objectives %}
                                 <div class="col-md-4 mb-2">
                                     <div class="form-check">
-                                        {{ choice.tag }}
+                                        {% if choice.data.value in initial_values.objectives %}
+                                            <input type="checkbox" name="{{ choice.data.name }}" value="{{ choice.data.value }}" id="{{ choice.id_for_label }}" class="form-check-input" checked>
+                                        {% else %}
+                                            {{ choice.tag }}
+                                        {% endif %}
                                         <label class="form-check-label" for="{{ choice.id_for_label }}">
                                             {{ choice.choice_label }}
                                         </label>
@@ -192,22 +205,6 @@
                             </div>
                         </div>
                         
-                        <!-- Budget -->
-                        <div class="form-section mb-4">
-                            <h5><i class="fas fa-euro-sign"></i> Budget mensuel</h5>
-                            <div class="row">
-                                {% for choice in form.budget %}
-                                <div class="col-md-4 mb-2">
-                                    <div class="form-check">
-                                        {{ choice.tag }}
-                                        <label class="form-check-label" for="{{ choice.id_for_label }}">
-                                            {{ choice.choice_label }}
-                                        </label>
-                                    </div>
-                                </div>
-                                {% endfor %}
-                            </div>
-                        </div>
                         
                         <div class="text-center">
                             <button type="submit" class="btn btn-success btn-lg">
@@ -216,9 +213,52 @@
                         </div>
                     </form>
                     
-                    <hr class="my-4">
-                    
-                    <!-- Allergies Section -->
+                     
+                     <!-- Modal de confirmation de suppression -->
+                     <div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-labelledby="deleteAccountModalLabel" aria-hidden="true">
+                         <div class="modal-dialog">
+                             <div class="modal-content">
+                                 <div class="modal-header bg-danger text-white">
+                                     <h5 class="modal-title" id="deleteAccountModalLabel">
+                                         <i class="fas fa-exclamation-triangle me-2"></i>Suppression du compte
+                                     </h5>
+                                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                 </div>
+                                 <div class="modal-body">
+                                     <div class="alert alert-danger">
+                                         <strong>⚠️ ATTENTION : Cette action est irréversible !</strong>
+                                     </div>
+                                     <p>Vous êtes sur le point de supprimer définitivement votre compte BeautyScan. Cette action va :</p>
+                                     <ul class="list-unstyled">
+                                         <li><i class="fas fa-times text-danger me-2"></i>Supprimer votre profil utilisateur</li>
+                                         <li><i class="fas fa-times text-danger me-2"></i>Supprimer toutes vos analyses de produits</li>
+                                         <li><i class="fas fa-times text-danger me-2"></i>Supprimer vos routines IA personnalisées</li>
+                                         <li><i class="fas fa-times text-danger me-2"></i>Supprimer toutes vos données personnelles</li>
+                                         <li><i class="fas fa-times text-danger me-2"></i>Annuler votre abonnement Premium (si actif)</li>
+                                     </ul>
+                                     
+                                     <div class="mt-4">
+                                         <label for="confirmationText" class="form-label">
+                                             <strong>Pour confirmer, tapez exactement :</strong><br>
+                                             <code class="text-danger">SUPPRIMER MON COMPTE</code>
+                                         </label>
+                                         <input type="text" class="form-control" id="confirmationText" placeholder="SUPPRIMER MON COMPTE">
+                                         <small class="form-text text-muted">La saisie doit correspondre exactement au texte ci-dessus.</small>
+                                     </div>
+                                 </div>
+                                 <div class="modal-footer">
+                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                                     <button type="button" class="btn btn-danger" id="confirmDeleteBtn" disabled>
+                                         <i class="fas fa-trash me-2"></i>Supprimer définitivement
+                                     </button>
+                                 </div>
+                             </div>
+                         </div>
+                     </div>
+                     
+                     <hr class="my-4">
+                     
+                     <!-- Allergies Section -->
                     <div class="row">
                         <div class="col-12">
                             <h4>Allergies</h4>
@@ -265,19 +305,41 @@
                                 </div>
                             {% endif %}
                             
-                            <div class="mt-3">
-                                <a href="{% url 'accounts:add_allergy' %}" class="btn btn-success">
-                                    <i class="fas fa-plus me-2"></i>Ajouter une allergie
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                    
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+                             <div class="mt-3">
+                                 <a href="{% url 'accounts:add_allergy' %}" class="btn btn-success">
+                                     <i class="fas fa-plus me-2"></i>Ajouter une allergie
+                                 </a>
+                             </div>
+                         </div>
+                     </div>
+                     
+                     <hr class="my-4">
+                     
+                     <!-- Danger Zone - Section Permanente -->
+                     <div class="row">
+                         <div class="col-12">
+                             <div class="card border-danger">
+                                 <div class="card-header bg-danger text-white">
+                                     <h4 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Zone de danger</h4>
+                                 </div>
+                                 <div class="card-body">
+                                     <div class="alert alert-warning mb-3">
+                                         <strong>⚠️ Attention :</strong> Les actions ci-dessous sont irréversibles. Veuillez les utiliser avec précaution.
+                                     </div>
+                                     
+                                     <button type="button" class="btn btn-outline-danger btn-lg" data-bs-toggle="modal" data-bs-target="#deleteAccountModal">
+                                         <i class="fas fa-trash me-2"></i>Supprimer mon compte
+                                     </button>
+                                 </div>
+                             </div>
+                         </div>
+                     </div>
+                     
+                 </div>
+             </div>
+         </div>
+     </div>
+ </div>
 {% endblock %}
 
 {% block extra_css %}
@@ -322,5 +384,181 @@
         background: #2F6B72 !important;
         border: none;
     }
+    
+    /* STYLE UNIFORME ABSOLU POUR TOUTES LES CHECKBOXES */
+    .form-check {
+        display: flex !important;
+        align-items: flex-start !important;
+        padding-left: 0 !important;
+        margin-bottom: 1rem !important;
+        min-height: 2.5rem !important;
+        width: 100% !important;
+        position: relative !important;
+    }
+    
+    /* TOUTES les checkboxes ont EXACTEMENT la même taille et position */
+    input[type="checkbox"] {
+        width: 18px !important;
+        height: 18px !important;
+        margin: 0 !important;
+        margin-right: 10px !important;
+        margin-top: 2px !important;
+        padding: 0 !important;
+        border: 2px solid #dee2e6 !important;
+        border-radius: 3px !important;
+        background-color: white !important;
+        position: relative !important;
+        top: 0 !important;
+        left: 0 !important;
+        float: none !important;
+        flex-shrink: 0 !important;
+        appearance: none !important;
+        -webkit-appearance: none !important;
+        -moz-appearance: none !important;
+    }
+    
+    /* Style quand cochée */
+    input[type="checkbox"]:checked {
+        background-color: #2F6B72 !important;
+        border-color: #2F6B72 !important;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='2.5' d='m6 10 3 3 6-6'/%3e%3c/svg%3e") !important;
+        background-size: 14px 14px !important;
+        background-position: center !important;
+        background-repeat: no-repeat !important;
+    }
+    
+    /* Focus */
+    input[type="checkbox"]:focus {
+        box-shadow: 0 0 0 0.2rem rgba(47, 107, 114, 0.25) !important;
+        border-color: #2F6B72 !important;
+        outline: none !important;
+    }
+    
+    /* Labels uniformes */
+    .form-check-label {
+        margin: 0 !important;
+        padding: 0 !important;
+        padding-left: 0 !important;
+        line-height: 1.4 !important;
+        cursor: pointer !important;
+        font-size: 0.95rem !important;
+        color: #495057 !important;
+        word-wrap: break-word !important;
+        flex: 1 !important;
+        display: block !important;
+        position: relative !important;
+        top: 0 !important;
+    }
+    
+    /* Uniformiser les colonnes */
+    .form-section .col-md-4,
+    .form-section .col-md-6 {
+        margin-bottom: 0.5rem !important;
+        display: flex !important;
+        flex-direction: column !important;
+    }
+    
+    /* Reset complet pour éliminer tous les styles Bootstrap */
+    .form-check-input {
+        margin-top: 2px !important;
+        margin-right: 10px !important;
+        margin-left: 0 !important;
+        margin-bottom: 0 !important;
+    }
+    
+    /* Style pour les sections du formulaire */
+    .form-section {
+        background: #f8f9fa;
+        padding: 1.5rem;
+        border-radius: 12px;
+        margin-bottom: 1.5rem;
+        border: 1px solid #e9ecef;
+    }
+    
+    .form-section h5 {
+        color: #2F6B72;
+        margin-bottom: 1rem;
+        font-weight: 600;
+        border-bottom: 2px solid #2F6B72;
+        padding-bottom: 0.5rem;
+    }
+    
+    .form-section h5 i {
+        margin-right: 0.5rem;
+    }
+    
+    /* Style pour la Zone de Danger - Section Permanente */
+    .card.border-danger {
+        border-width: 2px !important;
+        box-shadow: 0 4px 15px rgba(220, 53, 69, 0.2) !important;
+        margin-bottom: 2rem !important;
+    }
+    
+    .card-header.bg-danger {
+        background: linear-gradient(135deg, #dc3545, #c82333) !important;
+        border-bottom: 2px solid #a71e2a !important;
+    }
+    
+    .btn-outline-danger.btn-lg {
+        font-size: 1.1rem !important;
+        padding: 12px 24px !important;
+        border-width: 2px !important;
+        transition: all 0.3s ease !important;
+    }
+    
+    .btn-outline-danger.btn-lg:hover {
+        background-color: #dc3545 !important;
+        border-color: #dc3545 !important;
+        transform: translateY(-2px) !important;
+        box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4) !important;
+    }
+    
+    .alert-warning {
+        border-left: 4px solid #ffc107 !important;
+        background-color: #fff3cd !important;
+        border-color: #ffeaa7 !important;
+    }
 </style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const confirmationInput = document.getElementById('confirmationText');
+    const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+    const requiredText = 'SUPPRIMER MON COMPTE';
+    
+    confirmationInput.addEventListener('input', function() {
+        if (this.value.trim() === requiredText) {
+            confirmDeleteBtn.disabled = false;
+            confirmDeleteBtn.classList.remove('btn-outline-danger');
+            confirmDeleteBtn.classList.add('btn-danger');
+        } else {
+            confirmDeleteBtn.disabled = true;
+            confirmDeleteBtn.classList.remove('btn-danger');
+            confirmDeleteBtn.classList.add('btn-outline-danger');
+        }
+    });
+    
+    confirmDeleteBtn.addEventListener('click', function() {
+        if (confirmationInput.value.trim() === requiredText) {
+            // Créer un formulaire caché pour la suppression
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '{% url "accounts:delete_account" %}';
+            
+            // Ajouter le token CSRF
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = 'csrfmiddlewaretoken';
+            csrfInput.value = csrfToken;
+            form.appendChild(csrfInput);
+            
+            document.body.appendChild(form);
+            form.submit();
+        }
+    });
+});
+</script>
 {% endblock %}

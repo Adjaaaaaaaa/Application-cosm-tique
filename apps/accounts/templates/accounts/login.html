@@ -8,7 +8,7 @@
     <div class="row justify-content-center">
         <div class="col-md-6">
             <div class="card shadow">
-                <div class="card-header bg-primary text-white text-center">
+                <div class="card-header btn-primary text-white text-center">
                     <h4 class="mb-0">Connexion à votre compte</h4>
                 </div>
                 <div class="card-body p-4">
@@ -37,7 +37,7 @@
                         </div>
                         
                         <div class="d-grid">
-                            <button type="submit" class="btn btn-primary-custom btn-lg">Se connecter</button>
+                            <button type="submit" class="btn btn-primary-custom btn-primary btn-lg">Se connecter</button>
                         </div>
                     </form>
                 </div>
@@ -52,4 +52,38 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/accounts/login.css' %}">
+<style>
+    :root {
+        --sand-brown: #F4A460; /* marron sablé */
+        --sand-brown-dark: #D78940; /* teinte plus foncée au survol */
+    }
+
+    .card .card-header.btn-primary {
+        background-color: var(--sand-brown) !important;
+        border-color: var(--sand-brown) !important;
+        color: #ffffff !important;
+    }
+
+    .btn-primary,
+    .btn-primary-custom {
+        background-color: var(--sand-brown) !important;
+        border-color: var(--sand-brown) !important;
+        color: #ffffff !important;
+    }
+
+    .btn-primary:hover,
+    .btn-primary-custom:hover {
+        background-color: var(--sand-brown-dark) !important;
+        border-color: var(--sand-brown-dark) !important;
+        color: #ffffff !important;
+    }
+
+    .form-control:focus {
+        border-color: var(--sand-brown) !important;
+        box-shadow: 0 0 0 0.25rem rgba(244, 164, 96, 0.25) !important; /* #F4A460 avec transparence */
+    }
+
+    a { color: var(--sand-brown); }
+    a:hover { color: var(--sand-brown-dark); }
+</style>
 {% endblock %}

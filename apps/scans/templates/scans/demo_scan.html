@@ -155,9 +155,9 @@
                                 <div class="d-flex align-items-center mb-2">
                                     <div class="score-bar-container">
                                         <div class="score-display-simple">
-                                            <span class="score-number score-{% if enhanced_analysis.score_produit >= 50 %}excellent{% elif enhanced_analysis.score_produit >= 25 %}moderate{% else %}poor{% endif %}">{{ enhanced_analysis.score_produit }}/100</span>
+                                            <span class="score-number score-{% if enhanced_analysis.score_produit >= 50 %}excellent{% elif enhanced_analysis.score_produit >= 25 %}moderate{% else %}poor{% endif %}" style="font-weight: 700 !important; {% if enhanced_analysis.score_produit >= 50 %}color: #28a745 !important;{% elif enhanced_analysis.score_produit >= 25 %}color: #ff8c00 !important;{% else %}color: #ff0000 !important;{% endif %}">{{ enhanced_analysis.score_produit }}/100</span>
                                             <span class="score-emoji score-{% if enhanced_analysis.score_produit >= 50 %}excellent{% elif enhanced_analysis.score_produit >= 25 %}moderate{% else %}poor{% endif %}">{% if enhanced_analysis.score_produit >= 50 %}🟢{% elif enhanced_analysis.score_produit >= 25 %}🟠{% else %}🔴{% endif %}</span>
-                                            <span class="score-label score-{% if enhanced_analysis.score_produit >= 50 %}excellent{% elif enhanced_analysis.score_produit >= 25 %}moderate{% else %}poor{% endif %}">{{ enhanced_analysis.notation }}</span>
+                                            <span class="score-label score-{% if enhanced_analysis.score_produit >= 50 %}excellent{% elif enhanced_analysis.score_produit >= 25 %}moderate{% else %}poor{% endif %}" style="font-weight: 700 !important; {% if enhanced_analysis.score_produit >= 50 %}color: #28a745 !important;{% elif enhanced_analysis.score_produit >= 25 %}color: #ff8c00 !important;{% else %}color: #ff0000 !important;{% endif %}">{{ enhanced_analysis.notation }}</span>
                                         </div>
                                     </div>
                                 </div>

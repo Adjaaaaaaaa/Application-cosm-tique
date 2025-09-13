@@ -6,6 +6,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.db import transaction
 from .forms import CustomUserCreationForm
 
 from .forms import UserProfileForm, AllergyForm
@@ -226,9 +227,19 @@ def profile_view(request):
     _prepopulate_profile_fields(form, profile)
     
     allergies = Allergy.objects.filter(user=request.user)
+    
+    # Passer les valeurs initiales au template pour l'affichage
+    initial_values = {
+        'skin_concerns': profile.get_skin_concerns_list() or [],
+        'allergies': profile.get_allergies_list() or [],
+        'dermatological_conditions': profile.get_dermatological_conditions_list() or [],
+        'objectives': profile.get_objectives_list() or [],
+    }
+    
     return render(request, 'accounts/profile.html', {
         'form': form,
-        'allergies': allergies
+        'allergies': allergies,
+        'initial_values': initial_values
     })
 
 
@@ -312,6 +323,69 @@ def delete_allergy_view(request, allergy_id):
         logger.error(f'Error deleting allergy: {str(e)}')
     
     return redirect('accounts:profile')
+
+
+@login_required
+def delete_account(request):
+    """
+    Vue pour supprimer définitivement le compte utilisateur.
+    Cette action est irréversible et supprime toutes les données associées.
+    """
+    if request.method != 'POST':
+        messages.error(request, 'Méthode non autorisée.')
+        return redirect('accounts:profile')
+    
+    try:
+        with transaction.atomic():
+            user = request.user
+            
+            # Supprimer le profil utilisateur (cela supprimera aussi les allergies)
+            try:
+                profile = UserProfile.objects.get(user=user)
+                profile.delete()
+            except UserProfile.DoesNotExist:
+                pass
+            
+            # Supprimer toutes les données associées à l'utilisateur
+            # Scans
+            from apps.scans.models import Scan
+            Scan.objects.filter(user=user).delete()
+            
+            # Routines IA
+            from apps.ai_routines.models import AIRoutine
+            AIRoutine.objects.filter(user=user).delete()
+            
+            # Messages de chat
+            from apps.ai_routines.models import ChatMessage
+            ChatMessage.objects.filter(user=user).delete()
+            
+            # Déconnexion avant suppression
+            logout(request)
+            
+            # Supprimer l'utilisateur (cela supprimera aussi les allergies via CASCADE)
+            user.delete()
+            
+            messages.success(request, 'Votre compte a été supprimé avec succès. Nous sommes désolés de vous voir partir.')
+            return redirect('accounts:login')
+            
+    except Exception as e:
+        messages.error(request, f'Une erreur est survenue lors de la suppression du compte: {str(e)}')
+        return redirect('accounts:profile')
+
+
+def privacy_policy_view(request):
+    """
+    Vue pour afficher la politique de confidentialité de BeautyScan.
+    """
+    return render(request, 'accounts/privacy_policy.html')
+
+
+def terms_of_service_view(request):
+    """
+    Vue pour afficher les conditions d'utilisation de BeautyScan.
+    """
+    return render(request, 'accounts/terms_of_service.html')
+
 
 
 

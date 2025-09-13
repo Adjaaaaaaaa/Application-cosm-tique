@@ -12,15 +12,92 @@ class CustomUserCreationForm(UserCreationForm):
     """
     Formulaire d'inscription personnalisé avec email obligatoire.
     """
+    username = forms.CharField(
+        max_length=150,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control form-control-custom',
+            'placeholder': 'Choisissez votre nom d\'utilisateur',
+            'autocomplete': 'username'
+        }),
+        label='Nom d\'utilisateur',
+        help_text='Choisissez un nom d\'utilisateur unique (3-30 caractères)'
+    )
+    
     email = forms.EmailField(
         required=True,
         widget=forms.EmailInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'votre.email@exemple.com'
+            'class': 'form-control form-control-custom',
+            'placeholder': 'votre.email@exemple.com',
+            'autocomplete': 'email'
         }),
         label='Adresse email *',
         help_text='L\'adresse email est obligatoire pour l\'inscription.'
     )
+    
+    password1 = forms.CharField(
+        widget=forms.PasswordInput(attrs={
+            'class': 'form-control form-control-custom',
+            'placeholder': 'Créez un mot de passe fort',
+            'autocomplete': 'new-password'
+        }),
+        label='Mot de passe',
+        help_text='Minimum 8 caractères avec majuscules, minuscules et chiffres'
+    )
+    
+    password2 = forms.CharField(
+        widget=forms.PasswordInput(attrs={
+            'class': 'form-control form-control-custom',
+            'placeholder': 'Confirmez votre mot de passe',
+            'autocomplete': 'new-password'
+        }),
+        label='Confirmer le mot de passe',
+        help_text='Répétez votre mot de passe pour confirmation'
+    )
+    
+    accept_terms = forms.BooleanField(
+        required=True,
+        widget=forms.CheckboxInput(attrs={
+            'class': 'form-check-input'
+        }),
+        label='J\'accepte les conditions d\'utilisation et la politique de confidentialité',
+        help_text='Vous devez accepter nos conditions pour créer un compte.',
+        error_messages={
+            'required': 'Vous devez accepter les conditions d\'utilisation et la politique de confidentialité pour créer un compte.'
+        }
+    )
+    
+    def clean_username(self):
+        """Validation personnalisée du nom d'utilisateur."""
+        username = self.cleaned_data.get('username')
+        if username:
+            if len(username) < 3:
+                raise forms.ValidationError('Le nom d\'utilisateur doit contenir au moins 3 caractères.')
+            if not username.replace('_', '').replace('-', '').isalnum():
+                raise forms.ValidationError('Le nom d\'utilisateur ne peut contenir que des lettres, chiffres, tirets et underscores.')
+        return username
+    
+    def clean_password1(self):
+        """Validation personnalisée du mot de passe."""
+        password1 = self.cleaned_data.get('password1')
+        if password1:
+            if len(password1) < 8:
+                raise forms.ValidationError('Le mot de passe doit contenir au moins 8 caractères.')
+            if not any(c.isupper() for c in password1):
+                raise forms.ValidationError('Le mot de passe doit contenir au moins une majuscule.')
+            if not any(c.islower() for c in password1):
+                raise forms.ValidationError('Le mot de passe doit contenir au moins une minuscule.')
+            if not any(c.isdigit() for c in password1):
+                raise forms.ValidationError('Le mot de passe doit contenir au moins un chiffre.')
+        return password1
+    
+    def clean_accept_terms(self):
+        """Vérifier que l'utilisateur a accepté les conditions."""
+        accept_terms = self.cleaned_data.get('accept_terms')
+        if not accept_terms:
+            raise forms.ValidationError(
+                'Vous devez accepter les conditions d\'utilisation et la politique de confidentialité pour créer un compte.'
+            )
+        return accept_terms
     
     class Meta:
         model = User
@@ -160,13 +237,13 @@ class UserProfileForm(forms.ModelForm):
     # Objectives (multiple choice)
     objectives = forms.MultipleChoiceField(
         choices=[
-            ('anti_aging', 'Anti-âge'),
-            ('acne_treatment', 'Traitement de l\'acné'),
-            ('hydration', 'Hydratation'),
-            ('brightening', 'Éclat du teint'),
-            ('firming', 'Raffermissement'),
-            ('soothing', 'Apaisement'),
-            ('protection', 'Protection solaire'),
+            ('anti-âge', 'Anti-âge'),
+            ('traitement acné', 'Traitement de l\'acné'),
+            ('hydratation', 'Hydratation'),
+            ('éclat', 'Éclat du teint'),
+            ('raffermissement', 'Raffermissement'),
+            ('apaisement', 'Apaisement'),
+            ('protection solaire', 'Protection solaire'),
             ('exfoliation', 'Exfoliation'),
         ],
         widget=forms.CheckboxSelectMultiple,

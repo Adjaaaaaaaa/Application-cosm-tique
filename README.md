@@ -163,8 +163,6 @@ python manage.py createsuperuser
 python start_server.py
 # ou
 python manage.py runserver 8000
-# (optionnel) Lancer le microservice FastAPI pour profils (port 8002)
-uvicorn backend.fastapi_app:app --host 127.0.0.1 --port 8002 --reload
 ```
 
 7) Vérifications rapides
