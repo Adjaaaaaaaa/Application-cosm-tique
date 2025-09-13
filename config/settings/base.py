@@ -55,6 +55,7 @@ THIRD_PARTY_APPS = [
 # Organized by functionality: accounts, scans, payments, AI features
 LOCAL_APPS = [
     'common',  # Shared utilities and common functionality
+    'core',  # Clean Architecture domain layer
     'apps.accounts',  # User management and authentication
     'apps.scans',  # Product scanning and analysis
 

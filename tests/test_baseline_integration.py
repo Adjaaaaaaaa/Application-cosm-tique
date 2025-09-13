@@ -109,8 +109,8 @@ class BaselineIntegrationTests(TestCase):
         
         # Check that formatting includes all key information
         self.assertIn('testuser', formatted)
-        self.assertIn('combination', formatted)
-        self.assertIn('26-35', formatted)
+        self.assertIn('Mixte', formatted)  # Display name for combination skin type
+        self.assertIn('26–35 ans', formatted)  # Display name for age range
         self.assertIn('🚨', formatted)  # Allergy warning emoji
         self.assertIn('⚠️', formatted)  # Condition warning emoji
         self.assertIn('paraben', formatted)
