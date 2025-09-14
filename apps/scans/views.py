@@ -606,11 +606,11 @@ class ScanAPIView(LoginRequiredMixin, MessageMixin, View):
 
             if barcode:
 
-                # Use ProductAnalysisService to get real product data
+                # Use ProductAnalysisService to get real product data with cache optimization
 
                 analysis_service = ProductAnalysisService()
 
-                analysis_result = analysis_service.analyze_product(barcode)
+                analysis_result = analysis_service.analyze_product(barcode, user_id=request.user.id)
 
                 
 

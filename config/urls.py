@@ -19,7 +19,7 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from django.views.generic import TemplateView
-from apps.internal_api import (
+from apps.api.views import (
     get_user_profile_internal, health_check_internal,
     comprehensive_routine_internal, analyze_product_internal,
     get_ingredient_info_internal, general_question_internal

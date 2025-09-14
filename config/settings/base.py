@@ -58,7 +58,7 @@ LOCAL_APPS = [
     'core',  # Clean Architecture domain layer
     'apps.accounts',  # User management and authentication
     'apps.scans',  # Product scanning and analysis
-
+    'apps.api',  # Internal and external API endpoints
     'apps.payments',  # Subscription and payment processing
     'apps.ai_routines',  # AI-powered skincare routines
 ]

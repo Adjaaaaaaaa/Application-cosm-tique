@@ -11,6 +11,7 @@ import logging
 from typing import Dict, List, Optional, Tuple
 from django.conf import settings
 from django.core.cache import cache
+from django.utils import timezone
 
 logger = logging.getLogger(__name__)
 
@@ -348,35 +349,31 @@ class ProductAnalysisService:
         from backend.services.real_product_service import RealProductService
         from backend.services.product_database_service import ProductDatabaseService
         from backend.services.image_analysis_service import ImageAnalysisService
+        
         self.real_product_service = RealProductService()
         self.product_database_service = ProductDatabaseService()
         self.image_analysis_service = ImageAnalysisService()
     
-    def analyze_product(self, barcode: str) -> Dict:
+    def analyze_product(self, barcode: str, user_id: int = None) -> Dict:
         """
-        Analyze a product by barcode following the specified workflow:
-        1. Check local database first
-        2. If not found, search product database
-        3. If not found, search real product APIs
-        4. If real APIs fail, call OpenBeautyFacts
-        5. If OpenBeautyFacts fails, use Azure LLM for ingredients
-        6. Analyze each ingredient with PubChem
-        7. If PubChem fails, use Azure LLM for risk estimation
+        Analyze a product by barcode.
         
         Args:
             barcode: Product barcode to analyze
+            user_id: User ID for personalized analysis
             
         Returns:
-            dict: Comprehensive product analysis results
+            dict: Product analysis results
         """
         try:
-            logger.info(f"Starting analysis for product {barcode} following workflow")
+            logger.info(f"Starting analysis for product {barcode}")
             
-            # STEP 1: Check local database first
+            # STEP 1: Check local database (FAST)
             local_product = self._check_local_database(barcode)
             if local_product and self._is_local_data_fresh(local_product):
                 logger.info(f"Product {barcode} found in local database with fresh data")
-                return self._analyze_from_local_data(local_product)
+                analysis_result = self._analyze_from_local_data(local_product)
+                return analysis_result
             
             # STEP 2: Search product database first
             product_info = self.product_database_service.search_product(barcode)
@@ -461,7 +458,7 @@ class ProductAnalysisService:
                 else:
                     logger.warning(f"Azure LLM failed to generate ingredients for {barcode}")
             
-            # STEP 6: Analyze each ingredient with PubChem
+            # STEP 5: Analyze each ingredient with PubChem
             ingredients_analysis = {}
             if product_info.get('ingredients_text'):
                 ingredients_analysis = self._analyze_ingredients_with_workflow(
@@ -484,7 +481,7 @@ class ProductAnalysisService:
                 'workflow_steps': self._get_workflow_execution_log()
             }
             
-            logger.info(f"Completed analysis for product {barcode} following workflow")
+            logger.info(f"✅ Completed analysis for product {barcode}")
             return analysis_result
             
         except Exception as e:

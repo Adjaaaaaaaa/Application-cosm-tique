@@ -4,6 +4,8 @@ Models for product scanning functionality.
 
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils import timezone
+from datetime import timedelta
 
 
 class Scan(models.Model):
@@ -48,3 +50,5 @@ class Scan(models.Model):
             'score': self.product_score,
             'risk_level': self.product_risk_level,
         }
+
+

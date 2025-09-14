@@ -19,7 +19,7 @@ from apps.accounts.models import UserProfile
 from backend.core.exceptions import BeautyScanException
 
 # Ajouter le chemin du backend pour importer les services
-backend_path = Path(__file__).parent.parent / "backend"
+backend_path = Path(__file__).parent.parent.parent / "backend"
 sys.path.insert(0, str(backend_path))
 
 try:
