@@ -139,108 +139,12 @@ def verify_email_view(request):
         return redirect('accounts:signup')
 
 
-@login_required
-def profile_view(request):
-    """
-    User profile view with improved data persistence.
-    
-    ✅ CORRECTION CRITIQUE : Les champs multi-choice (JSON) sont maintenant toujours initialisés
-    avec une liste (même vide) pour que les cases cochées restent fixées après sauvegarde.
-    
-    Champs concernés :
-    - skin_concerns (multi-choice)
-    - dermatological_conditions (multi-choice) 
-    - allergies (multi-choice)
-    - objectives (multi-choice)
-    """
-    # ✅ Logger défini au début pour toute la fonction
-    import logging
-    logger = logging.getLogger(__name__)
-    
-    try:
-        profile = request.user.profile
-    except UserProfile.DoesNotExist:
-        # Create profile as fallback if missing
-        logger.warning(f"UserProfile missing for user {request.user.id}, creating fallback")
-        profile = UserProfile.objects.create(user=request.user)
-    
-    if request.method == 'POST':
-        form = UserProfileForm(request.POST, instance=profile)
-        if form.is_valid():
-            try:
-                # Update User model fields
-                user = request.user
-                user.first_name = form.cleaned_data.get('first_name', '')
-                user.last_name = form.cleaned_data.get('last_name', '')
-                user.email = form.cleaned_data.get('email', '')
-                user.save()
-                
-                # Update profile with form data
-                profile = form.save(commit=False)
-                
-                # ✅ JSON fields - toujours traiter même si liste vide
-                skin_concerns_data = form.cleaned_data.get('skin_concerns', [])
-                dermatological_conditions_data = form.cleaned_data.get('dermatological_conditions', [])
-                allergies_data = form.cleaned_data.get('allergies', [])
-                objectives_data = form.cleaned_data.get('objectives', [])
-                
-                # Sauvegarder les listes JSON (même vides) pour persistance
-                profile.set_skin_concerns_list(skin_concerns_data)
-                profile.set_dermatological_conditions_list(dermatological_conditions_data)
-                profile.set_allergies_list(allergies_data)
-                profile.set_objectives_list(objectives_data)
-                
-                # ✅ Single choice fields - toujours mettre à jour
-                profile.skin_type = form.cleaned_data.get('skin_type') or profile.skin_type
-                profile.age_range = form.cleaned_data.get('age_range') or profile.age_range
-                profile.product_style = form.cleaned_data.get('product_style') or profile.product_style
-                profile.routine_frequency = form.cleaned_data.get('routine_frequency') or profile.routine_frequency
-                profile.budget = form.cleaned_data.get('budget') or profile.budget
-                
-                # ✅ Text fields - toujours mettre à jour
-                profile.dermatological_other = form.cleaned_data.get('dermatological_other', '')
-                profile.allergies_other = form.cleaned_data.get('allergies_other', '')
-                
-                # Sauvegarder le profil AVANT de continuer
-                profile.save()
-                
-                # Log pour debug
-                logger.info(f"Profile saved successfully for user {request.user.id}")
-                logger.info(f"Skin concerns: {profile.get_skin_concerns_list()}")
-                logger.info(f"Allergies: {profile.get_allergies_list()}")
-                logger.info(f"Dermatological conditions: {profile.get_dermatological_conditions_list()}")
-                logger.info(f"Objectives: {profile.get_objectives_list()}")
-                return redirect('accounts:profile')
-                
-            except Exception as e:
-                logger.error(f"Profile save error for user {request.user.id}: {e}")
-        else:
-            # Handle form validation errors
-            _handle_form_errors(form, request)
-    else:
-        form = UserProfileForm(instance=profile)
-    
-    # Pre-populate User fields (done once)
-    _prepopulate_user_fields(form, request.user)
-    
-    # Pre-populate Profile fields
-    _prepopulate_profile_fields(form, profile)
-    
-    allergies = Allergy.objects.filter(user=request.user)
-    
-    # Passer les valeurs initiales au template pour l'affichage
-    initial_values = {
-        'skin_concerns': profile.get_skin_concerns_list() or [],
-        'allergies': profile.get_allergies_list() or [],
-        'dermatological_conditions': profile.get_dermatological_conditions_list() or [],
-        'objectives': profile.get_objectives_list() or [],
-    }
-    
-    return render(request, 'accounts/profile.html', {
-        'form': form,
-        'allergies': allergies,
-        'initial_values': initial_values
-    })
+# Import Clean Architecture adapter
+from .adapters.profile_view_adapter import profile_view
+
+# Legacy profile view - now uses Clean Architecture adapter
+# The original implementation has been moved to the adapter
+# while maintaining the same interface and behavior
 
 
 def _prepopulate_user_fields(form, user):
