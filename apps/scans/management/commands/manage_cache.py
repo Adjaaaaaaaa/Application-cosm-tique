@@ -1,11 +1,11 @@
 """
-Management command pour gérer le cache des analyses de produits.
+Management command to manage product analysis cache.
 
 Usage:
-    python manage.py manage_cache --stats          # Afficher les statistiques
-    python manage.py manage_cache --clear-expired  # Nettoyer les caches expirés
-    python manage.py manage_cache --clear-all      # Vider tout le cache
-    python manage.py manage_cache --clear-product 123456789  # Vider le cache d'un produit
+    python manage.py manage_cache --stats          # Show statistics
+    python manage.py manage_cache --clear-expired  # Clean expired caches
+    python manage.py manage_cache --clear-all      # Clear all cache
+    python manage.py manage_cache --clear-product 123456789  # Clear cache for a product
 """
 
 from django.core.management.base import BaseCommand, CommandError
@@ -14,33 +14,33 @@ from apps.scans.models import ProductCache
 
 
 class Command(BaseCommand):
-    help = 'Gère le cache des analyses de produits pour optimiser les performances'
+    help = 'Manages product analysis cache to optimize performance'
 
     def add_arguments(self, parser):
         parser.add_argument(
             '--stats',
             action='store_true',
-            help='Afficher les statistiques du cache',
+            help='Show cache statistics',
         )
         parser.add_argument(
             '--clear-expired',
             action='store_true',
-            help='Supprimer tous les caches expirés',
+            help='Remove all expired caches',
         )
         parser.add_argument(
             '--clear-all',
             action='store_true',
-            help='Vider complètement le cache',
+            help='Completely clear the cache',
         )
         parser.add_argument(
             '--clear-product',
             type=str,
-            help='Supprimer le cache pour un produit spécifique (code-barres)',
+            help='Remove cache for a specific product (barcode)',
         )
         parser.add_argument(
             '--warm-cache',
             action='store_true',
-            help='Préchauffer le cache avec des produits populaires',
+            help='Warm up cache with popular products',
         )
 
     def handle(self, *args, **options):
@@ -68,8 +68,8 @@ class Command(BaseCommand):
             )
 
     def show_cache_stats(self, cache_service):
-        """Affiche les statistiques détaillées du cache."""
-        self.stdout.write(self.style.SUCCESS('📊 Statistiques du Cache des Analyses'))
+        """Display detailed cache statistics."""
+        self.stdout.write(self.style.SUCCESS('📊 Product Analysis Cache Statistics'))
         self.stdout.write('=' * 50)
         
         try:
@@ -108,8 +108,8 @@ class Command(BaseCommand):
             )
 
     def clear_expired_cache(self, cache_service):
-        """Supprime tous les caches expirés."""
-        self.stdout.write('🧹 Nettoyage des caches expirés...')
+        """Remove all expired caches."""
+        self.stdout.write('🧹 Cleaning expired caches...')
         
         try:
             deleted_count = cache_service.clear_expired_cache()
@@ -129,8 +129,8 @@ class Command(BaseCommand):
             )
 
     def clear_all_cache(self):
-        """Vide complètement le cache."""
-        self.stdout.write('⚠️  ATTENTION: Cette action va supprimer TOUT le cache!')
+        """Completely clear the cache."""
+        self.stdout.write('⚠️  WARNING: This action will delete ALL cache!')
         
         try:
             total_count = ProductCache.objects.count()
@@ -160,8 +160,8 @@ class Command(BaseCommand):
             )
 
     def clear_product_cache(self, cache_service, barcode):
-        """Supprime le cache pour un produit spécifique."""
-        self.stdout.write(f'🗑️  Suppression du cache pour le produit {barcode}...')
+        """Remove cache for a specific product."""
+        self.stdout.write(f'🗑️  Removing cache for product {barcode}...')
         
         try:
             deleted_count = cache_service.clear_cache_for_product(barcode)
@@ -181,8 +181,8 @@ class Command(BaseCommand):
             )
 
     def warm_cache(self, cache_service):
-        """Préchauffe le cache avec des produits populaires."""
-        self.stdout.write('🔥 Préchauffage du cache...')
+        """Warm up cache with popular products."""
+        self.stdout.write('🔥 Warming up cache...')
         
         # Liste de produits populaires pour préchauffer le cache
         popular_products = [

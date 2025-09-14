@@ -601,7 +601,7 @@ Format de la réponse :
         return prompt.strip()
     
     def _format_profile_concise(self, user_profile: Dict[str, Any]) -> str:
-        """Formate le profil utilisateur de façon concise pour les réponses directes."""
+        """Format user profile concisely for direct responses."""
         skin_type = user_profile.get("skin_type", "Non spécifié")
         age_range = user_profile.get("age_range", "Non spécifié")
         allergies = user_profile.get("allergies", [])
@@ -622,7 +622,7 @@ Format de la réponse :
         ai_response: str,
         user_profile: Dict[str, Any]
     ) -> Dict[str, Any]:
-        """Parse la réponse naturelle de l'IA."""
+        """Parse natural AI response."""
         try:
             # Pour les réponses naturelles, on retourne directement le texte
             # sans parsing JSON complexe
@@ -652,7 +652,7 @@ Format de la réponse :
         user_profile: Dict[str, Any],
         user_question: str
     ) -> str:
-        """Construit le prompt pour les questions générales."""
+        """Build prompt for general questions."""
         
         # Formater le profil utilisateur
         profile_text = self.user_service.format_profile_for_ai(user_profile)
@@ -733,7 +733,7 @@ Réponds au format JSON suivant avec des réponses TRÈS DÉTAILLÉES:
         ai_response: str,
         user_profile: Dict[str, Any]
     ) -> Dict[str, Any]:
-        """Parse la réponse pour les questions générales."""
+        """Parse response for general questions."""
         try:
             # Essayer d'extraire le JSON de la réponse
             json_start = ai_response.find('{')
@@ -762,7 +762,7 @@ Réponds au format JSON suivant avec des réponses TRÈS DÉTAILLÉES:
             return self._create_fallback_general_response(ai_response)
     
     def _create_fallback_general_response(self, question: str) -> Dict[str, Any]:
-        """Crée une réponse de fallback pour les questions générales."""
+        """Create a fallback response for general questions."""
         return {
             "type": "general_response",
             "answer": f"Je comprends votre question : '{question}'. ⚠️ ATTENTION : Azure OpenAI GPT-4 n'est pas configuré dans le fichier .env. Pour des conseils personnalisés et détaillés, veuillez configurer vos clés Azure OpenAI dans le fichier .env. En attendant, voici quelques conseils généraux de sécurité.",

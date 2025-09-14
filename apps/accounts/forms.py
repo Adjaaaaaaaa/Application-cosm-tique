@@ -67,7 +67,7 @@ class CustomUserCreationForm(UserCreationForm):
     )
     
     def clean_username(self):
-        """Validation personnalisée du nom d'utilisateur."""
+        """Custom username validation."""
         username = self.cleaned_data.get('username')
         if username:
             if len(username) < 3:
@@ -77,7 +77,7 @@ class CustomUserCreationForm(UserCreationForm):
         return username
     
     def clean_password1(self):
-        """Validation personnalisée du mot de passe."""
+        """Custom password validation."""
         password1 = self.cleaned_data.get('password1')
         if password1:
             if len(password1) < 8:
@@ -91,7 +91,7 @@ class CustomUserCreationForm(UserCreationForm):
         return password1
     
     def clean_accept_terms(self):
-        """Vérifier que l'utilisateur a accepté les conditions."""
+        """Check that the user has accepted the terms."""
         accept_terms = self.cleaned_data.get('accept_terms')
         if not accept_terms:
             raise forms.ValidationError(
@@ -104,7 +104,7 @@ class CustomUserCreationForm(UserCreationForm):
         fields = ('username', 'email', 'password1', 'password2')
     
     def clean_email(self):
-        """Vérifier que l'email est unique."""
+        """Check that the email is unique."""
         email = self.cleaned_data.get('email')
         if email and User.objects.filter(email__iexact=email).exists():
             raise forms.ValidationError(

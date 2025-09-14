@@ -12,29 +12,29 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from django.conf import settings
 
-# Configuration du backend API - PORT 8000 (API interne sécurisée)
+# Backend API configuration - PORT 8000 (secure internal API)
 API_BASE_URL = "http://127.0.0.1:8000/internal-api"
 INTERNAL_API_TOKEN = "internal_beautyscan_2024"
 
 
 @login_required
 def ai_routines_view(request):
-    """Vue principale pour les routines IA."""
+    """Main view for AI routines."""
     return render(request, 'ai_routines/ai_routines.html')
 
 
 @login_required
 def beauty_assistant_view(request):
-    """Vue pour l'assistant beauté avec services intégrés."""
+    """View for beauty assistant with integrated services."""
     if request.method == 'POST':
         try:
-            # Récupérer les données du formulaire
+            # Retrieve form data
             routine_type = request.POST.get('routine_type', 'evening')
             question = request.POST.get('question', '')
             budget = int(request.POST.get('budget', 50))
             product_ingredients = request.POST.get('product_ingredients', '')
             
-            # Appeler l'API
+            # Call API
             api_url = f"{API_BASE_URL}/enhanced-ai/comprehensive-routine"
             
             payload = {
@@ -47,7 +47,7 @@ def beauty_assistant_view(request):
             if product_ingredients:
                 payload["product_ingredients"] = product_ingredients
             
-            # Faire l'appel à l'API interne sécurisée
+            # Make call to secure internal API
             headers = {
                 'X-Internal-Token': INTERNAL_API_TOKEN,
                 'Content-Type': 'application/json'
@@ -87,16 +87,16 @@ def beauty_assistant_view(request):
 
 @login_required
 def product_analysis_view(request):
-    """Vue pour l'analyse de produits avec services intégrés."""
+    """View for product analysis with integrated services."""
     if request.method == 'POST':
         try:
-            # Récupérer les données du formulaire
+            # Retrieve form data
             product_ingredients = request.POST.get('product_ingredients', '')
             user_question = request.POST.get('user_question', '')
             product_name = request.POST.get('product_name', '')
             product_brand = request.POST.get('product_brand', '')
             
-            # Appeler l'API pour l'analyse de produits
+            # Call API pour l'analyse de produits
             api_url = f"{API_BASE_URL}/ai/analyze-product"
             
             payload = {
@@ -109,7 +109,7 @@ def product_analysis_view(request):
                 }
             }
             
-            # Faire l'appel à l'API interne sécurisée
+            # Make call to secure internal API
             headers = {
                 'X-Internal-Token': INTERNAL_API_TOKEN,
                 'Content-Type': 'application/json'
@@ -180,7 +180,7 @@ def routine_history_view(request):
 
 @login_required
 def routine_detail_view(request, routine_id):
-    """Vue pour le détail d'une routine."""
+    """View for routine details."""
     try:
         # Appeler l'API pour récupérer le détail
         api_url = f"{API_BASE_URL}/routines/{routine_id}"
@@ -218,7 +218,7 @@ def user_profile_view(request):
     """Vue pour le profil utilisateur."""
     if request.method == 'POST':
         try:
-            # Récupérer les données du formulaire
+            # Retrieve form data
             profile_data = {
                 "age": int(request.POST.get('age', 25)),
                 "skin_type": request.POST.get('skin_type', 'normal'),
@@ -228,7 +228,7 @@ def user_profile_view(request):
                 "routine_complexity": request.POST.get('routine_complexity', 'moderate')
             }
             
-            # Appeler l'API pour mettre à jour le profil
+            # Call API pour mettre à jour le profil
             api_url = f"{API_BASE_URL}/user/profile"
             
             headers = {
@@ -284,7 +284,7 @@ def user_profile_view(request):
 @csrf_exempt
 @require_http_methods(["POST"])
 def api_beauty_assistant(request):
-    """API endpoint pour l'assistant beauté."""
+    """API endpoint for beauty assistant."""
     try:
         data = json.loads(request.body)
         
@@ -319,7 +319,7 @@ def api_beauty_assistant(request):
                 "budget": budget
             }
             
-            # Faire l'appel à l'API interne sécurisée
+            # Make call to secure internal API
             headers = {
                 'X-Internal-Token': INTERNAL_API_TOKEN,
                 'Content-Type': 'application/json'

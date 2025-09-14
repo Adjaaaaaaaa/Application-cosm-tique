@@ -1,6 +1,6 @@
 """
-Commande Django pour recalculer les niveaux de risque basés sur les nouveaux seuils
-(75/50/25 au lieu de 70/40).
+Django command to recalculate risk levels based on new thresholds
+(75/50/25 instead of 70/40).
 """
 
 from django.core.management.base import BaseCommand
@@ -8,17 +8,17 @@ from apps.scans.models import Scan
 
 
 class Command(BaseCommand):
-    help = 'Recalcule les niveaux de risque basés sur les nouveaux seuils (75/50/25)'
+    help = 'Recalculates risk levels based on new thresholds (75/50/25)'
 
     def add_arguments(self, parser):
         parser.add_argument(
             '--dry-run',
             action='store_true',
-            help='Affiche les changements sans les appliquer',
+            help='Show changes without applying them',
         )
 
     def get_risk_level_from_score(self, score):
-        """Détermine la notation basée sur le score."""
+        """Determine rating based on score."""
         if score is None:
             return None
         
@@ -34,13 +34,13 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         dry_run = options['dry_run']
         
-        # Trouver tous les scans avec un score
+        # Find all scans with a score
         scans_with_score = Scan.objects.exclude(product_score__isnull=True)
         
         updated_count = 0
         unchanged_count = 0
         
-        self.stdout.write(f"Traitement de {scans_with_score.count()} scans avec score...")
+        self.stdout.write(f"Processing {scans_with_score.count()} scans with score...")
         
         for scan in scans_with_score:
             old_risk_level = scan.product_risk_level
@@ -50,13 +50,13 @@ class Command(BaseCommand):
                 if dry_run:
                     self.stdout.write(
                         f"Scan {scan.id}: Score {scan.product_score} → '{new_risk_level}' "
-                        f"(était '{old_risk_level}') - Produit: {scan.product_name or 'Inconnu'}"
+                        f"(was '{old_risk_level}') - Product: {scan.product_name or 'Unknown'}"
                     )
                 else:
                     scan.product_risk_level = new_risk_level
                     scan.save()
                     self.stdout.write(
-                        f"✓ Scan {scan.id} mis à jour: Score {scan.product_score} → '{new_risk_level}'"
+                        f"✓ Scan {scan.id} updated: Score {scan.product_score} → '{new_risk_level}'"
                     )
                 updated_count += 1
             else:
@@ -65,23 +65,23 @@ class Command(BaseCommand):
         if dry_run:
             self.stdout.write(
                 self.style.WARNING(
-                    f"\nMode DRY-RUN: {updated_count} scans seraient mis à jour, "
-                    f"{unchanged_count} resteraient inchangés"
+                    f"\nDRY-RUN mode: {updated_count} scans would be updated, "
+                    f"{unchanged_count} would remain unchanged"
                 )
             )
             self.stdout.write(
-                "Pour appliquer les changements, relancez la commande sans --dry-run"
+                "To apply changes, run the command again without --dry-run"
             )
         else:
             self.stdout.write(
                 self.style.SUCCESS(
-                    f"\n✅ Mise à jour terminée: {updated_count} scans mis à jour, "
-                    f"{unchanged_count} restés inchangés"
+                    f"\n✅ Update completed: {updated_count} scans updated, "
+                    f"{unchanged_count} remained unchanged"
                 )
             )
         
-        # Afficher un résumé des niveaux actuels
-        self.stdout.write("\n📊 Résumé des niveaux de risque actuels:")
+        # Display summary of current levels
+        self.stdout.write("\n📊 Summary of current risk levels:")
         risk_levels = Scan.objects.values_list('product_risk_level', flat=True).distinct()
         for level in risk_levels:
             if level:

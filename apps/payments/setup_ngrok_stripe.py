@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-Script de configuration ngrok pour Stripe BeautyScan.
+ngrok setup script for Stripe BeautyScan.
 
-Ce script aide à configurer ngrok pour partager l'URL webhook Stripe
-avec l'équipe de développement.
+This script helps configure ngrok to share the Stripe webhook URL
+with the development team.
 """
 
 import os
@@ -14,7 +14,7 @@ import requests
 from pathlib import Path
 
 def check_ngrok_installed():
-    """Vérifie si ngrok est installé."""
+    """Check if ngrok is installed."""
     try:
         result = subprocess.run(['ngrok', 'version'], capture_output=True, text=True)
         return result.returncode == 0
@@ -22,7 +22,7 @@ def check_ngrok_installed():
         return False
 
 def install_ngrok():
-    """Installe ngrok si nécessaire."""
+    """Install ngrok if necessary."""
     print("📥 Installation de ngrok...")
     
     if sys.platform.startswith('win'):
@@ -48,7 +48,7 @@ def install_ngrok():
             return False
 
 def start_ngrok(port=8000):
-    """Démarre ngrok sur le port spécifié."""
+    """Start ngrok on the specified port."""
     print(f"🚀 Démarrage de ngrok sur le port {port}...")
     
     try:
@@ -84,7 +84,7 @@ def start_ngrok(port=8000):
         return None, None
 
 def update_env_file(ngrok_url):
-    """Met à jour le fichier .env avec l'URL ngrok."""
+    """Update .env file with ngrok URL."""
     env_file = Path('.env')
     
     if not env_file.exists():

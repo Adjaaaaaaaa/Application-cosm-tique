@@ -1,5 +1,5 @@
 """
-Template tags et filtres pour l'application scans.
+Template tags and filters for the scans application.
 """
 
 import json
@@ -10,10 +10,10 @@ register = template.Library()
 
 @register.filter
 def to_json(value):
-    """Convertit une valeur Python en JSON pour JavaScript."""
+    """Convert a Python value to JSON for JavaScript."""
     return mark_safe(json.dumps(value))
 
 @register.filter
 def escape_json(value):
-    """Échappe une valeur pour l'utilisation dans du JavaScript."""
+    """Escape a value for use in JavaScript."""
     return json.dumps(value)

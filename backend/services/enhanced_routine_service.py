@@ -1,8 +1,8 @@
 """
-Enhanced Routine Service for BeautyScan - Service GPT-4 Optimisé.
+Enhanced Routine Service for BeautyScan - Optimized GPT-4 Service.
 
-Ce service génère des routines de soins personnalisées en utilisant Azure OpenAI GPT-4
-avec TOUTES les données du profil utilisateur.
+This service generates personalized skincare routines using Azure OpenAI GPT-4
+with ALL user profile data.
 """
 
 import json
@@ -11,43 +11,43 @@ import re
 import requests
 from typing import Dict, Any, List
 
-# Configuration du logging
+# Logging configuration
 logger = logging.getLogger(__name__)
 
 class EnhancedRoutineService:
     """
-    Service de génération de routines utilisant Azure OpenAI GPT-4.
+    Routine generation service using Azure OpenAI GPT-4.
     
-    Récupère TOUTES les données du profil utilisateur et génère des routines
-    personnalisées et adaptées.
+    Retrieves ALL user profile data and generates personalized
+    and adapted routines.
     """
     
     def __init__(self):
-        """Initialise le service."""
+        """Initialize the service."""
         self.logger = logging.getLogger(__name__)
     
     def generate_routine(self, user_id: int, routine_type: str = "daily", 
                         budget: str = "medium", custom_question: str = "") -> Dict[str, Any]:
         """
-        Génère une routine personnalisée avec GPT-4.
-        Peut aussi répondre à des questions générales si routine_type est "general".
+        Generate a personalized routine with GPT-4.
+        Can also answer general questions if routine_type is "general".
         
         Args:
-            user_id: ID de l'utilisateur
-            routine_type: Type de routine (daily, weekly, etc.) ou "general" pour questions
-            budget: Niveau de budget (low, medium, high)
-            custom_question: Question personnalisée pour l'IA
+            user_id: User ID
+            routine_type: Routine type (daily, weekly, etc.) or "general" for questions
+            budget: Budget level (low, medium, high)
+            custom_question: Custom question for AI
             
         Returns:
-            Dict contenant la routine générée ou la réponse générale
+            Dict containing the generated routine or general response
         """
         try:
-            # Récupérer TOUTES les données du profil
+            # Retrieve ALL profile data
             profile_data = self._get_user_profile_data(user_id)
             
-            # Vérifier que Azure OpenAI est disponible
+            # Check that Azure OpenAI is available
             if not self._is_azure_openai_available():
-                # Fallback spécifique pour les questions générales
+                # Specific fallback for general questions
                 if routine_type == "general" or routine_type == "":
                     return {
                         "status": "success",
@@ -58,24 +58,24 @@ class EnhancedRoutineService:
                         "tips": [],
                         "warnings": []
                     }
-                # Sinon, retourner une routine de secours
+                # Otherwise, return a fallback routine
                 return self._generate_fallback_routine(profile_data, routine_type, budget)
             
-            # Générer la routine avec GPT-4 UNIQUEMENT
+            # Generate routine with GPT-4 ONLY
             try:
-                # Construire le prompt avec TOUTES les données
+                # Build prompt with ALL data
                 prompt = self._build_gpt4_prompt(profile_data, routine_type, budget, custom_question)
                 
-                # Appeler GPT-4
+                # Call GPT-4
                 gpt4_response = self._call_gpt4_api(prompt)
                 
-                # Parser la réponse JSON
+                # Parse JSON response
                 routine_data = self._parse_gpt4_response(gpt4_response)
                 
-                # Construire la réponse finale selon le type
+                # Build final response according to type
                 if routine_type == "general":
-                    # Réponse générale
-                    # Normaliser la clé de réponse (gère 'réponse'/'reponse')
+                    # General response
+                    # Normalize response key (handles 'réponse'/'reponse')
                     normalized_answer = routine_data.get("answer") or routine_data.get("réponse") or routine_data.get("reponse") or ""
                     routine = {
                         "status": "success",
@@ -87,7 +87,7 @@ class EnhancedRoutineService:
                         "warnings": routine_data.get("warnings", [])
                     }
                 else:
-                    # Routine structurée
+                    # Structured routine
                     routine = {
                         "status": "success",
                         "type": "comprehensive_routine",
@@ -107,10 +107,10 @@ class EnhancedRoutineService:
                 return routine
                 
             except Exception as e:
-                self.logger.error(f"Erreur lors de l'appel à GPT-4: {e}")
-                # Fallback: si question générale, renvoyer une réponse directe; sinon routine de base
+                self.logger.error(f"Error during GPT-4 call: {e}")
+                # Fallback: if general question, return direct response; otherwise basic routine
                 if routine_type == "general" or routine_type == "":
-                    self.logger.info("Utilisation du fallback pour question générale")
+                    self.logger.info("Using fallback for general question")
                     return {
                         "status": "success",
                         "type": "general_response",
@@ -133,14 +133,14 @@ class EnhancedRoutineService:
             }
 
     def _create_fallback_general_answer(self, question: str, profile: Dict[str, Any]) -> str:
-        """Crée une réponse simple et utile pour les questions générales en fallback."""
+        """Create a simple and useful response for general questions as fallback."""
         question_lower = (question or "").strip().lower()
         skin_type = profile.get('skin_type', 'normal')
         age_range = profile.get('age_range', '')
         allergies = ", ".join(profile.get('allergies', []))
         conditions = ", ".join(profile.get('dermatological_conditions', []))
 
-        # Réponses rapides basées sur mots-clés simples
+        # Quick responses based on simple keywords
         if 'vaseline' in question_lower:
             base = "La vaseline (pétrolatum) est un occlusif qui réduit la perte d'eau et protège la barrière cutanée."
             advice = "Convient souvent aux peaux sèches ou irritées; appliquez en fine couche en fin de routine."
@@ -156,7 +156,7 @@ class EnhancedRoutineService:
                 "Utilisez le matin sous une protection solaire. Si peau sensible, commencez à basse concentration (5-10%)."
             )
 
-        # Générique par défaut
+        # Generic default
         tips = []
         if skin_type == 'sensitive':
             tips.append("privilégiez des formules sans parfum et testez sur une petite zone")
@@ -170,7 +170,7 @@ class EnhancedRoutineService:
         )
     
     def _get_user_profile_data(self, user_id: int) -> Dict[str, Any]:
-        """Récupère TOUTES les données du profil utilisateur."""
+        """Retrieve ALL user profile data."""
         try:
             import django
             if not django.conf.settings.configured:
@@ -178,7 +178,7 @@ class EnhancedRoutineService:
             
             from backend.services.user_service import UserService
             
-            # Utiliser notre UserService mis à jour
+            # Use our updated UserService
             user_service = UserService()
             profile_data = user_service.get_user_profile(user_id)
             
@@ -189,8 +189,8 @@ class EnhancedRoutineService:
             return profile_data
             
         except Exception as e:
-            self.logger.warning(f"Impossible de récupérer le profil: {e}")
-            # Données par défaut
+            self.logger.warning(f"Unable to retrieve profile: {e}")
+            # Default data
             return {
                 'username': f'user_{user_id}',
                 'skin_type': 'normal',
@@ -204,26 +204,26 @@ class EnhancedRoutineService:
     
     def _build_gpt4_prompt(self, profile_data: Dict[str, Any], routine_type: str, 
                            budget: str, custom_question: str) -> str:
-        """Construit le prompt pour GPT-4 avec TOUTES les données."""
+        """Build prompt for GPT-4 with ALL data."""
         
-        # Extraire TOUTES les données
+        # Extract ALL data
         skin_type = profile_data.get('skin_type', 'normal')
         age_range = profile_data.get('age_range', '26-35')
         skin_concerns = profile_data.get('skin_concerns', [])
         allergies = profile_data.get('allergies', [])
         dermatological_conditions = profile_data.get('dermatological_conditions', [])
         objectives = profile_data.get('objectives', [])
-        budget = profile_data.get('budget', budget)  # Utiliser le budget du profil ou celui passé en paramètre
+        budget = profile_data.get('budget', budget)  # Use profile budget or the one passed as parameter
         product_style = profile_data.get('product_style', 'standard')
         routine_frequency = profile_data.get('routine_frequency', 'standard')
         
-        # Formater les données
-        skin_concerns_text = ", ".join(skin_concerns) if skin_concerns else "aucun"
-        allergies_text = ", ".join(allergies) if allergies else "aucune"
+        # Format data
+        skin_concerns_text = ", ".join(skin_concerns) if skin_concerns else "none"
+        allergies_text = ", ".join(allergies) if allergies else "none"
         dermatological_conditions_text = ", ".join(dermatological_conditions) if dermatological_conditions else "aucune"
-        objectives_text = ", ".join(objectives) if objectives else "aucun"
+        objectives_text = ", ".join(objectives) if objectives else "none"
         
-        # Traduire le type de routine en français
+        # Translate routine type to French
         routine_type_french = {
             'morning': 'matin',
             'evening': 'soir',
@@ -234,9 +234,9 @@ class EnhancedRoutineService:
             'general': 'générale'
         }.get(routine_type, routine_type)
         
-        # Déterminer le type de demande
+        # Determine request type
         if routine_type == "general" or routine_type == "":
-            # Question générale - réponse directe et concise
+            # General question - direct and concise response
             prompt = f"""
 Tu es un expert en cosmétiques et soins de la peau. Réponds directement et de façon concise à la question de l'utilisateur.
 
@@ -257,7 +257,7 @@ Type de peau: {skin_type} | Âge: {age_range} | Allergies: {allergies_text} | Co
 Réponds comme si tu répondais à une question ponctuelle, de façon naturelle et directe.
             """
         elif routine_type == "ingredients":
-            # Analyse d'ingrédient
+            # Ingredient analysis
             prompt = f"""
 Tu es un expert en cosmétiques et soins de la peau avec 15 ans d'expérience. Analyse l'ingrédient demandé en donnant D'ABORD des informations générales, PUIS des conseils d'utilisation personnalisés.
 
@@ -477,7 +477,7 @@ CRITIQUE: Le "total_budget" doit être la SOMME EXACTE de tous les budgets des �
             "temperature": 0.2
         }
         
-        # Faire la requête avec timeout augmenté pour Azure OpenAI
+        # Make request with increased timeout for Azure OpenAI
         response = requests.post(url, headers=headers, json=payload, timeout=60)
         
         if response.status_code == 200:
@@ -487,7 +487,7 @@ CRITIQUE: Le "total_budget" doit être la SOMME EXACTE de tous les budgets des �
             raise Exception(f"HTTP {response.status_code}: {response.text}")
     
     def _parse_gpt4_response(self, gpt4_response: str) -> Dict[str, Any]:
-        """Parse la réponse de GPT-4 et extrait le JSON."""
+        """Parse GPT-4 response and extract JSON."""
         logger.info(f"Réponse brute de GPT-4: {gpt4_response}")
         
         try:
@@ -496,7 +496,7 @@ CRITIQUE: Le "total_budget" doit être la SOMME EXACTE de tous les budgets des �
             logger.info("Réponse JSON de GPT-4 parsée directement avec succès")
             return routine_data
         except json.JSONDecodeError:
-            # Si ça échoue, essayer d'extraire le JSON avec regex
+            # If that fails, try to extract JSON with regex
             json_match = re.search(r'\{.*\}', gpt4_response, re.DOTALL)
             if json_match:
                 try:
@@ -504,8 +504,8 @@ CRITIQUE: Le "total_budget" doit être la SOMME EXACTE de tous les budgets des �
                     logger.info("Réponse JSON de GPT-4 extraite et parsée avec succès")
                     return routine_data
                 except json.JSONDecodeError as e:
-                    logger.error(f"Erreur de parsing JSON extrait: {e}")
-                    # Essayer de nettoyer la réponse
+                    logger.error(f"Extracted JSON parsing error: {e}")
+                    # Try to clean the response
                     cleaned_response = self._clean_json_response(json_match.group())
                     routine_data = json.loads(cleaned_response)
                     logger.info("Réponse JSON de GPT-4 nettoyée et parsée avec succès")
@@ -515,11 +515,11 @@ CRITIQUE: Le "total_budget" doit être la SOMME EXACTE de tous les budgets des �
                 raise Exception("GPT-4 n'a pas retourné de JSON valide")
     
     def _clean_json_response(self, json_str: str) -> str:
-        """Nettoie la réponse JSON pour corriger les erreurs communes."""
+        """Clean JSON response to fix common errors."""
         try:
             logger.info(f"JSON brut à nettoyer: {json_str[:200]}...")
             
-            # Remplacer les caractères problématiques
+            # Replace problematic characters
             cleaned = json_str.replace('\n', ' ').replace('\r', ' ')
             
             # Corriger les erreurs communes de virgules
@@ -529,13 +529,13 @@ CRITIQUE: Le "total_budget" doit être la SOMME EXACTE de tous les budgets des �
             # Corriger les virgules avant } ou ] (erreur la plus commune)
             cleaned = re.sub(r',\s*([}\]])', r'\1', cleaned)
             
-            # Enlever l'espace à la fin
+            # Remove space at the end
             cleaned = re.sub(r'}\s*$', '}', cleaned)
             
-            # Corriger les guillemets non fermés
+            # Fix unclosed quotes
             cleaned = re.sub(r'([^"])\s*$', r'\1"', cleaned)
             
-            # Corriger les catégories incomplètes (erreur spécifique observée)
+            # Fix incomplete categories (specific observed error)
             cleaned = re.sub(r'"category":\s*"([^"]*)$', r'"category": "\1"', cleaned)
             
             # Fermer les objets JSON incomplets
@@ -551,9 +551,9 @@ CRITIQUE: Le "total_budget" doit être la SOMME EXACTE de tous les budgets des �
             return json_str
     
     def _generate_fallback_routine(self, profile_data: Dict[str, Any], routine_type: str, budget: str) -> Dict[str, Any]:
-        """Génère une routine de fallback avec TOUTES les données."""
+        """Generate a fallback routine with ALL data."""
         try:
-            # Extraire TOUTES les données
+            # Extract ALL data
             skin_type = profile_data.get('skin_type', 'normal')
             age_range = profile_data.get('age_range', '26-35')
             skin_concerns = profile_data.get('skin_concerns', [])
@@ -561,12 +561,12 @@ CRITIQUE: Le "total_budget" doit être la SOMME EXACTE de tous les budgets des �
             dermatological_conditions = profile_data.get('dermatological_conditions', [])
             objectives = profile_data.get('objectives', [])
             
-            # Générer des conseils personnalisés basés sur le profil
+            # Generate personalized tips based on profile
             tips = self._generate_personalized_tips(profile_data)
             faq = self._generate_personalized_faq(profile_data)
             product_suggestions = self._generate_product_suggestions(profile_data)
             
-            # Créer la routine de fallback avec TOUTES les données
+            # Create fallback routine with ALL data
             routine = {
                 "status": "success",
                 "type": "fallback_routine",
@@ -617,14 +617,14 @@ CRITIQUE: Le "total_budget" doit être la SOMME EXACTE de tous les budgets des �
             }
     
     def _generate_personalized_tips(self, profile_data: Dict[str, Any]) -> List[str]:
-        """Génère des conseils personnalisés basés sur le profil."""
+        """Generate personalized tips based on profile."""
         tips = []
         skin_type = profile_data.get('skin_type', 'normal')
         age_range = profile_data.get('age_range', '26-35')
         allergies = profile_data.get('allergies', [])
         skin_concerns = profile_data.get('skin_concerns', [])
         
-        # Conseils basés sur le type de peau
+        # Tips based on skin type
         if skin_type == 'sensitive':
             tips.append("Utilisez des produits sans parfum et hypoallergéniques")
             tips.append("Testez toujours sur une petite zone avant utilisation complète")
@@ -638,7 +638,7 @@ CRITIQUE: Le "total_budget" doit être la SOMME EXACTE de tous les budgets des �
             tips.append("Adaptez vos soins selon les zones de votre visage")
             tips.append("Utilisez des produits équilibrants")
         
-        # Conseils basés sur l'âge
+        # Tips based on age
         if '18-25' in age_range:
             tips.append("Privilégiez la prévention et la protection solaire")
         elif '26-35' in age_range:
@@ -648,12 +648,12 @@ CRITIQUE: Le "total_budget" doit être la SOMME EXACTE de tous les budgets des �
         elif '46+' in age_range:
             tips.append("Privilégiez les soins nourrissants et régénérants")
         
-        # Conseils basés sur les allergies
+        # Tips based on allergies
         if allergies:
             tips.append(f"Vérifiez toujours la composition pour éviter: {', '.join(allergies)}")
             tips.append("Préférez les produits dermo-cosmétiques testés")
         
-        # Conseils basés sur les préoccupations
+        # Tips based on concerns
         if 'acne' in skin_concerns:
             tips.append("Nettoyez votre peau en douceur, évitez les frottements")
             tips.append("Utilisez des produits non comédogènes")
@@ -661,16 +661,16 @@ CRITIQUE: Le "total_budget" doit être la SOMME EXACTE de tous les budgets des �
             tips.append("Protégez-vous du soleil avec un SPF 50+")
             tips.append("Intégrez des actifs comme le rétinol progressivement")
         
-        return tips[:6]  # Limiter à 6 conseils
+        return tips[:6]  # Limit to 6 tips
     
     def _generate_personalized_faq(self, profile_data: Dict[str, Any]) -> List[Dict[str, str]]:
-        """Génère des questions fréquentes personnalisées basées sur le profil."""
+        """Generate personalized frequently asked questions based on profile."""
         faq = []
         skin_type = profile_data.get('skin_type', 'normal')
         allergies = profile_data.get('allergies', [])
         skin_concerns = profile_data.get('skin_concerns', [])
         
-        # FAQ basée sur le type de peau
+        # FAQ based on skin type
         if skin_type == 'sensitive':
             faq.append({
                 "question": "Comment savoir si un produit me convient ?",
@@ -683,14 +683,14 @@ CRITIQUE: Le "total_budget" doit être la SOMME EXACTE de tous les budgets des �
                 "answer": "Pour une peau sèche, hydratez matin et soir. En hiver ou climats secs, vous pouvez ajouter une hydratation en journée si nécessaire."
             })
         
-        # FAQ basée sur les allergies
+        # FAQ based on allergies
         if allergies:
             faq.append({
                 "question": "Comment éviter mes allergies dans les cosmétiques ?",
                 "answer": f"Lisez toujours la liste des ingrédients. Évitez les produits contenant: {', '.join(allergies)}. Privilégiez les produits dermo-cosmétiques testés."
             })
         
-        # FAQ basée sur les préoccupations
+        # FAQ based on concerns
         if 'acne' in skin_concerns:
             faq.append({
                 "question": "Puis-je utiliser des gommages si j'ai de l'acné ?",
@@ -703,16 +703,16 @@ CRITIQUE: Le "total_budget" doit être la SOMME EXACTE de tous les budgets des �
                 "answer": "La prévention peut commencer dès 25-30 ans avec de la protection solaire. Les actifs anti-âge comme le rétinol peuvent être introduits progressivement à partir de 30-35 ans."
             })
         
-        # FAQ générales
+        # General FAQ
         faq.append({
             "question": "Quel est le bon ordre d'application des soins ?",
             "answer": "Nettoyant → Tonique → Sérum → Crème hydratante → Protection solaire (matin). Le soir, remplacez la protection solaire par une crème de nuit."
         })
         
-        return faq[:5]  # Limiter à 5 questions
+        return faq[:5]  # Limit to 5 questions
     
     def _generate_product_suggestions(self, profile_data: Dict[str, Any]) -> List[Dict[str, Any]]:
-        """Génère des suggestions de produits basées sur le profil."""
+        """Generate product suggestions based on profile."""
         suggestions = []
         skin_type = profile_data.get('skin_type', 'normal')
         skin_concerns = profile_data.get('skin_concerns', [])
@@ -754,15 +754,15 @@ CRITIQUE: Le "total_budget" doit être la SOMME EXACTE de tous les budgets des �
             "reason": "Protection essentielle pour tous les types de peau, même en ville"
         })
         
-        return suggestions[:4]  # Limiter à 4 catégories
+        return suggestions[:4]  # Limit to 4 categories
 
     def _is_azure_openai_available(self) -> bool:
-        """Vérifie si Azure OpenAI est disponible et configuré."""
+        """Check if Azure OpenAI is available and configured."""
         try:
             from config.env import AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_KEY
             import os
             
-            # Vérifier que les variables d'environnement sont présentes
+            # Check that environment variables are present
             azure_endpoint = AZURE_OPENAI_ENDPOINT
             api_key = AZURE_OPENAI_KEY
             
@@ -770,12 +770,12 @@ CRITIQUE: Le "total_budget" doit être la SOMME EXACTE de tous les budgets des �
                 self.logger.warning("Variables d'environnement Azure OpenAI manquantes")
                 return False
             
-            # Vérifier que l'endpoint est accessible
+            # Check that endpoint is accessible
             try:
                 import requests
                 test_url = f"{azure_endpoint}/openai/deployments/test/chat/completions?api-version=2024-02-15-preview"
                 response = requests.get(test_url, timeout=5)
-                # Même si on a une erreur 404, cela signifie que l'endpoint est accessible
+                # Even if we get a 404 error, it means the endpoint is accessible
                 return True
             except Exception as e:
                 self.logger.warning(f"Impossible de contacter Azure OpenAI: {e}")

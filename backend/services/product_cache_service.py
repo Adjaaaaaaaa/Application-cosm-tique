@@ -1,8 +1,8 @@
 """
-Service de cache pour optimiser les performances des analyses de produits.
+Cache service to optimize product analysis performance.
 
-Ce service gère un cache intelligent qui stocke les résultats d'analyse
-pour éviter les appels répétés aux APIs externes.
+This service manages an intelligent cache that stores analysis results
+to avoid repeated calls to external APIs.
 """
 
 import logging
@@ -16,40 +16,40 @@ logger = logging.getLogger(__name__)
 
 class ProductCacheService:
     """
-    Service de cache pour les analyses de produits.
+    Cache service for product analyses.
     
-    Gère un cache intelligent avec différentes stratégies selon le type de données :
-    - Informations produit : 24h
-    - Analyses IA : 12h  
-    - Scores de sécurité : 48h
-    - Analyses complètes : 6h
+    Manages an intelligent cache with different strategies based on data type:
+    - Product information: 24h
+    - AI analyses: 12h  
+    - Safety scores: 48h
+    - Complete analyses: 6h
     """
     
-    # Durées de cache par type de données (en heures)
+    # Cache durations by data type (in hours)
     CACHE_TTL = {
-        'product_info': 24,        # Informations produit : 24h
-        'ingredient_analysis': 12,  # Analyse ingrédients : 12h
-        'barcode_lookup': 24,      # Recherche code-barres : 24h
-        'ai_analysis': 12,         # Analyse IA : 12h
-        'safety_score': 48,        # Score de sécurité : 48h
-        'complete_analysis': 6,    # Analyse complète : 6h
+        'product_info': 24,        # Product information: 24h
+        'ingredient_analysis': 12,  # Ingredient analysis: 12h
+        'barcode_lookup': 24,      # Barcode lookup: 24h
+        'ai_analysis': 12,         # AI analysis: 12h
+        'safety_score': 48,        # Safety score: 48h
+        'complete_analysis': 6,    # Complete analysis: 6h
     }
     
     def __init__(self):
-        """Initialise le service de cache."""
+        """Initialize the cache service."""
         self.logger = logger
         self.logger.info("ProductCacheService initialized")
     
     def get_cached_analysis(self, barcode: str, user_id: int = None) -> Optional[Dict[str, Any]]:
         """
-        Récupère une analyse complète mise en cache.
+        Retrieve a cached complete analysis.
         
         Args:
-            barcode: Code-barres du produit
-            user_id: ID de l'utilisateur (optionnel pour cache personnalisé)
+            barcode: Product barcode
+            user_id: User ID (optional for personalized cache)
             
         Returns:
-            Analyse mise en cache ou None si non trouvée/expirée
+            Cached analysis or None if not found/expired
         """
         cache_key = self._build_cache_key('complete_analysis', barcode, user_id)
         cached_data = ProductCache.get_cached_data(cache_key, 'complete_analysis')
@@ -62,12 +62,12 @@ class ProductCacheService:
     
     def set_cached_analysis(self, barcode: str, analysis_data: Dict[str, Any], user_id: int = None) -> None:
         """
-        Met en cache une analyse complète.
+        Cache a complete analysis.
         
         Args:
-            barcode: Code-barres du produit
-            analysis_data: Données d'analyse à mettre en cache
-            user_id: ID de l'utilisateur (optionnel)
+            barcode: Product barcode
+            analysis_data: Analysis data to cache
+            user_id: User ID (optional)
         """
         cache_key = self._build_cache_key('complete_analysis', barcode, user_id)
         ttl_hours = self.CACHE_TTL['complete_analysis']
@@ -77,13 +77,13 @@ class ProductCacheService:
     
     def get_cached_product_info(self, barcode: str) -> Optional[Dict[str, Any]]:
         """
-        Récupère les informations produit mises en cache.
+        Retrieve cached product information.
         
         Args:
-            barcode: Code-barres du produit
+            barcode: Product barcode
             
         Returns:
-            Informations produit mises en cache ou None
+            Cached product information or None
         """
         cache_key = self._build_cache_key('product_info', barcode)
         cached_data = ProductCache.get_cached_data(cache_key, 'product_info')
@@ -96,11 +96,11 @@ class ProductCacheService:
     
     def set_cached_product_info(self, barcode: str, product_data: Dict[str, Any]) -> None:
         """
-        Met en cache les informations produit.
+        Cache product information.
         
         Args:
-            barcode: Code-barres du produit
-            product_data: Données produit à mettre en cache
+            barcode: Product barcode
+            product_data: Product data to cache
         """
         cache_key = self._build_cache_key('product_info', barcode)
         ttl_hours = self.CACHE_TTL['product_info']
@@ -110,15 +110,15 @@ class ProductCacheService:
     
     def get_cached_ai_analysis(self, barcode: str, user_id: int, question: str = None) -> Optional[Dict[str, Any]]:
         """
-        Récupère une analyse IA mise en cache.
+        Retrieve a cached AI analysis.
         
         Args:
-            barcode: Code-barres du produit
-            user_id: ID de l'utilisateur
-            question: Question spécifique (optionnel)
+            barcode: Product barcode
+            user_id: User ID
+            question: Specific question (optional)
             
         Returns:
-            Analyse IA mise en cache ou None
+            Cached AI analysis or None
         """
         cache_key = self._build_cache_key('ai_analysis', barcode, user_id, question)
         cached_data = ProductCache.get_cached_data(cache_key, 'ai_analysis')
@@ -131,13 +131,13 @@ class ProductCacheService:
     
     def set_cached_ai_analysis(self, barcode: str, user_id: int, analysis_data: Dict[str, Any], question: str = None) -> None:
         """
-        Met en cache une analyse IA.
+        Cache an AI analysis.
         
         Args:
-            barcode: Code-barres du produit
-            user_id: ID de l'utilisateur
-            analysis_data: Données d'analyse IA à mettre en cache
-            question: Question spécifique (optionnel)
+            barcode: Product barcode
+            user_id: User ID
+            analysis_data: AI analysis data to cache
+            question: Specific question (optional)
         """
         cache_key = self._build_cache_key('ai_analysis', barcode, user_id, question)
         ttl_hours = self.CACHE_TTL['ai_analysis']
@@ -147,14 +147,14 @@ class ProductCacheService:
     
     def get_cached_safety_score(self, barcode: str, user_id: int = None) -> Optional[Dict[str, Any]]:
         """
-        Récupère un score de sécurité mis en cache.
+        Retrieve a cached safety score.
         
         Args:
-            barcode: Code-barres du produit
-            user_id: ID de l'utilisateur (optionnel)
+            barcode: Product barcode
+            user_id: User ID (optional)
             
         Returns:
-            Score de sécurité mis en cache ou None
+            Cached safety score or None
         """
         cache_key = self._build_cache_key('safety_score', barcode, user_id)
         cached_data = ProductCache.get_cached_data(cache_key, 'safety_score')
@@ -167,12 +167,12 @@ class ProductCacheService:
     
     def set_cached_safety_score(self, barcode: str, safety_data: Dict[str, Any], user_id: int = None) -> None:
         """
-        Met en cache un score de sécurité.
+        Cache a safety score.
         
         Args:
-            barcode: Code-barres du produit
-            safety_data: Données de sécurité à mettre en cache
-            user_id: ID de l'utilisateur (optionnel)
+            barcode: Product barcode
+            safety_data: Safety data to cache
+            user_id: User ID (optional)
         """
         cache_key = self._build_cache_key('safety_score', barcode, user_id)
         ttl_hours = self.CACHE_TTL['safety_score']
@@ -182,16 +182,16 @@ class ProductCacheService:
     
     def _build_cache_key(self, data_type: str, barcode: str, user_id: int = None, question: str = None) -> str:
         """
-        Construit une clé de cache unique.
+        Build a unique cache key.
         
         Args:
-            data_type: Type de données
-            barcode: Code-barres du produit
-            user_id: ID de l'utilisateur (optionnel)
-            question: Question spécifique (optionnel)
+            data_type: Data type
+            barcode: Product barcode
+            user_id: User ID (optional)
+            question: Specific question (optional)
             
         Returns:
-            Clé de cache unique
+            Unique cache key
         """
         key_parts = [data_type, barcode]
         
@@ -199,7 +199,7 @@ class ProductCacheService:
             key_parts.append(f"user_{user_id}")
         
         if question:
-            # Créer un hash de la question pour éviter des clés trop longues
+            # Create a hash of the question to avoid keys that are too long
             import hashlib
             question_hash = hashlib.md5(question.encode()).hexdigest()[:8]
             key_parts.append(f"q_{question_hash}")
@@ -208,13 +208,13 @@ class ProductCacheService:
     
     def clear_cache_for_product(self, barcode: str) -> int:
         """
-        Supprime tous les caches pour un produit spécifique.
+        Remove all caches for a specific product.
         
         Args:
-            barcode: Code-barres du produit
+            barcode: Product barcode
             
         Returns:
-            Nombre d'entrées supprimées
+            Number of entries deleted
         """
         deleted_count = ProductCache.objects.filter(
             cache_key__startswith=f"complete_analysis_{barcode}"
@@ -237,10 +237,10 @@ class ProductCacheService:
     
     def clear_expired_cache(self) -> int:
         """
-        Supprime tous les caches expirés.
+        Remove all expired caches.
         
         Returns:
-            Nombre d'entrées supprimées
+            Number of entries deleted
         """
         deleted_count = ProductCache.clear_expired_cache()
         self.logger.info(f"Cleared expired cache: {deleted_count} entries")
@@ -248,14 +248,14 @@ class ProductCacheService:
     
     def get_cache_statistics(self) -> Dict[str, Any]:
         """
-        Retourne les statistiques du cache.
+        Return cache statistics.
         
         Returns:
-            Statistiques détaillées du cache
+            Detailed cache statistics
         """
         stats = ProductCache.get_cache_stats()
         
-        # Ajouter des statistiques par type
+        # Add statistics by type
         type_stats = {}
         for data_type, _ in ProductCache.DATA_TYPE_CHOICES:
             count = ProductCache.objects.filter(data_type=data_type).count()
@@ -272,7 +272,7 @@ class ProductCacheService:
         
         stats['by_type'] = type_stats
         
-        # Top 10 des produits les plus consultés
+        # Top 10 most consulted products
         top_products = ProductCache.objects.filter(
             expires_at__gt=timezone.now()
         ).order_by('-access_count')[:10].values(
@@ -285,13 +285,13 @@ class ProductCacheService:
     
     def is_cache_available(self) -> bool:
         """
-        Vérifie si le cache est disponible.
+        Check if cache is available.
         
         Returns:
-            True si le cache est disponible, False sinon
+            True if cache is available, False otherwise
         """
         try:
-            # Test simple pour vérifier que le modèle fonctionne
+            # Simple test to verify that the model works
             ProductCache.objects.count()
             return True
         except Exception as e:

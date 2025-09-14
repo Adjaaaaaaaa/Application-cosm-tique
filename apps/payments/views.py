@@ -66,7 +66,7 @@ class UpgradeView(LoginRequiredMixin, View):
         # In production, you can uncomment the developer mode check below
         # if is_dev_mode and is_development_environment():
         #     # Developer mode: skip payment and go directly to profile
-        #     messages.info(request, 'Mode développeur actif - redirection vers la configuration du profil')
+        #     messages.info(request, 'Developer mode active - redirecting to profile configuration')
         #     return redirect('accounts:profile')
         # else:
         
@@ -269,22 +269,22 @@ class StripeCheckoutView(LoginRequiredMixin, View):
         """Affiche la page de paiement Stripe."""
         user = request.user
         
-        # Vérifier si l'utilisateur est déjà Premium
+        # Check if user is already Premium
         if is_premium_user(user):
             return redirect('payments:subscription')
         
-        # Vérifier si Stripe est configuré
+        # Check if Stripe is configured
         from config.stripe_config import is_stripe_configured
         if not is_stripe_configured():
             messages.error(request, 'Configuration Stripe manquante. Contactez l\'administrateur.')
             return redirect('payments:upgrade')
         
-        # Vérifier que l'utilisateur a un email valide
+        # Check that user has a valid email
         if not user.email or not user.email.strip():
             return redirect('accounts:profile')
         
         try:
-            # Créer la session de checkout Stripe
+            # Create Stripe checkout session
             from config.stripe_config import create_premium_checkout_session
             from django.urls import reverse
             
@@ -312,16 +312,16 @@ class StripeSuccessView(LoginRequiredMixin, View):
     """
     
     def get(self, request):
-        """Traite le succès du paiement et active l'accès Premium."""
+        """Handle payment success and activate Premium access."""
         user = request.user
         
         try:
-            # Mettre à jour le profil utilisateur pour Premium
+            # Update user profile for Premium
             user.profile.payment_completed = True
             user.profile.subscription_type = 'premium'
             user.profile.save()
             
-            # FORÇAGE DIRECT: Utiliser la fonction spécialisée pour l'activation Premium
+            # DIRECT FORCING: Use specialized function for Premium activation
             from common.premium_utils import force_premium_activation, ensure_premium_ui_status
             activation_success = force_premium_activation(user)
             
@@ -330,11 +330,11 @@ class StripeSuccessView(LoginRequiredMixin, View):
             else:
                 print(f"   ⚠️  Activation Premium forcée échouée pour {user.username}")
             
-            # S'assurer que Premium apparaît dans l'interface utilisateur
+            # Ensure Premium appears in user interface
             ui_status = ensure_premium_ui_status(user)
             print(f"   🔍 Statut Premium dans l'UI: {ui_status}")
             
-            # Vérifier que Premium est bien activé
+            # Verify that Premium is properly activated
             from common.premium_utils import is_premium_user
             premium_status = is_premium_user(user)
             print(f"   🔍 Statut Premium vérifié: {premium_status}")
@@ -342,12 +342,12 @@ class StripeSuccessView(LoginRequiredMixin, View):
             if premium_status and ui_status:
                 print(f"   🎉 Premium activé avec succès pour {user.username}")
             else:
-                # Si le statut n'est toujours pas activé, forcer manuellement
+                # If status is still not activated, force manually
                 print(f"   ⚠️  Premium pas encore activé, forçage manuel...")
                 
                 # Forcer manuellement le statut Premium
                 try:
-                    # Mettre à jour le profil à nouveau
+                    # Update profile again
                     user.profile.refresh_from_db()
                     user.profile.subscription_type = 'premium'
                     user.profile.payment_completed = True
@@ -356,7 +356,7 @@ class StripeSuccessView(LoginRequiredMixin, View):
                     # Forcer le cache
                     user._premium_status_cache = True
                     
-                    # Vérifier à nouveau le statut UI
+                    # Check UI status again
                     final_ui_status = ensure_premium_ui_status(user)
                     print(f"   🔄 Statut UI final après forçage: {final_ui_status}")
                     
@@ -368,7 +368,7 @@ class StripeSuccessView(LoginRequiredMixin, View):
                 except Exception as force_error:
                     print(f"   ❌ Erreur lors du forçage manuel: {force_error}")
             
-            # Rediriger vers le profil après activation Premium
+            # Redirect to profile after Premium activation
             return redirect('accounts:profile')
             
         except Exception as e:
@@ -400,7 +400,7 @@ class StripeWebhookView(View):
         if not event:
             return JsonResponse({'error': 'Webhook invalide'}, status=400)
         
-        # Traiter l'événement selon son type
+        # Process event according to its type
         if event['type'] == 'checkout.session.completed':
             self._handle_checkout_completed(event['data']['object'])
         elif event['type'] == 'payment_intent.succeeded':
@@ -421,6 +421,6 @@ class StripeWebhookView(View):
                 pass
     
     def _handle_payment_succeeded(self, payment_intent):
-        """Traite un paiement réussi."""
-        # Logique pour traiter un paiement réussi
+        """Handle a successful payment."""
+        # Logic to handle a successful payment
         pass

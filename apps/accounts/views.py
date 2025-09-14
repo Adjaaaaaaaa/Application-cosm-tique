@@ -116,7 +116,7 @@ def logout_view(request):
 
 
 def verify_email_view(request):
-    """Validation de l'email à partir du lien reçu par email."""
+    """Email validation from the link received by email."""
     uid = request.GET.get('uid')
     token = request.GET.get('token')
     if not uid or not token:
