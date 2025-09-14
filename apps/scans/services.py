@@ -349,10 +349,12 @@ class ProductAnalysisService:
         from backend.services.real_product_service import RealProductService
         from backend.services.product_database_service import ProductDatabaseService
         from backend.services.image_analysis_service import ImageAnalysisService
+        from backend.services.product_cache_service import ProductCacheService
         
         self.real_product_service = RealProductService()
         self.product_database_service = ProductDatabaseService()
         self.image_analysis_service = ImageAnalysisService()
+        self.cache_service = ProductCacheService()
     
     def analyze_product(self, barcode: str, user_id: int = None) -> Dict:
         """
@@ -368,11 +370,19 @@ class ProductAnalysisService:
         try:
             logger.info(f"Starting analysis for product {barcode}")
             
+            # STEP 0: Check cache first (FASTEST)
+            cached_analysis = self.cache_service.get_cached_analysis(barcode, user_id)
+            if cached_analysis:
+                logger.info(f"Product {barcode} found in cache")
+                return cached_analysis
+            
             # STEP 1: Check local database (FAST)
             local_product = self._check_local_database(barcode)
             if local_product and self._is_local_data_fresh(local_product):
                 logger.info(f"Product {barcode} found in local database with fresh data")
                 analysis_result = self._analyze_from_local_data(local_product)
+                # Cache the result
+                self.cache_service.set_cached_analysis(barcode, analysis_result, user_id)
                 return analysis_result
             
             # STEP 2: Search product database first
@@ -482,6 +492,10 @@ class ProductAnalysisService:
             }
             
             logger.info(f"✅ Completed analysis for product {barcode}")
+            
+            # Cache the final analysis result
+            self.cache_service.set_cached_analysis(barcode, analysis_result, user_id)
+            
             return analysis_result
             
         except Exception as e:
@@ -1088,6 +1102,82 @@ class IntelligentCosmeticScorer(ProductAnalysisService):
         Returns:
             dict: Analysis with H-codes categorization for two-level display
         """
+        # List of safe ingredients that should never have H-codes
+        safe_ingredients = {
+            'aqua', 'water', 'eau', 'h2o', 'purified water', 'distilled water',
+            'glycerin', 'glycerol', 'vegetable glycerin', 'glycerine',
+            'hyaluronic acid', 'sodium hyaluronate', 'hyaluronate',
+            'vitamin e', 'tocopherol', 'tocopheryl acetate', 'vitamine e',
+            'panthenol', 'provitamin b5', 'vitamin b5',
+            'niacinamide', 'nicotinamide', 'vitamin b3',
+            'retinol', 'vitamin a', 'retinyl palmitate',
+            'ascorbic acid', 'vitamin c', 'sodium ascorbate',
+            'ceramides', 'ceramide', 'ceramide np', 'ceramide ap',
+            'peptides', 'peptide', 'copper peptides',
+            'squalane', 'squalene', 'vegetable squalane',
+            'jojoba oil', 'argan oil', 'coconut oil', 'olive oil',
+            'shea butter', 'cocoa butter', 'mango butter',
+            'aloe vera', 'aloe', 'aloe barbadensis',
+            'chamomile', 'chamomilla recutita', 'matricaria chamomilla',
+            'green tea', 'camellia sinensis', 'white tea',
+            'rosehip oil', 'rose hip oil', 'rosa canina',
+            'lavender', 'lavandula angustifolia',
+            'calendula', 'calendula officinalis',
+            'witch hazel', 'hamamelis virginiana',
+            'centella asiatica', 'gotu kola', 'tiger grass',
+            'licorice', 'glycyrrhiza glabra', 'licorice root',
+            'allantoin', 'bisabolol', 'bisabolol',
+            'dimethicone', 'cyclomethicone', 'silicone',
+            'cyclopentasiloxane', 'dimethiconol',
+            'sodium chloride', 'salt', 'table salt',
+            'citric acid', 'sodium citrate', 'potassium citrate',
+            'sodium benzoate', 'potassium sorbate', 'phenoxyethanol',
+            'ethylhexylglycerin', 'caprylyl glycol',
+            'xanthan gum', 'carbomer', 'carbopol',
+            'sodium hydroxide', 'potassium hydroxide',
+            'disodium edta', 'edta', 'ethylenediaminetetraacetic acid'
+        }
+        
+        # Check if ingredient is in safe list (case insensitive)
+        ingredient_lower = ingredient.lower().strip()
+        
+        # Also check for empty or invalid ingredients
+        if not ingredient_lower or ingredient_lower in ['', ' ', 'n/a', 'none']:
+            logger.info(f"Ingredient '{ingredient}' is empty or invalid - no H-codes assigned")
+            return {
+                'ingredient': ingredient,
+                'H_codes': [],
+                'H_codes_info': {},
+                'poids': 0,
+                'poids_final': 0,
+                'score_ingrédient': 100,
+                'source': 'Empty/invalid ingredient',
+                'details_calcul': {
+                    'reason': 'Ingredient is empty or invalid',
+                    'h_codes_found': 0,
+                    'poids_calculated': 0,
+                    'score_calculated': 100
+                }
+            }
+        
+        if ingredient_lower in safe_ingredients:
+            logger.info(f"Ingredient {ingredient} is in safe list - no H-codes assigned")
+            return {
+                'ingredient': ingredient,
+                'H_codes': [],
+                'H_codes_info': {},
+                'poids': 0,
+                'poids_final': 0,
+                'score_ingrédient': 100,
+                'source': 'Safe ingredient list',
+                'details_calcul': {
+                    'reason': 'Ingredient is in safe list',
+                    'h_codes_found': 0,
+                    'poids_calculated': 0,
+                    'score_calculated': 100
+                }
+            }
+        
         # Get basic PubChem data
         compound_data = self.pubchem_service.search_compound(ingredient)
 
@@ -1263,7 +1353,27 @@ class IntelligentCosmeticScorer(ProductAnalysisService):
         
         for ingredient in ingredients_list:
             logger.info(f"Analyzing ingredient: {ingredient}")
-            result = self._analyze_single_ingredient(ingredient)
+            
+            # Check cache for individual ingredient analysis
+            cached_ingredient = self.cache_service.get_cached_ai_analysis(
+                f"ingredient_{ingredient}", 
+                user_id=0,  # Use 0 for global ingredient cache
+                question="ingredient_analysis"
+            )
+            
+            if cached_ingredient:
+                logger.info(f"Ingredient {ingredient} found in cache")
+                result = cached_ingredient
+            else:
+                result = self._analyze_single_ingredient(ingredient)
+                # Cache the ingredient analysis
+                self.cache_service.set_cached_ai_analysis(
+                    f"ingredient_{ingredient}",
+                    0,  # user_id
+                    result,
+                    "ingredient_analysis"  # question
+                )
+            
             analyzed_ingredients.append(result)
             total_weight += result['poids']
             logger.info(f"Ingredient {ingredient}: score={result['score_ingrédient']}, weight={result['poids']}")
@@ -1477,7 +1587,11 @@ class IntelligentCosmeticScorer(ProductAnalysisService):
         Returns:
             float: Base weight
         """
-        return self.h_code_weights.get(h_code, 5.0)  # Default weight if not found
+        # Get weight from GHS_H_CODES dictionary
+        h_code_info = GHS_H_CODES.get(h_code.upper())
+        if h_code_info:
+            return abs(h_code_info.get('weight', 5.0))  # Use absolute value
+        return 5.0  # Default weight if not found
 
     def _calculate_global_score(self, ingredient_final_weights: list) -> float:
         """
