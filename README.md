@@ -5,20 +5,13 @@
 
 **BeautyScan** est une application web intelligente qui révolutionne l'expérience cosmétique en proposant des conseils personnalisés basés sur l'intelligence artificielle. L'application utilise Azure OpenAI GPT-4 pour analyser les ingrédients cosmétiques, générer des routines personnalisées et fournir des recommandations adaptées au profil unique de chaque utilisateur.
 
-### 🏫 Contexte Simplon
-Ce projet a été développé dans le cadre de la formation **Développeur Full Stack** de Simplon, démontrant l'application des technologies modernes de développement web, d'intelligence artificielle et de gestion de projets.
-
-Architecture API:
-- **API Django (REST v1)**: endpoints principaux sous `http://127.0.0.1:8000/api/v1/...`
-- **Service FastAPI (profils)**: récupération des profils sous `http://127.0.0.1:8002/...`
-
 ### 🎯 Objectifs du Projet
 - **Transparence cosmétique** : Décrypter les listes d'ingrédients complexes
 - **Personnalisation avancée** : Routines adaptées au type de peau, allergies et objectifs
 - **Intelligence artificielle** : Conseils experts via Azure OpenAI GPT-4
 - **Expérience utilisateur** : Interface intuitive et design élégant
 
-### 🛠️ Technologies Utilisées (Formation Simplon)
+### 🛠️ Technologies Utilisées 
 
 #### **Backend**
 - **Django 5.0.2** : Framework web Python principal
