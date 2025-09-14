@@ -39,6 +39,10 @@ class ProductCacheService:
         """Initialise le service de cache."""
         self.logger = logger
         self.logger.info("ProductCacheService initialized")
+        
+        # Cache en mémoire pour les accès ultra-rapides (évite les requêtes SQL)
+        self._memory_cache = {}
+        self._memory_cache_ttl = {}
     
     def get_cached_analysis(self, barcode: str, user_id: int = None) -> Optional[Dict[str, Any]]:
         """
@@ -51,11 +55,26 @@ class ProductCacheService:
         Returns:
             Analyse mise en cache ou None si non trouvée/expirée
         """
+        # STEP 1: Vérifier le cache en mémoire (ULTRA-RAPIDE)
+        memory_key = f"{barcode}_{user_id or 'global'}"
+        if memory_key in self._memory_cache:
+            if timezone.now() < self._memory_cache_ttl.get(memory_key, timezone.now()):
+                self.logger.info(f"⚡ MEMORY CACHE HIT: {barcode}")
+                return self._memory_cache[memory_key]
+            else:
+                # Cache expiré, le supprimer
+                del self._memory_cache[memory_key]
+                del self._memory_cache_ttl[memory_key]
+        
+        # STEP 2: Vérifier le cache de base de données (RAPIDE)
         cache_key = self._build_cache_key('complete_analysis', barcode, user_id)
         cached_data = ProductCache.get_cached_data(cache_key, 'complete_analysis')
         
         if cached_data:
-            self.logger.info(f"Cache hit for complete analysis: {barcode}")
+            # Mettre en cache en mémoire pour les prochains accès
+            self._memory_cache[memory_key] = cached_data
+            self._memory_cache_ttl[memory_key] = timezone.now() + timedelta(minutes=30)  # 30 min en mémoire
+            self.logger.info(f"💾 DB CACHE HIT: {barcode} (cached in memory)")
             return cached_data
         
         return None
@@ -69,11 +88,17 @@ class ProductCacheService:
             analysis_data: Données d'analyse à mettre en cache
             user_id: ID de l'utilisateur (optionnel)
         """
+        # Mettre en cache en mémoire (ULTRA-RAPIDE)
+        memory_key = f"{barcode}_{user_id or 'global'}"
+        self._memory_cache[memory_key] = analysis_data
+        self._memory_cache_ttl[memory_key] = timezone.now() + timedelta(minutes=30)  # 30 min en mémoire
+        
+        # Mettre en cache en base de données (PERSISTANT)
         cache_key = self._build_cache_key('complete_analysis', barcode, user_id)
         ttl_hours = self.CACHE_TTL['complete_analysis']
-        
         ProductCache.set_cached_data(cache_key, analysis_data, 'complete_analysis', ttl_hours)
-        self.logger.info(f"Cached complete analysis: {barcode} (TTL: {ttl_hours}h)")
+        
+        self.logger.info(f"💾 CACHED: {barcode} (Memory: 30min, DB: {ttl_hours}h)")
     
     def get_cached_product_info(self, barcode: str) -> Optional[Dict[str, Any]]:
         """

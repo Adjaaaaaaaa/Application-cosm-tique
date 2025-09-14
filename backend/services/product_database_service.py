@@ -15,9 +15,26 @@ class ProductDatabaseService:
     Contient les vraies informations de produits populaires.
     """
     
+    _instance = None
+    _products_database = None
+    
+    def __new__(cls):
+        """Singleton pattern pour conserver les produits ajoutés."""
+        if cls._instance is None:
+            cls._instance = super(ProductDatabaseService, cls).__new__(cls)
+        return cls._instance
+    
     def __init__(self):
         """Initialize Product Database service."""
-        self.products_database = self._load_products_database()
+        if not hasattr(self, '_initialized'):
+            if ProductDatabaseService._products_database is None:
+                ProductDatabaseService._products_database = self._load_products_database()
+            self._initialized = True
+    
+    @property
+    def products_database(self):
+        """Accède à la base de données partagée."""
+        return ProductDatabaseService._products_database
     
     def _load_products_database(self) -> Dict[str, Dict[str, Any]]:
         """
@@ -184,6 +201,47 @@ class ProductDatabaseService:
                 ],
                 "source": "product_database",
                 "confidence": "high"
+            },
+            
+            # Garnier Ultra Doux - Shampooing doux apaisant délicatesse d'avoine
+            "3600542525770": {
+                "name": "Shampooing doux apaisant délicatesse d'avoine",
+                "brand": "Garnier Ultra Doux",
+                "categories": "Shampoo, Hair Care, Gentle",
+                "image_url": "https://images.openbeautyfacts.org/images/products/360/054/252/5770/front_fr.3.400.jpg",  # Vraie image du produit
+                "description": "Shampooing doux et apaisant pour cheveux délicats avec extrait d'avoine",
+                "ingredients_text": "AQUA/WATER, SODIUM LAURETH SULFATE, COCO-BETAINE, GLYCOL DISTEARATE, GLYCERIN, GLYCINE SOJA OIL/SOYBEAN OIL, ALOE BARBADENSIS LEAF JUICE, AVENA SATIVA KERNEL EXTRACT/OAT KERNEL EXTRACT, ORYZA SATIVA STARCH/RICE STARCH, PPG-5-CETETH-20, PEG-55 PROPYLENE GLYCOL OLEATE, PEG-60 HYDROGENATED CASTOR OIL, DICAPRYLYL ETHER, DILAURYL THIODIPROPIONATE, CARBOMER, SODIUM CHLORIDE, SODIUM HYDROXIDE, PROPYLENE GLYCOL, HYDROXYPROPYL GUAR HYDROXYPROPYLTRIMONIUM CHLORIDE, CITRIC ACID, XANTHAN GUM, POLYQUATERNIUM-7, TOCOPHEROL, POTASSIUM SORBATE, SODIUM BENZOATE, SALICYLIC ACID, PARFUM/FRAGRANCE. (F.I.L C253486/1).",
+                "ingredients_list": [
+                    "AQUA/WATER",
+                    "SODIUM LAURETH SULFATE",
+                    "COCO-BETAINE",
+                    "GLYCOL DISTEARATE",
+                    "GLYCERIN",
+                    "GLYCINE SOJA OIL/SOYBEAN OIL",
+                    "ALOE BARBADENSIS LEAF JUICE",
+                    "AVENA SATIVA KERNEL EXTRACT/OAT KERNEL EXTRACT",
+                    "ORYZA SATIVA STARCH/RICE STARCH",
+                    "PPG-5-CETETH-20",
+                    "PEG-55 PROPYLENE GLYCOL OLEATE",
+                    "PEG-60 HYDROGENATED CASTOR OIL",
+                    "DICAPRYLYL ETHER",
+                    "DILAURYL THIODIPROPIONATE",
+                    "CARBOMER",
+                    "SODIUM CHLORIDE",
+                    "SODIUM HYDROXIDE",
+                    "PROPYLENE GLYCOL",
+                    "HYDROXYPROPYL GUAR HYDROXYPROPYLTRIMONIUM CHLORIDE",
+                    "CITRIC ACID",
+                    "XANTHAN GUM",
+                    "POLYQUATERNIUM-7",
+                    "TOCOPHEROL",
+                    "POTASSIUM SORBATE",
+                    "SODIUM BENZOATE",
+                    "SALICYLIC ACID",
+                    "PARFUM/FRAGRANCE. (F.I.L C253486/1)."
+                ],
+                "source": "product_database",
+                "confidence": "high"
             }
         }
     
@@ -223,7 +281,7 @@ class ProductDatabaseService:
     
     def add_product(self, barcode: str, product_info: Dict[str, Any]) -> bool:
         """
-        Ajoute un produit à la base de données.
+        Ajoute un produit à la base de données (en mémoire uniquement pour l'instant).
         
         Args:
             barcode: Code-barres du produit
@@ -233,9 +291,118 @@ class ProductDatabaseService:
             True si ajouté avec succès
         """
         try:
-            self.products_database[barcode] = product_info
+            # Ajouter en mémoire
+            ProductDatabaseService._products_database[barcode] = product_info
             logger.info(f"Added product {barcode} to database: {product_info.get('name', 'Unknown')}")
+            
             return True
         except Exception as e:
             logger.error(f"Error adding product to database: {str(e)}")
             return False
+    
+    def _save_product_to_file(self, barcode: str, product_info: Dict[str, Any]) -> None:
+        """
+        Sauvegarde un produit dans le fichier product_database_service.py.
+        
+        Args:
+            barcode: Code-barres du produit
+            product_info: Informations du produit
+        """
+        try:
+            import os
+            from pathlib import Path
+            
+            # Chemin vers le fichier product_database_service.py
+            current_dir = Path(__file__).parent
+            file_path = current_dir / "product_database_service.py"
+            
+            # Lire le fichier actuel
+            with open(file_path, 'r', encoding='utf-8') as f:
+                content = f.read()
+            
+            # Vérifier si le produit existe déjà
+            if f'"{barcode}":' in content:
+                logger.info(f"Product {barcode} already exists in file, skipping save")
+                return
+            
+            # Préparer les données du produit pour l'insertion
+            product_data = self._format_product_for_file(barcode, product_info)
+            
+            # Trouver la position d'insertion (avant la fermeture du dictionnaire)
+            insertion_point = content.rfind('        }')
+            if insertion_point == -1:
+                logger.error("Could not find insertion point in product_database_service.py")
+                return
+            
+            # Insérer le nouveau produit
+            new_content = (
+                content[:insertion_point] + 
+                f",\n\n            # {product_info.get('name', 'Unknown Product')} - {product_info.get('brand', 'Unknown Brand')}\n" +
+                f'            "{barcode}": {product_data}\n' +
+                content[insertion_point:]
+            )
+            
+            # Sauvegarder le fichier modifié
+            with open(file_path, 'w', encoding='utf-8') as f:
+                f.write(new_content)
+            
+            logger.info(f"Successfully saved product {barcode} to product_database_service.py")
+            
+            # Recharger la base de données en mémoire
+            self._load_products_database()
+            
+        except Exception as e:
+            logger.error(f"Error saving product to file: {str(e)}")
+    
+    def _format_product_for_file(self, barcode: str, product_info: Dict[str, Any]) -> str:
+        """
+        Formate les données du produit pour l'insertion dans le fichier.
+        
+        Args:
+            barcode: Code-barres du produit
+            product_info: Informations du produit
+            
+        Returns:
+            Chaîne formatée pour l'insertion
+        """
+        # Extraire les informations essentielles
+        name = product_info.get('name', 'Produit inconnu')
+        brand = product_info.get('brand', 'Marque inconnue')
+        categories = product_info.get('categories', 'Unknown')
+        ingredients_text = product_info.get('ingredients_text', '')
+        image_url = product_info.get('image_url', '')
+        description = product_info.get('description', '')
+        
+        # Créer la liste des ingrédients
+        ingredients_list = product_info.get('ingredients_list', [])
+        if not ingredients_list and ingredients_text:
+            ingredients_list = [ing.strip() for ing in ingredients_text.split(',') if ing.strip()]
+        
+        # Formater la liste des ingrédients
+        ingredients_list_str = "[\n"
+        for ingredient in ingredients_list:
+            ingredients_list_str += f'                    "{ingredient}",\n'
+        ingredients_list_str += "                ]"
+        
+        # Échapper les guillemets dans les chaînes
+        name = name.replace('"', '\\"')
+        brand = brand.replace('"', '\\"')
+        categories = categories.replace('"', '\\"')
+        image_url = image_url.replace('"', '\\"')
+        description = description.replace('"', '\\"')
+        ingredients_text = ingredients_text.replace('"', '\\"')
+        
+        # Construire la chaîne formatée
+        formatted = f"""{{
+                "name": "{name}",
+                "brand": "{brand}",
+                "categories": "{categories}",
+                "image_url": "{image_url}",
+                "description": "{description}",
+                "ingredients_text": "{ingredients_text}",
+                "ingredients_list": {ingredients_list_str},
+                "source": "auto_added",
+                "confidence": "high"
+            }}"""
+        
+        return formatted

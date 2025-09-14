@@ -13,6 +13,41 @@ from django.conf import settings
 from django.core.cache import cache
 from django.utils import timezone
 
+# Import base service classes for standardization
+import sys
+from pathlib import Path
+backend_path = Path(__file__).parent.parent.parent / "backend"
+sys.path.insert(0, str(backend_path))
+
+try:
+    from backend.services.base_service import APIService, CacheableService
+except ImportError:
+    # Fallback if base service not available
+    class APIService:
+        def __init__(self, service_name: str, base_url: str):
+            self.service_name = service_name
+            self.base_url = base_url
+            self.session = requests.Session()
+            self.session.headers.update({
+                'User-Agent': 'BeautyScan/1.0 (https://beautyscan.com)'
+            })
+        
+        def is_available(self) -> bool:
+            return self.session is not None
+        
+        def get_service_info(self) -> Dict[str, Any]:
+            return {
+                'name': self.service_name,
+                'base_url': self.base_url,
+                'available': self.is_available(),
+                'type': 'api'
+            }
+    
+    class CacheableService(APIService):
+        def __init__(self, service_name: str, base_url: str, cache_ttl: int = 3600):
+            super().__init__(service_name, base_url)
+            self.cache_ttl = cache_ttl
+
 logger = logging.getLogger(__name__)
 
 # Dictionnaire complet des H-codes GHS avec catégories et poids
@@ -130,7 +165,7 @@ def deduplicate_ingredients(ingredients_text: str) -> List[str]:
     return deduplicated_ingredients
 
 
-class OpenBeautyFactsService:
+class OpenBeautyFactsService(CacheableService):
     """
     Service for interacting with OpenBeautyFacts API.
     
@@ -140,13 +175,10 @@ class OpenBeautyFactsService:
     
     def __init__(self):
         """Initialize OpenBeautyFacts service with API configuration."""
-        self.base_url = getattr(settings, 'OPENBEAUTYFACTS_API_URL', 
-                               'https://world.openbeautyfacts.org/api/v0')
+        base_url = getattr(settings, 'OPENBEAUTYFACTS_API_URL', 
+                          'https://world.openbeautyfacts.org/api/v0')
+        super().__init__('OpenBeautyFacts', base_url, cache_ttl=3600)
         self.timeout = 10
-        self.session = requests.Session()
-        self.session.headers.update({
-            'User-Agent': 'BeautyScan/1.0 (https://beautyscan.com)'
-        })
     
     def get_product_by_barcode(self, barcode: str) -> Optional[Dict]:
         """
@@ -208,7 +240,7 @@ class OpenBeautyFactsService:
             return None
 
 
-class PubChemService:
+class PubChemService(CacheableService):
     """
     Service for interacting with PubChem API.
     
@@ -218,10 +250,10 @@ class PubChemService:
     
     def __init__(self):
         """Initialize PubChem service with API configuration."""
-        self.base_url = getattr(settings, 'PUBCHEM_API_URL', 
-                               'https://pubchem.ncbi.nlm.nih.gov/rest/pug')
+        base_url = getattr(settings, 'PUBCHEM_API_URL', 
+                          'https://pubchem.ncbi.nlm.nih.gov/rest/pug')
+        super().__init__('PubChem', base_url, cache_ttl=86400)  # 24h cache for PubChem
         self.timeout = 15
-        self.session = requests.Session()
     
     def search_compound(self, compound_name: str) -> Optional[Dict]:
         """
@@ -343,16 +375,49 @@ class ProductAnalysisService:
     
     def __init__(self):
         """Initialize ProductAnalysisService with API services."""
-        self.obf_service = OpenBeautyFactsService()
-        self.pubchem_service = PubChemService()
-        # Import RealProductService and ProductDatabaseService
-        from backend.services.real_product_service import RealProductService
+        # Import services (lazy loading for performance)
         from backend.services.product_database_service import ProductDatabaseService
-        from backend.services.image_analysis_service import ImageAnalysisService
+        from backend.services.product_cache_service import ProductCacheService
         
-        self.real_product_service = RealProductService()
+        # Initialize only essential services first
         self.product_database_service = ProductDatabaseService()
-        self.image_analysis_service = ImageAnalysisService()
+        self.product_cache_service = ProductCacheService()
+        
+        # Lazy initialization of other services (only when needed)
+        self._obf_service = None
+        self._pubchem_service = None
+        self._real_product_service = None
+        self._image_analysis_service = None
+    
+    @property
+    def obf_service(self):
+        """Lazy initialization of OpenBeautyFacts service."""
+        if self._obf_service is None:
+            self._obf_service = OpenBeautyFactsService()
+        return self._obf_service
+    
+    @property
+    def pubchem_service(self):
+        """Lazy initialization of PubChem service."""
+        if self._pubchem_service is None:
+            self._pubchem_service = PubChemService()
+        return self._pubchem_service
+    
+    @property
+    def real_product_service(self):
+        """Lazy initialization of RealProduct service."""
+        if self._real_product_service is None:
+            from backend.services.real_product_service import RealProductService
+            self._real_product_service = RealProductService()
+        return self._real_product_service
+    
+    @property
+    def image_analysis_service(self):
+        """Lazy initialization of ImageAnalysis service."""
+        if self._image_analysis_service is None:
+            from backend.services.image_analysis_service import ImageAnalysisService
+            self._image_analysis_service = ImageAnalysisService()
+        return self._image_analysis_service
     
     def analyze_product(self, barcode: str, user_id: int = None) -> Dict:
         """
@@ -368,19 +433,51 @@ class ProductAnalysisService:
         try:
             logger.info(f"Starting analysis for product {barcode}")
             
-            # STEP 1: Check local database (FAST)
+            # STEP 1: Check predefined product database FIRST (ULTRA-FAST - NO CALCULATIONS, NO CACHING)
+            product_info = self.product_database_service.search_product(barcode)
+            if product_info:
+                logger.info(f"⚡ PREDEFINED DB HIT: Product {barcode} - returning instantly")
+                # ULTRA-FAST: Return directly without any additional processing
+                return {
+                    'product': product_info,
+                    'ingredients_analysis': {
+                        'total_ingredients': len(product_info.get('ingredients_list', [])),
+                        'analyzed_ingredients': len(product_info.get('ingredients_list', [])),
+                        'ingredients_data': {},
+                        'risk_summary': {
+                            'low_risk': 0,
+                            'medium_risk': 0,
+                            'high_risk': 0,
+                            'unknown_risk': len(product_info.get('ingredients_list', []))
+                        },
+                        'workflow_execution': [f"✅ Product {barcode} retrieved from predefined database"]
+                    },
+                    'safety_score': 50.0,  # Default score for predefined products
+                    'risk_level': 'Bon',
+                    'analysis_available': True,
+                    'data_sources': ['predefined_database'],
+                    'workflow_steps': ['predefined_database_retrieval']
+                }
+            
+            # STEP 2: Check intelligent cache (FAST) - OPTIMIZED
+            cached_analysis = self.product_cache_service.get_cached_analysis(barcode, user_id)
+            if cached_analysis:
+                logger.info(f"⚡ CACHE HIT: Product {barcode} - returning instantly")
+                return cached_analysis
+            
+            # STEP 3: Check local database (FAST) - Only if not in predefined database
             local_product = self._check_local_database(barcode)
             if local_product and self._is_local_data_fresh(local_product):
-                logger.info(f"Product {barcode} found in local database with fresh data")
+                logger.info(f"📦 LOCAL DB: Product {barcode} found in local database")
                 analysis_result = self._analyze_from_local_data(local_product)
+                # Cache the result for future scans (HIGH PRIORITY)
+                self.product_cache_service.set_cached_analysis(barcode, analysis_result, user_id)
+                logger.info(f"💾 CACHED: Product {barcode} analysis cached for future scans")
                 return analysis_result
             
-            # STEP 2: Search product database first
-            product_info = self.product_database_service.search_product(barcode)
-            
+            # STEP 4: Search real product APIs (only if not in predefined database)
             if not product_info:
-                logger.warning(f"Product {barcode} not found in product database, trying real product APIs")
-                # STEP 3: Search real product APIs
+                logger.warning(f"Product {barcode} not found in predefined database, trying real product APIs")
                 product_info = self.real_product_service.search_product_by_barcode(barcode)
             
             if not product_info:
@@ -471,6 +568,29 @@ class ProductAnalysisService:
             # Save to local database for future use
             self._save_to_local_database(barcode, product_info, ingredients_analysis, safety_score)
             
+            # Add complete product data to product database for future scans
+            if product_info and product_info.get('name') and product_info.get('name') != 'Produit inconnu':
+                try:
+                    # Create complete product data with analysis
+                    complete_product_data = {
+                        **product_info,  # Basic product info
+                        'safety_score': safety_score,
+                        'risk_level': self._determine_risk_level(safety_score),
+                        'ingredients_analysis': ingredients_analysis,
+                        'analysis_available': bool(ingredients_analysis),
+                        'data_sources': self._determine_data_sources(product_info, ingredients_analysis)
+                    }
+                    
+                    # Add to product database for future scans
+                    self.product_database_service.add_product(barcode, complete_product_data)
+                    logger.info(f"Added complete product {barcode} to local database: {product_info.get('name')} (Score: {safety_score})")
+                    
+                    # Also add to predefined database for ultra-fast future scans
+                    self.product_database_service.products_database[barcode] = complete_product_data
+                    logger.info(f"Added complete product {barcode} to predefined database: {product_info.get('name')} (Score: {safety_score})")
+                except Exception as e:
+                    logger.warning(f"Failed to add complete product {barcode} to local database: {str(e)}")
+            
             analysis_result = {
                 'product': product_info,
                 'ingredients_analysis': ingredients_analysis,
@@ -480,6 +600,13 @@ class ProductAnalysisService:
                 'data_sources': self._determine_data_sources(product_info, ingredients_analysis),
                 'workflow_steps': self._get_workflow_execution_log()
             }
+            
+            # Cache the complete analysis for future scans (6 hours)
+            try:
+                self.product_cache_service.set_cached_analysis(barcode, analysis_result, user_id)
+                logger.info(f"Cached complete analysis for product {barcode} (6h TTL)")
+            except Exception as e:
+                logger.warning(f"Failed to cache analysis for product {barcode}: {str(e)}")
             
             logger.info(f"✅ Completed analysis for product {barcode}")
             return analysis_result
@@ -572,6 +699,7 @@ class ProductAnalysisService:
         Analyze ingredients following the workflow:
         - For each ingredient, try PubChem first
         - If PubChem fails, use Azure LLM for risk estimation
+        - Cache individual ingredient analyses for consistency
         
         Args:
             ingredients_text: Comma-separated list of ingredients
@@ -579,6 +707,13 @@ class ProductAnalysisService:
         Returns:
             dict: Analysis results for each ingredient
         """
+        # Check cache for complete ingredient analysis first
+        cache_key = f"ingredients_analysis_{hash(ingredients_text)}"
+        cached_analysis = self.product_cache_service.get_cached_analysis(cache_key, 'ingredient_analysis')
+        if cached_analysis:
+            logger.info(f"Retrieved ingredient analysis from cache for {len(ingredients_text.split(','))} ingredients")
+            return cached_analysis
+        
         ingredients = [ing.strip() for ing in ingredients_text.split(',') if ing.strip()]
         analysis = {
             'total_ingredients': len(ingredients),
@@ -644,6 +779,13 @@ class ProductAnalysisService:
                 }
                 analysis['risk_summary']['unknown_risk'] += 1
                 analysis['workflow_execution'].append(f"❌ {ingredient}: Analysis error")
+        
+        # Cache the complete ingredient analysis for consistency (12 hours)
+        try:
+            self.product_cache_service.set_cached_analysis(cache_key, analysis, 'ingredient_analysis')
+            logger.info(f"Cached ingredient analysis for {len(ingredients)} ingredients (12h TTL)")
+        except Exception as e:
+            logger.warning(f"Failed to cache ingredient analysis: {str(e)}")
         
         return analysis
     

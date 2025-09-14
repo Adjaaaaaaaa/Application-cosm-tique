@@ -270,7 +270,7 @@ class ScanCreateView(LoginRequiredMixin, ContextEnhancerMixin, CreateView):
         if barcode:
             # Use ProductAnalysisService to get real product data
             analysis_service = ProductAnalysisService()
-            analysis_result = analysis_service.analyze_product(barcode)
+            analysis_result = analysis_service.analyze_product(barcode, user_id=self.request.user.id)
             
             context['product'] = analysis_result['product']
             context['found_in_scan'] = True
@@ -290,7 +290,7 @@ class ScanCreateView(LoginRequiredMixin, ContextEnhancerMixin, CreateView):
         if form.instance.barcode:
             # Use ProductAnalysisService to get real product data
             analysis_service = ProductAnalysisService()
-            analysis_result = analysis_service.analyze_product(form.instance.barcode)
+            analysis_result = analysis_service.analyze_product(form.instance.barcode, user_id=self.request.user.id)
             
             product_data = analysis_result['product']
             
@@ -354,7 +354,7 @@ class ScanAPIView(LoginRequiredMixin, MessageMixin, View):
             if barcode:
                 # Use ProductAnalysisService to get real product data
                 analysis_service = ProductAnalysisService()
-                analysis_result = analysis_service.analyze_product(barcode)
+                analysis_result = analysis_service.analyze_product(barcode, user_id=self.request.user.id)
                 
                 product_data = analysis_result['product']
                 
@@ -482,7 +482,7 @@ class ScanCreateView(LoginRequiredMixin, ContextEnhancerMixin, CreateView):
         if barcode:
             # Use ProductAnalysisService to get real product data
             analysis_service = ProductAnalysisService()
-            analysis_result = analysis_service.analyze_product(barcode)
+            analysis_result = analysis_service.analyze_product(barcode, user_id=self.request.user.id)
             
             context['product'] = analysis_result['product']
             context['found_in_scan'] = True
@@ -502,7 +502,7 @@ class ScanCreateView(LoginRequiredMixin, ContextEnhancerMixin, CreateView):
         if form.instance.barcode:
             # Use ProductAnalysisService to get real product data
             analysis_service = ProductAnalysisService()
-            analysis_result = analysis_service.analyze_product(form.instance.barcode)
+            analysis_result = analysis_service.analyze_product(form.instance.barcode, user_id=self.request.user.id)
             
             product_data = analysis_result['product']
             

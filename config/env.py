@@ -84,6 +84,11 @@ AZURE_OPENAI_ENDPOINT = get_env_var('AZURE_OPENAI_ENDPOINT', default='')
 # Ollama (modèle IA local)
 OLLAMA_API_URL = get_env_var('OLLAMA_API_URL', default='http://localhost:11434')
 
+# Azure Cognitive Search (RAG)
+AZURE_SEARCH_ENDPOINT = get_env_var('AZURE_SEARCH_ENDPOINT', default='')
+AZURE_SEARCH_KEY = get_env_var('AZURE_SEARCH_KEY', default='')
+AZURE_SEARCH_INDEX_NAME = get_env_var('AZURE_SEARCH_INDEX_NAME', default='beautyscan-index')
+
 # Stripe (paiements)
 STRIPE_PUBLISHABLE_KEY = get_env_var('STRIPE_PUBLISHABLE_KEY', default='')
 STRIPE_SECRET_KEY = get_env_var('STRIPE_SECRET_KEY', default='')
