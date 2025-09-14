@@ -22,7 +22,9 @@ class User:
         email: str,
         first_name: Optional[str] = None,
         last_name: Optional[str] = None,
-        is_active: bool = True
+        is_active: bool = True,
+        is_staff: bool = False,
+        is_superuser: bool = False
     ):
         """
         Initialize user entity.
@@ -34,6 +36,8 @@ class User:
             first_name: First name (optional)
             last_name: Last name (optional)
             is_active: Whether user is active (default: True)
+            is_staff: Whether user is staff (default: False)
+            is_superuser: Whether user is superuser (default: False)
             
         Raises:
             UserNotFoundError: If required fields are missing
@@ -53,6 +57,8 @@ class User:
         self._first_name = first_name.strip() if first_name else ""
         self._last_name = last_name.strip() if last_name else ""
         self._is_active = is_active
+        self._is_staff = is_staff
+        self._is_superuser = is_superuser
     
     @property
     def id(self) -> int:
@@ -83,6 +89,16 @@ class User:
     def is_active(self) -> bool:
         """Check if user is active."""
         return self._is_active
+    
+    @property
+    def is_staff(self) -> bool:
+        """Check if user is staff."""
+        return self._is_staff
+    
+    @property
+    def is_superuser(self) -> bool:
+        """Check if user is superuser."""
+        return self._is_superuser
     
     def get_full_name(self) -> str:
         """

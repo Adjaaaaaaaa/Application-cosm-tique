@@ -11,7 +11,7 @@ import os
 from typing import Dict, Any, List, Optional
 
 # Django imports will be handled dynamically
-from .user_service_adapter import UserServiceAdapter
+from .user_service_infrastructure_adapter import UserServiceInfrastructureAdapter
 
 logger = logging.getLogger(__name__)
 
@@ -25,8 +25,8 @@ class UserService:
     """
     
     def __init__(self):
-        """Initialize user service with Clean Architecture adapter."""
-        self._adapter = UserServiceAdapter()
+        """Initialize user service with Clean Architecture infrastructure adapter."""
+        self._adapter = UserServiceInfrastructureAdapter()
     
     def get_user_profile(self, user_id: int) -> Optional[Dict[str, Any]]:
         """

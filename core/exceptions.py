@@ -58,3 +58,13 @@ class RoutineGenerationError(DomainException):
 class PremiumAccessDeniedError(DomainException):
     """Raised when premium access is denied."""
     pass
+
+
+class InvalidInputException(DomainException):
+    """Raised when invalid input data is provided."""
+    pass
+
+
+class DataConversionException(DomainException):
+    """Raised for errors during data conversion."""
+    pass
