@@ -213,7 +213,7 @@ Le workflow de scan de produit suit une approche en cascade pour optimiser les p
 1. **Vérification du Cache** : Recherche dans le cache intelligent
 2. **Base de Données Locale** : Vérification des scans précédents
 3. **Base de Données Produits** : Recherche dans la DB interne
-4. **APIs Externes** : OpenBeautyFacts, UPCItemDB, BarcodeLookup
+4. **APIs Externes** : OpenBeautyFacts
 5. **Analyse des Ingrédients** : PubChem pour les propriétés chimiques
 6. **Calcul du Score** : Évaluation de sécurité et compatibilité
 7. **Mise en Cache** : Stockage pour les futurs scans
