@@ -22,7 +22,8 @@ from django.views.generic import TemplateView
 from apps.api.views import (
     get_user_profile_internal, health_check_internal,
     comprehensive_routine_internal, analyze_product_internal,
-    get_ingredient_info_internal, general_question_internal
+    get_ingredient_info_internal, general_question_internal,
+    update_user_profile_internal
 )
 
 urlpatterns = [
@@ -36,6 +37,7 @@ urlpatterns = [
     # API Interne - Accès restreint aux services internes uniquement
     path('internal-api/user-profile/<int:user_id>/', get_user_profile_internal, name='internal_user_profile'),
     path('internal-api/user-profile/<int:user_id>', get_user_profile_internal, name='internal_user_profile_no_slash'),
+    path('internal-api/user/profile', update_user_profile_internal, name='internal_update_user_profile'),
     path('internal-api/health/', health_check_internal, name='internal_health'),
     path('internal-api/health', health_check_internal, name='internal_health_no_slash'),
     

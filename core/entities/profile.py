@@ -34,7 +34,8 @@ class UserProfile:
         routine_frequency: Optional[str] = None,
         objectives: Optional[List[str]] = None,
         budget: Optional[str] = None,
-        subscription_type: str = "free"
+        subscription_type: str = "free",
+        profile_id: Optional[int] = None
     ):
         """
         Initialize user profile.
@@ -53,10 +54,12 @@ class UserProfile:
             objectives: List of skincare objectives
             budget: Budget range
             subscription_type: Subscription type (free, premium, pro)
+            profile_id: Profile ID (for existing profiles)
         """
         if not isinstance(user, User):
             raise ProfileNotFoundError("User must be a User entity")
         
+        self._id = profile_id
         self._user = user
         self._skin_type = skin_type or SkinType.UNSPECIFIED
         self._age_range = age_range or AgeRange.UNSPECIFIED
@@ -70,6 +73,11 @@ class UserProfile:
         self._objectives = objectives or []
         self._budget = budget or ""
         self._subscription_type = subscription_type
+    
+    @property
+    def id(self) -> Optional[int]:
+        """Get profile ID."""
+        return self._id
     
     @property
     def user(self) -> User:

@@ -54,7 +54,7 @@ def validate_internal_request(request):
     return True
 
 # Import Clean Architecture adapter
-from .adapters.internal_api_adapter import get_user_profile_internal
+from .adapters.internal_api_adapter import get_user_profile_internal, update_user_profile_internal
 
 # Legacy internal API - now uses Clean Architecture adapter
 # The original implementation has been moved to the adapter

@@ -238,7 +238,8 @@ class DjangoProfileRepository(ProfileRepository):
             product_style=django_profile.product_style,
             routine_frequency=django_profile.routine_frequency,
             objectives=django_profile.get_objectives_list(),
-            budget=django_profile.budget
+            budget=django_profile.budget,
+            profile_id=django_profile.id
         )
     
     def _update_django_profile(self, django_profile: DjangoUserProfile, profile: UserProfile) -> None:

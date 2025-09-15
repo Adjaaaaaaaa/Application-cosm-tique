@@ -10,8 +10,10 @@ from typing import Dict, Any, Optional
 from django.http import HttpRequest, JsonResponse
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.cache import never_cache
+from django.views.decorators.csrf import csrf_exempt
 
 from usecases.user.get_user_profile import GetUserProfileUseCase
+from usecases.user.update_user_profile import UpdateUserProfileUseCase
 from infrastructure.repositories.django_user_repository import DjangoUserRepository
 from infrastructure.repositories.django_profile_repository import DjangoProfileRepository
 from core.exceptions import UserNotFoundError, ProfileNotFoundError
@@ -35,6 +37,10 @@ class InternalAPIAdapter:
         
         # Create use cases
         self._get_user_profile_use_case = GetUserProfileUseCase(
+            self._user_repository,
+            self._profile_repository
+        )
+        self._update_user_profile_use_case = UpdateUserProfileUseCase(
             self._user_repository,
             self._profile_repository
         )
@@ -94,6 +100,83 @@ class InternalAPIAdapter:
                 'message': 'Erreur interne du serveur'
             }, status=500)
     
+    def handle_update_user_profile(self, request: HttpRequest) -> JsonResponse:
+        """
+        Handle update user profile API request using Clean Architecture.
+        
+        Args:
+            request: Django HTTP request with JSON body containing user_id and profile_updates
+            
+        Returns:
+            JSON response with update result
+        """
+        try:
+            # Validate internal request
+            if not self._validate_internal_request(request):
+                logger.warning(f"Unauthorized access attempt to internal API from {request.META.get('REMOTE_ADDR')}")
+                return JsonResponse({
+                    'status': 'error',
+                    'message': 'Accès non autorisé - API interne uniquement'
+                }, status=403)
+            
+            # Parse JSON data
+            import json
+            data = json.loads(request.body)
+            user_id = data.get('user_id')
+            profile_updates = data.get('profile_updates', {})
+            
+            if not user_id:
+                return JsonResponse({
+                    'status': 'error',
+                    'message': 'user_id est requis'
+                }, status=400)
+            
+            # Update user profile using use case
+            updated_profile = self._update_user_profile_use_case.execute(user_id, profile_updates)
+            
+            if updated_profile:
+                logger.info(f"User profile {user_id} updated successfully")
+                return JsonResponse({
+                    'status': 'success',
+                    'message': 'Profil mis à jour avec succès',
+                    'data': {
+                        'user_id': user_id,
+                        'updated_at': 'now'
+                    }
+                })
+            else:
+                logger.warning(f"Failed to update user profile {user_id}")
+                return JsonResponse({
+                    'status': 'error',
+                    'message': 'Échec de la mise à jour du profil'
+                }, status=500)
+            
+        except UserNotFoundError:
+            logger.warning(f"User {user_id} not found for update")
+            return JsonResponse({
+                'status': 'error',
+                'message': f'Utilisateur {user_id} non trouvé'
+            }, status=404)
+        except ProfileNotFoundError:
+            logger.warning(f"User profile {user_id} not found for update")
+            return JsonResponse({
+                'status': 'error',
+                'message': f'Profil utilisateur {user_id} non trouvé'
+            }, status=404)
+        except json.JSONDecodeError:
+            logger.error("Invalid JSON in update profile request")
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Format JSON invalide'
+            }, status=400)
+        except Exception as e:
+            logger.error(f"Error updating user profile: {str(e)}")
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Erreur interne du serveur',
+                'error': str(e)
+            }, status=500)
+    
     def _validate_internal_request(self, request: HttpRequest) -> bool:
         """
         Validate that the request is from an internal service.
@@ -134,3 +217,16 @@ def get_user_profile_internal(request: HttpRequest, user_id: int) -> JsonRespons
     Headers required: X-Internal-Token: internal_beautyscan_2024
     """
     return internal_api_adapter.handle_get_user_profile(request, user_id)
+
+
+@csrf_exempt
+@require_http_methods(["PUT"])
+def update_user_profile_internal(request: HttpRequest) -> JsonResponse:
+    """
+    Internal API endpoint for updating user profile using Clean Architecture.
+    
+    Endpoint: PUT /internal-api/user/profile
+    Headers required: X-Internal-Token: internal_beautyscan_2024
+    Body: {"user_id": int, "profile_updates": {...}}
+    """
+    return internal_api_adapter.handle_update_user_profile(request)

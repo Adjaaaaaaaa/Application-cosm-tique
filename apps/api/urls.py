@@ -14,6 +14,7 @@ urlpatterns = [
     
     # User profile endpoints
     path('user-profile/<int:user_id>/', views.get_user_profile_internal, name='get_user_profile'),
+    path('user/profile', views.update_user_profile_internal, name='update_user_profile'),
     
     # AI service endpoints
     path('enhanced-ai/comprehensive-routine/', views.comprehensive_routine_internal, name='comprehensive_routine'),
