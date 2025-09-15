@@ -35,14 +35,55 @@ extracted from inline styles to maintain Clean Architecture.
 /* Form control focus styling */
 .form-control:focus {
     border-color: var(--sand-brown) !important;
-    box-shadow: 0 0 0 0.25rem rgba(244, 164, 96, 0.25) !important;
+    box-shadow: 0 0 0 0.25rem rgba(244, 164, 96, 0.25) !important; /* #F4A460 avec transparence */
 }
 
 /* Link styling */
-a { 
-    color: var(--sand-brown); 
+a { color: var(--sand-brown); }
+a:hover { color: var(--sand-brown-dark); }
+
+/* Style pour les champs de formulaire */
+.form-control-custom {
+    border: 2px solid #E6D7B8;
+    border-radius: 0.5rem;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background-color: #ffffff;
+    color: #5D4E37;
 }
 
-a:hover { 
-    color: var(--sand-brown-dark); 
+.form-control-custom:focus {
+    border-color: var(--sand-brown) !important;
+    box-shadow: 0 0 0 0.25rem rgba(244, 164, 96, 0.25) !important;
+    background-color: #ffffff;
+    color: #5D4E37;
+}
+
+.form-control-custom::placeholder {
+    color: #8B7355;
+    opacity: 0.7;
+}
+
+/* Labels des formulaires */
+.form-label {
+    color: #5D4E37;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+}
+
+/* Textes d'aide */
+.form-text {
+    color: #8B7355;
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+}
+
+/* Alertes */
+.alert-danger {
+    background-color: #F8F6F2;
+    border: 1px solid #CD5C5C;
+    color: #5D4E37;
+    border-radius: 0.5rem;
 }
