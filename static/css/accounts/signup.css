@@ -1,0 +1,48 @@
+/*
+Signup page styles for BeautyScan application.
+
+This file contains all styles for the user signup page,
+extracted from inline styles to maintain Clean Architecture.
+*/
+
+:root {
+    --sand-brown: #F4A460; /* marron sablé */
+    --sand-brown-dark: #D78940; /* teinte plus foncée au survol */
+}
+
+/* Card header styling */
+.card .card-header.btn-primary {
+    background-color: var(--sand-brown) !important;
+    border-color: var(--sand-brown) !important;
+    color: #ffffff !important;
+}
+
+/* Button styling */
+.btn-primary,
+.btn-primary-custom {
+    background-color: var(--sand-brown) !important;
+    border-color: var(--sand-brown) !important;
+    color: #ffffff !important;
+}
+
+.btn-primary:hover,
+.btn-primary-custom:hover {
+    background-color: var(--sand-brown-dark) !important;
+    border-color: var(--sand-brown-dark) !important;
+    color: #ffffff !important;
+}
+
+/* Form control focus styling */
+.form-control:focus {
+    border-color: var(--sand-brown) !important;
+    box-shadow: 0 0 0 0.25rem rgba(244, 164, 96, 0.25) !important;
+}
+
+/* Link styling */
+a { 
+    color: var(--sand-brown); 
+}
+
+a:hover { 
+    color: var(--sand-brown-dark); 
+}

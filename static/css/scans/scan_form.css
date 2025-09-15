@@ -1,0 +1,121 @@
+/* Styles pour le formulaire de scan de produits */
+
+#video-preview {
+    border: 2px solid #dee2e6;
+}
+
+.btn-group .btn {
+    border-radius: 0;
+}
+
+.btn-group .btn:first-child {
+    border-top-left-radius: 0.375rem;
+    border-bottom-left-radius: 0.375rem;
+}
+
+.btn-group .btn:last-child {
+    border-top-right-radius: 0.375rem;
+    border-bottom-right-radius: 0.375rem;
+}
+
+#scan-status .alert {
+    margin-bottom: 0;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+/* Styles pour la barre de progression du scan */
+#scan-progress {
+    margin-top: 1rem;
+}
+
+#scan-progress .progress {
+    height: 12px;
+    border-radius: 6px;
+    background-color: #e9ecef;
+    overflow: hidden;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+#scan-progress .progress-bar {
+    background: linear-gradient(90deg, #007bff 0%, #0056b3 100%) !important;
+    background-color: #007bff !important;
+    border-radius: 6px;
+    transition: width 0.6s ease-in-out;
+    position: relative;
+    overflow: hidden;
+}
+
+#scan-progress .progress-bar::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.3) 50%,
+        transparent 100%
+    );
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+#scan-progress .progress-bar.progress-bar-striped {
+    background: linear-gradient(90deg, #007bff 0%, #0056b3 100%) !important;
+    background-color: #007bff !important;
+    background-image: linear-gradient(
+        45deg,
+        rgba(255, 255, 255, 0.15) 25%,
+        transparent 25%,
+        transparent 50%,
+        rgba(255, 255, 255, 0.15) 50%,
+        rgba(255, 255, 255, 0.15) 75%,
+        transparent 75%,
+        transparent
+    ) !important;
+    background-size: 1rem 1rem;
+    animation: progress-bar-stripes 1s linear infinite;
+}
+
+@keyframes progress-bar-stripes {
+    0% {
+        background-position-x: 1rem;
+    }
+}
+
+.progress-steps {
+    text-align: center;
+    margin-top: 0.5rem;
+}
+
+.progress-steps small {
+    font-weight: 500;
+    color: #495057;
+}
+
+/* Styles supplémentaires pour forcer la couleur bleue */
+#scan-progress .progress-bar.bg-primary,
+#scan-progress .progress-bar.progress-bar-animated {
+    background: linear-gradient(90deg, #007bff 0%, #0056b3 100%) !important;
+    background-color: #007bff !important;
+}
+
+/* Override Bootstrap par défaut */
+#scan-progress .progress-bar[style*="width"] {
+    background: linear-gradient(90deg, #007bff 0%, #0056b3 100%) !important;
+    background-color: #007bff !important;
+}

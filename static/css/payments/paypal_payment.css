@@ -1,0 +1,292 @@
+/* =============================================================================
+   BEAUTYSCAN - PAGE DE PAIEMENT PAYPAL
+   ============================================================================= */
+
+/* Variables spécifiques aux paiements */
+:root {
+    --payment-primary: #DECFC9;
+    --payment-secondary: #C4B5B0;
+    --payment-accent: #8B7355;
+    --payment-light: #F2E8E5;
+    --payment-dark: #5D4E37;
+    --paypal-blue: #0070ba;
+    --paypal-dark: #003087;
+}
+
+/* Styles généraux de la page de paiement */
+.payment-page {
+    background: linear-gradient(135deg, var(--payment-light) 0%, #ffffff 100%);
+    min-height: 100vh;
+    padding: var(--spacing-xl) 0;
+}
+
+/* Carte principale */
+.card {
+    border: none;
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--box-shadow-lg);
+    overflow: hidden;
+}
+
+.card-header {
+    background: linear-gradient(135deg, var(--payment-primary), var(--payment-secondary)) !important;
+    border-bottom: none;
+    padding: var(--spacing-xl);
+}
+
+.card-header h2 {
+    color: var(--payment-dark);
+    font-weight: 700;
+}
+
+.card-header p {
+    color: var(--payment-accent);
+    font-size: 1.1rem;
+}
+
+/* Informations de paiement */
+.payment-info-card {
+    background: var(--white);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-lg);
+    box-shadow: var(--box-shadow);
+    border: 1px solid rgba(222, 207, 201, 0.2);
+    height: 100%;
+}
+
+.payment-info-card h4 {
+    color: var(--payment-dark);
+    font-weight: 600;
+}
+
+.info-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-sm) 0;
+    border-bottom: 1px solid rgba(222, 207, 201, 0.3);
+}
+
+.info-item:last-child {
+    border-bottom: none;
+}
+
+.info-item .label {
+    font-weight: 500;
+    color: var(--payment-accent);
+}
+
+.info-item .value {
+    font-weight: 600;
+    color: var(--payment-dark);
+}
+
+/* Carte des fonctionnalités */
+.features-card {
+    background: var(--white);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-lg);
+    box-shadow: var(--box-shadow);
+    border: 1px solid rgba(222, 207, 201, 0.2);
+    height: 100%;
+}
+
+.features-card h4 {
+    color: var(--payment-dark);
+    font-weight: 600;
+}
+
+.feature-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.feature-list li {
+    padding: var(--spacing-sm) 0;
+    border-bottom: 1px solid rgba(222, 207, 201, 0.2);
+    color: var(--payment-accent);
+    font-weight: 500;
+}
+
+.feature-list li:last-child {
+    border-bottom: none;
+}
+
+.feature-list li i {
+    width: 20px;
+    text-align: center;
+}
+
+/* Options de paiement */
+.payment-options h4 {
+    color: var(--payment-dark);
+    font-weight: 600;
+}
+
+.payment-option-card {
+    background: var(--white);
+    border: 2px solid rgba(222, 207, 201, 0.3);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-lg);
+    text-align: center;
+    cursor: pointer;
+    transition: var(--transition-normal);
+    height: 100%;
+}
+
+.payment-option-card:hover {
+    border-color: var(--payment-primary);
+    transform: translateY(-2px);
+    box-shadow: var(--box-shadow-lg);
+}
+
+.payment-option-card.active {
+    border-color: var(--paypal-blue);
+    background: rgba(0, 112, 186, 0.05);
+}
+
+.payment-option-card.disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.payment-option-card.disabled:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+.payment-option-header {
+    margin-bottom: var(--spacing-sm);
+}
+
+.payment-option-header h5 {
+    color: var(--payment-dark);
+    font-weight: 600;
+    margin: var(--spacing-sm) 0;
+}
+
+.payment-option-card p {
+    color: var(--payment-accent);
+    font-size: 0.9rem;
+}
+
+/* Bouton PayPal */
+.btn-paypal {
+    background: linear-gradient(135deg, var(--paypal-blue), var(--paypal-dark));
+    border: none;
+    color: var(--white);
+    font-weight: 600;
+    padding: var(--spacing-md) var(--spacing-xl);
+    border-radius: var(--border-radius);
+    transition: var(--transition-fast);
+    text-decoration: none;
+    display: inline-block;
+    min-width: 300px;
+}
+
+.btn-paypal:hover {
+    background: linear-gradient(135deg, var(--paypal-dark), var(--paypal-blue));
+    color: var(--white);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 112, 186, 0.4);
+}
+
+.paypal-button-container {
+    margin: var(--spacing-lg) 0;
+}
+
+/* Informations de sécurité */
+.security-info {
+    background: var(--payment-light);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-lg);
+    margin: var(--spacing-lg) 0;
+}
+
+.security-info h6 {
+    color: var(--payment-dark);
+    font-weight: 600;
+    margin: var(--spacing-sm) 0;
+}
+
+.security-info small {
+    color: var(--payment-accent);
+}
+
+/* Badges */
+.badge {
+    font-size: 0.75rem;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--border-radius);
+}
+
+.badge.bg-warning {
+    background: var(--warning-color) !important;
+    color: var(--dark-gray) !important;
+}
+
+/* Boutons de navigation */
+.btn-outline-secondary {
+    border-color: var(--payment-secondary);
+    color: var(--payment-dark);
+}
+
+.btn-outline-secondary:hover {
+    background: var(--payment-secondary);
+    border-color: var(--payment-secondary);
+    color: var(--white);
+}
+
+.btn-outline-primary {
+    border-color: var(--payment-primary);
+    color: var(--payment-dark);
+}
+
+.btn-outline-primary:hover {
+    background: var(--payment-primary);
+    border-color: var(--payment-primary);
+    color: var(--white);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .card-body {
+        padding: var(--spacing-lg) !important;
+    }
+    
+    .btn-paypal {
+        min-width: 100%;
+        padding: var(--spacing-sm) var(--spacing-lg);
+    }
+    
+    .payment-option-card {
+        margin-bottom: var(--spacing-md);
+    }
+    
+    .info-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-xs);
+    }
+    
+    .info-item .value {
+        font-weight: 700;
+    }
+}
+
+/* Animations */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in-up {
+    animation: fadeInUp 0.6s ease-out;
+}

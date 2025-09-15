@@ -1,0 +1,185 @@
+/*
+Profile page styles for BeautyScan application.
+
+This file contains all styles for the user profile page,
+extracted from inline styles to maintain Clean Architecture.
+*/
+
+/* Form sections styling */
+.form-section {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+    border: 1px solid #e9ecef;
+}
+
+.form-section h5 {
+    color: #2F6B72;
+    margin-bottom: 1rem;
+    font-weight: 600;
+    border-bottom: 2px solid #2F6B72;
+    padding-bottom: 0.5rem;
+}
+
+.form-section h5 i {
+    margin-right: 0.5rem;
+}
+
+/* Uniform column styling */
+.form-section .col-md-4,
+.form-section .col-md-6 {
+    margin-bottom: 0.5rem !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+/* Checkbox styling */
+input[type="checkbox"] {
+    width: 18px !important;
+    height: 18px !important;
+    margin: 0 !important;
+    margin-right: 10px !important;
+    margin-top: 2px !important;
+    padding: 0 !important;
+    border: 2px solid #dee2e6 !important;
+    border-radius: 3px !important;
+    background-color: white !important;
+    position: relative !important;
+    top: 0 !important;
+    left: 0 !important;
+    float: none !important;
+    flex-shrink: 0 !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+}
+
+/* Checked checkbox styling */
+input[type="checkbox"]:checked {
+    background-color: #2F6B72 !important;
+    border-color: #2F6B72 !important;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='2.5' d='m6 10 3 3 6-6'/%3e%3c/svg%3e") !important;
+    background-size: 14px 14px !important;
+    background-position: center !important;
+    background-repeat: no-repeat !important;
+}
+
+/* Checkbox focus styling */
+input[type="checkbox"]:focus {
+    box-shadow: 0 0 0 0.2rem rgba(47, 107, 114, 0.25) !important;
+    border-color: #2F6B72 !important;
+    outline: none !important;
+}
+
+/* Form check label styling */
+.form-check-label {
+    margin: 0 !important;
+    padding: 0 !important;
+    padding-left: 0 !important;
+    line-height: 1.4 !important;
+    cursor: pointer !important;
+    font-size: 0.95rem !important;
+    color: #495057 !important;
+    word-wrap: break-word !important;
+    flex: 1 !important;
+    display: block !important;
+    position: relative !important;
+    top: 0 !important;
+}
+
+/* Form check input styling */
+.form-check-input {
+    margin-top: 2px !important;
+    margin-right: 10px !important;
+    margin-left: 0 !important;
+    margin-bottom: 0 !important;
+}
+
+/* Danger zone styling */
+.card.border-danger {
+    border-width: 2px !important;
+    box-shadow: 0 4px 15px rgba(220, 53, 69, 0.2) !important;
+    margin-bottom: 2rem !important;
+}
+
+.card-header.bg-danger {
+    background: linear-gradient(135deg, #dc3545, #c82333) !important;
+    border-bottom: 2px solid #a71e2a !important;
+}
+
+.btn-outline-danger.btn-lg {
+    font-size: 1.1rem !important;
+    padding: 12px 24px !important;
+    border-width: 2px !important;
+    transition: all 0.3s ease !important;
+}
+
+.btn-outline-danger.btn-lg:hover {
+    background-color: #dc3545 !important;
+    border-color: #dc3545 !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4) !important;
+}
+
+/* Alert warning styling */
+.alert-warning {
+    border-left: 4px solid #ffc107 !important;
+    background-color: #fff3cd !important;
+    border-color: #ffeaa7 !important;
+}
+
+/* Form controls styling */
+.form-control, .form-select {
+    border-radius: 8px;
+    border: 2px solid #E9ECEF;
+    padding: 10px 15px;
+    transition: border-color 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #2F6B72;
+    box-shadow: 0 0 0 0.2rem rgba(47, 107, 114, 0.25);
+    outline: none;
+}
+
+/* Button styling */
+.btn-primary {
+    background: #2F6B72;
+    border-color: #2F6B72;
+    border-radius: 8px;
+    padding: 12px 24px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    background: #4A8A91;
+    border-color: #4A8A91;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(47, 107, 114, 0.3);
+}
+
+/* Card styling */
+.card {
+    border-radius: 16px;
+    border: none;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+
+.card-header {
+    border-radius: 16px 16px 0 0 !important;
+    background: #2F6B72 !important;
+    border: none;
+}
+
+/* Form check styling */
+.form-check {
+    display: flex !important;
+    align-items: flex-start !important;
+    padding-left: 0 !important;
+    margin-bottom: 1rem !important;
+    min-height: 2.5rem !important;
+    width: 100% !important;
+    position: relative !important;
+}

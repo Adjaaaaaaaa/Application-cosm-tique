@@ -1,0 +1,103 @@
+/* =============================================================================
+   BEAUTYSCAN - STYLES DE CONNEXION
+   ============================================================================= */
+
+/* Style pour les champs de formulaire de connexion */
+.form-control-custom {
+    border: 2px solid #E6D7B8;
+    border-radius: 0.5rem;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background-color: #ffffff;
+    color: #5D4E37;
+}
+
+.form-control-custom:focus {
+    border-color: #8B7355;
+    box-shadow: 0 0 0 0.2rem rgba(139, 115, 85, 0.25);
+    background-color: #ffffff;
+    color: #5D4E37;
+}
+
+.form-control-custom::placeholder {
+    color: #8B7355;
+    opacity: 0.7;
+}
+
+/* Labels des formulaires */
+.form-label {
+    color: #5D4E37;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+}
+
+/* Textes d'aide */
+.form-text {
+    color: #8B7355;
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+}
+
+/* Bouton de connexion */
+.btn-primary-custom {
+    background: linear-gradient(135deg, #8B7355, #A0522D);
+    border: none;
+    border-radius: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    color: white;
+}
+
+.btn-primary-custom:hover {
+    background: linear-gradient(135deg, #6B5B3F, #8B4513);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(139, 115, 85, 0.3);
+}
+
+.btn-primary-custom:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(139, 115, 85, 0.3);
+}
+
+/* Card header */
+.card-header.btn-primary {
+    background: linear-gradient(135deg, #8B7355, #A0522D) !important;
+    border: none;
+}
+
+/* Alertes */
+.alert-danger {
+    background-color: #F8F6F2;
+    border: 1px solid #CD5C5C;
+    color: #5D4E37;
+    border-radius: 0.5rem;
+}
+
+/* Liens */
+a {
+    color: #8B7355;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+a:hover {
+    color: #6B5B3F;
+    text-decoration: underline;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .form-control-custom {
+        padding: 0.65rem 0.9rem;
+        font-size: 0.95rem;
+    }
+    
+    .btn-primary-custom {
+        padding: 0.65rem 1.25rem;
+        font-size: 0.95rem;
+    }
+}

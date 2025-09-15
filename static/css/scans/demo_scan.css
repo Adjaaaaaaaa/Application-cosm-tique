@@ -1,0 +1,84 @@
+/**
+ * Demo scan page styles.
+ * 
+ * Styles for the demo scan page including score display.
+ */
+
+/* Score display styles */
+.score-display-simple {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.score-number {
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+
+.score-label {
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+
+.score-emoji {
+    font-size: 1.2rem;
+}
+
+/* Score color classes - with high specificity to override Bootstrap */
+.score-display-simple .score-number.excellent,
+.score-display-simple .score-label.excellent {
+    color: #28a745 !important;
+    font-weight: 700 !important;
+}
+
+.score-display-simple .score-number.moderate,
+.score-display-simple .score-label.moderate {
+    color: #ff8c00 !important;
+    font-weight: 700 !important;
+}
+
+.score-display-simple .score-number.poor,
+.score-display-simple .score-label.poor {
+    color: #ff0000 !important;
+    font-weight: 700 !important;
+}
+
+/* Additional styles for demo scan page */
+.demo-scan-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.scan-form-card {
+    background: white;
+    border-radius: 15px;
+    padding: 2rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+}
+
+.scan-results-card {
+    background: white;
+    border-radius: 15px;
+    padding: 2rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .score-display-simple {
+        justify-content: center;
+        text-align: center;
+    }
+    
+    .score-number {
+        font-size: 1.3rem;
+    }
+    
+    .score-label {
+        font-size: 1rem;
+    }
+}

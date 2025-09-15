@@ -1,0 +1,57 @@
+/* Logo styles for BeautyScan */
+
+.logo-image {
+    max-height: 40px;
+    width: auto;
+    object-fit: contain;
+    /* Optimisations pour logo volumineux */
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+    /* Force l'affichage */
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+.hero-logo {
+    max-height: 80px;
+    width: auto;
+    margin-bottom: 1rem;
+    object-fit: contain;
+    /* Optimisations pour logo volumineux */
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+    /* Force l'affichage */
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+/* Ensure logo displays properly */
+.navbar-brand img,
+.footer-brand img,
+.hero-logo {
+    display: block !important;
+    max-width: 100%;
+    height: auto;
+}
+
+/* Optimisations pour logo PNG volumineux */
+.logo-image,
+.hero-logo {
+    /* Force le chargement */
+    will-change: auto;
+    /* Améliore le rendu */
+    backface-visibility: hidden;
+    transform: translateZ(0);
+    /* Force l'affichage */
+    display: block !important;
+    visibility: visible !important;
+}
+
+/* Force l'affichage du logo PNG */
+img[src*="logo.png"] {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}

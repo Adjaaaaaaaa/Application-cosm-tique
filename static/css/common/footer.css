@@ -1,0 +1,448 @@
+/**
+ * Footer CSS - BeautyScan
+ * 
+ * Design moderne et décoratif pour le footer avec la charte couleur :
+ * - Beige clair (#fdfaf6)
+ * - Crème (#f5e6d3) 
+ * - Marron clair (#d9b99b)
+ * - Marron moyen (#8b5e3c)
+ * - Marron foncé (#5c4033)
+ */
+
+/* Variables CSS pour la charte couleur */
+:root {
+    --footer-bg-light: #fdfaf6;
+    --footer-bg-cream: #f5e6d3;
+    --footer-accent-light: #d9b99b;
+    --footer-accent-medium: #8b5e3c;
+    --footer-accent-dark: #5c4033;
+    --footer-text-light: #000000;
+    --footer-text-dark: #000000;
+    --footer-border: #d9b99b;
+    --footer-shadow: rgba(92, 64, 51, 0.1);
+    --footer-hover: #333333;
+}
+
+/* Footer principal */
+footer {
+    background: linear-gradient(135deg, var(--footer-bg-light) 0%, var(--footer-bg-cream) 100%);
+    color: #000000;
+    padding: 3rem 0 1rem 0;
+    margin-top: auto;
+    position: relative;
+    box-shadow: 0 -4px 20px var(--footer-shadow);
+    border-top: 3px solid var(--footer-accent-light);
+}
+
+/* Effet décoratif en haut du footer */
+footer::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, 
+        var(--footer-accent-light) 0%, 
+        var(--footer-accent-medium) 25%, 
+        var(--footer-accent-dark) 50%, 
+        var(--footer-accent-medium) 75%, 
+        var(--footer-accent-light) 100%);
+    border-radius: 0 0 2px 2px;
+}
+
+/* Container du footer */
+footer .container {
+    position: relative;
+    z-index: 2;
+}
+
+/* Logo du footer */
+.footer-brand img {
+    filter: brightness(0) saturate(100%) invert(27%) sepia(51%) saturate(2878%) hue-rotate(346deg) brightness(104%) contrast(97%);
+    opacity: 0.9;
+    transition: all 0.3s ease;
+    max-height: 60px;
+    width: auto;
+}
+
+.footer-brand img:hover {
+    opacity: 1;
+    transform: scale(1.05);
+    filter: brightness(0) saturate(100%) invert(20%) sepia(60%) saturate(3000%) hue-rotate(340deg) brightness(90%) contrast(110%);
+}
+
+/* Titres des sections */
+footer h5 {
+    color: #000000 !important;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    font-size: 1.1rem;
+    position: relative;
+    padding-bottom: 0.5rem;
+}
+
+footer h5::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 30px;
+    height: 2px;
+    background: linear-gradient(90deg, var(--footer-accent-light), var(--footer-accent-medium));
+    border-radius: 1px;
+}
+
+/* Liens du footer */
+footer a {
+    color: #000000 !important;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    position: relative;
+    padding: 0.25rem 0;
+}
+
+footer a:hover {
+    color: #8b5e3c !important;
+    text-decoration: none;
+    transform: translateX(5px);
+}
+
+footer a::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 1px;
+    background: #8b5e3c;
+    transition: width 0.3s ease;
+}
+
+footer a:hover::before {
+    width: 100%;
+}
+
+/* Liste des liens */
+footer ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+footer ul li {
+    margin-bottom: 0.75rem;
+    position: relative;
+    padding-left: 1rem;
+}
+
+footer ul li::before {
+    content: '•';
+    position: absolute;
+    left: 0;
+    color: var(--footer-accent-light);
+    font-weight: bold;
+    transition: color 0.3s ease;
+}
+
+footer ul li:hover::before {
+    color: var(--footer-accent-medium);
+}
+
+/* Section newsletter */
+.newsletter-section {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 12px;
+    padding: 1.5rem;
+    border: 1px solid var(--footer-border);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 15px var(--footer-shadow);
+}
+
+.newsletter-section h5 {
+    color: #000000 !important;
+    margin-bottom: 1rem;
+}
+
+/* Input newsletter */
+.newsletter-section input[type="email"] {
+    background: rgba(255, 255, 255, 0.8);
+    border: 2px solid var(--footer-accent-light);
+    border-radius: 25px;
+    padding: 0.75rem 1.5rem;
+    color: #000000 !important;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    width: 100%;
+    margin-bottom: 1rem;
+}
+
+.newsletter-section input[type="email"]:focus {
+    outline: none;
+    border-color: var(--footer-accent-medium);
+    background: rgba(255, 255, 255, 0.95);
+    box-shadow: 0 0 0 3px rgba(139, 94, 60, 0.1);
+}
+
+.newsletter-section input[type="email"]::placeholder {
+    color: var(--footer-accent-light);
+}
+
+/* Bouton newsletter */
+.newsletter-section button,
+.newsletter-section .btn {
+    background: linear-gradient(135deg, var(--footer-accent-medium), var(--footer-accent-dark));
+    border: none;
+    border-radius: 25px;
+    padding: 0.75rem 1.5rem;
+    color: white;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(139, 94, 60, 0.3);
+}
+
+.newsletter-section button:hover,
+.newsletter-section .btn:hover {
+    background: linear-gradient(135deg, var(--footer-accent-dark), var(--footer-accent-medium));
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(139, 94, 60, 0.4);
+}
+
+/* Liens sociaux */
+.social-links {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.social-links a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, var(--footer-accent-light), var(--footer-accent-medium));
+    border-radius: 50%;
+    color: white;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(139, 94, 60, 0.2);
+}
+
+.social-links a:hover {
+    background: linear-gradient(135deg, var(--footer-accent-medium), var(--footer-accent-dark));
+    transform: translateY(-3px) scale(1.1);
+    box-shadow: 0 6px 20px rgba(139, 94, 60, 0.4);
+    color: white;
+}
+
+.social-links i {
+    font-size: 1.2rem;
+}
+
+/* Section infos de contact */
+.contact-info {
+    color: #000000 !important;
+    line-height: 1.6;
+}
+
+/* Tous les textes du footer en noir */
+footer p {
+    color: #000000 !important;
+}
+
+footer span {
+    color: #000000 !important;
+}
+
+footer div {
+    color: #000000 !important;
+}
+
+/* Surcharger les classes Bootstrap text-light */
+footer .text-light {
+    color: #000000 !important;
+}
+
+footer h5.text-light {
+    color: #000000 !important;
+}
+
+footer p.text-light {
+    color: #000000 !important;
+}
+
+footer a.text-light {
+    color: #000000 !important;
+}
+
+footer i.text-light {
+    color: #8b5e3c !important;
+}
+
+footer h6.text-light {
+    color: #000000 !important;
+}
+
+/* Forcer tous les éléments du footer en noir */
+footer * {
+    color: #000000 !important;
+}
+
+/* Exceptions pour les icônes et éléments décoratifs */
+footer i {
+    color: #8b5e3c !important;
+}
+
+footer .social-links a {
+    color: #000000 !important;
+}
+
+        footer .social-links a:hover {
+            color: #8b5e3c !important;
+        }
+        
+        /* Séparateur du footer */
+        .footer-divider {
+            border-color: rgba(255,255,255,0.2) !important;
+        }
+
+.contact-info p {
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.contact-info i {
+    color: var(--footer-accent-medium);
+    width: 16px;
+}
+
+/* Ligne séparatrice en bas */
+footer::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, 
+        transparent 0%, 
+        var(--footer-accent-light) 20%, 
+        var(--footer-accent-medium) 50%, 
+        var(--footer-accent-light) 80%, 
+        transparent 100%);
+}
+
+/* Copyright et liens de bas de page */
+.footer-bottom {
+    background: rgba(92, 64, 51, 0.05);
+    padding: 1rem 0;
+    margin-top: 2rem;
+    border-top: 1px solid var(--footer-border);
+}
+
+.footer-bottom .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.footer-bottom p {
+    color: #000000 !important;
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+.footer-bottom-links {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.footer-bottom-links a {
+    color: #000000 !important;
+    font-size: 0.9rem;
+    transition: color 0.3s ease;
+}
+
+.footer-bottom-links a:hover {
+    color: #8b5e3c !important;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    footer {
+        padding: 2rem 0 1rem 0;
+    }
+    
+    footer .row > div {
+        margin-bottom: 2rem;
+    }
+    
+    .footer-bottom .container {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .footer-bottom-links {
+        justify-content: center;
+    }
+    
+    .newsletter-section {
+        margin-top: 1rem;
+    }
+    
+    .social-links {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 576px) {
+    footer h5 {
+        font-size: 1rem;
+    }
+    
+    .newsletter-section {
+        padding: 1rem;
+    }
+    
+    .footer-bottom-links {
+        gap: 1rem;
+    }
+    
+    .footer-bottom-links a {
+        font-size: 0.8rem;
+    }
+}
+
+/* Animations et effets */
+@keyframes footerGlow {
+    0%, 100% {
+        box-shadow: 0 -4px 20px var(--footer-shadow);
+    }
+    50% {
+        box-shadow: 0 -4px 25px rgba(139, 94, 60, 0.2);
+    }
+}
+
+footer:hover {
+    animation: footerGlow 3s ease-in-out infinite;
+}
+
+/* Effet de survol pour les sections */
+footer .col-md-3,
+footer .col-md-4,
+footer .col-md-6 {
+    transition: transform 0.3s ease;
+}
+
+footer .col-md-3:hover,
+footer .col-md-4:hover,
+footer .col-md-6:hover {
+    transform: translateY(-2px);
+}

@@ -1,0 +1,549 @@
+/**
+ * Scan analysis page styles.
+ * 
+ * Styles for scan analysis results and charts.
+ */
+
+/* Analysis header styles */
+.analysis-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 15px;
+    padding: 2rem;
+    color: white;
+    margin-bottom: 2rem;
+}
+
+.analysis-header h1 {
+    color: white;
+    margin-bottom: 1rem;
+    font-weight: 700;
+}
+
+.analysis-header .badge {
+    font-size: 1rem;
+    padding: 0.5rem 1rem;
+    border-radius: 25px;
+}
+
+/* Product info card styles */
+.product-info-card {
+    background: white;
+    border-radius: 15px;
+    padding: 2rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+    transition: all 0.3s ease;
+}
+
+.product-info-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+}
+
+.product-title {
+    color: #2c3e50;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    font-size: 1.5rem;
+}
+
+.product-brand {
+    color: #6c757d;
+    font-size: 1.2rem;
+    font-weight: 500;
+    margin-bottom: 1rem;
+}
+
+.product-description {
+    color: #495057;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+}
+
+/* Score display styles */
+.score-display {
+    text-align: center;
+    margin: 2rem 0;
+}
+
+.score-value {
+    font-size: 3rem;
+    font-weight: 700;
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.score-label {
+    font-size: 1.2rem;
+    color: #6c757d;
+    font-weight: 500;
+}
+
+.score-excellent {
+    color: #28a745;
+}
+
+.score-good {
+    color: #ffc107;
+}
+
+.score-poor {
+    color: #dc3545;
+}
+
+/* Score display styles for demo_scan.html */
+.score-display-simple {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.score-number {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.score-label {
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+
+.score-emoji {
+    font-size: 1.2rem;
+}
+
+/* Score color classes - with higher specificity */
+.score-display-simple .score-number.excellent,
+.score-display-simple .score-label.excellent {
+    color: #28a745 !important;
+    font-weight: 700 !important;
+}
+
+.score-display-simple .score-number.moderate,
+.score-display-simple .score-label.moderate {
+    color: #ff8c00 !important;
+    font-weight: 700 !important;
+}
+
+.score-display-simple .score-number.poor,
+.score-display-simple .score-label.poor {
+    color: #dc3545 !important;
+    font-weight: 700 !important;
+}
+
+/* Risk level styles */
+.risk-level {
+    text-align: center;
+    margin: 1rem 0;
+}
+
+.risk-level .badge {
+    font-size: 1.1rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 25px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Chart container styles */
+.chart-container {
+    background: white;
+    border-radius: 15px;
+    padding: 2rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+    position: relative;
+    height: 400px;
+}
+
+.chart-title {
+    color: #2c3e50;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.chart-wrapper {
+    position: relative;
+    height: 300px;
+    margin: 0 auto;
+}
+
+/* Statistics cards styles */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 15px;
+    padding: 1.5rem;
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+}
+
+.stat-value {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.stat-label {
+    color: #6c757d;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 0.9rem;
+}
+
+.stat-low { color: #28a745; }
+.stat-medium { color: #ffc107; }
+.stat-high { color: #dc3545; }
+
+/* Ingredient analysis styles */
+.ingredient-analysis {
+    background: white;
+    border-radius: 15px;
+    padding: 2rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+}
+
+.ingredient-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.ingredient-card {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 1.5rem;
+    border-left: 4px solid #dee2e6;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.ingredient-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    border-left-color: #667eea;
+}
+
+.ingredient-card.risk-low {
+    border-left-color: #28a745;
+    background: #d4edda;
+}
+
+.ingredient-card.risk-medium {
+    border-left-color: #ffc107;
+    background: #fff3cd;
+}
+
+.ingredient-card.risk-high {
+    border-left-color: #dc3545;
+    background: #f8d7da;
+}
+
+.ingredient-name {
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
+}
+
+.ingredient-risk {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.5rem;
+}
+
+.ingredient-details {
+    color: #6c757d;
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+/* H-codes categories styles */
+.h-codes-section {
+    background: white;
+    border-radius: 15px;
+    padding: 2rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+}
+
+.h-codes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.h-code-category {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 1.5rem;
+    border-left: 4px solid #dee2e6;
+    transition: all 0.3s ease;
+}
+
+.h-code-category.risk-low {
+    border-left-color: #28a745;
+    background: #d4edda;
+}
+
+.h-code-category.risk-medium {
+    border-left-color: #ffc107;
+    background: #fff3cd;
+}
+
+.h-code-category.risk-high {
+    border-left-color: #dc3545;
+    background: #f8d7da;
+}
+
+.category-name {
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
+}
+
+.category-ingredients {
+    color: #6c757d;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+.category-h-codes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+}
+
+.h-code-badge {
+    background: #6c757d;
+    color: white;
+    padding: 0.2rem 0.5rem;
+    border-radius: 10px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+/* Modal styles */
+.modal-content {
+    border-radius: 15px;
+    border: none;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.modal-header {
+    border-bottom: 2px solid #f8f9fa;
+    border-radius: 15px 15px 0 0;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.modal-header .btn-close {
+    filter: invert(1);
+}
+
+.modal-body {
+    padding: 2rem;
+}
+
+.modal-footer {
+    border-top: 2px solid #f8f9fa;
+    border-radius: 0 0 15px 15px;
+}
+
+/* Detail card styles */
+.detail-card {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    border-left: 4px solid #667eea;
+}
+
+.detail-card .row {
+    align-items: center;
+}
+
+.detail-card h6 {
+    color: #6c757d;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 0.8rem;
+}
+
+.detail-card .badge {
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+}
+
+.detail-card p {
+    margin-bottom: 0;
+    color: #495057;
+    line-height: 1.5;
+}
+
+/* No details card styles */
+.no-details-card {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 2rem;
+    text-align: center;
+    color: #6c757d;
+}
+
+.no-details-card i {
+    color: #adb5bd;
+    margin-bottom: 1rem;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+    .analysis-header {
+        padding: 1.5rem;
+    }
+    
+    .product-info-card,
+    .chart-container,
+    .ingredient-analysis,
+    .h-codes-section {
+        padding: 1.5rem;
+    }
+    
+    .stats-grid {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1rem;
+    }
+    
+    .ingredient-grid,
+    .h-codes-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .chart-wrapper {
+        height: 250px;
+    }
+    
+    .score-value {
+        font-size: 2.5rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .analysis-header {
+        padding: 1rem;
+    }
+    
+    .product-info-card,
+    .chart-container,
+    .ingredient-analysis,
+    .h-codes-section {
+        padding: 1rem;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .chart-wrapper {
+        height: 200px;
+    }
+    
+    .score-value {
+        font-size: 2rem;
+    }
+    
+    .modal-body {
+        padding: 1.5rem;
+    }
+}
+
+/* Animation styles */
+.fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.slide-in {
+    animation: slideIn 0.5s ease-out;
+}
+
+@keyframes slideIn {
+    from { transform: translateX(-100%); }
+    to { transform: translateX(0); }
+}
+
+/* Loading states */
+.loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #667eea;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Utility classes */
+.text-gradient {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.shadow-soft {
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+}
+
+.shadow-medium {
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.shadow-strong {
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+}

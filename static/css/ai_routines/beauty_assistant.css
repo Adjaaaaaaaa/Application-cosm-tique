@@ -1,0 +1,237 @@
+/* Variables CSS pour la palette de couleurs naturelles */
+:root {
+    --beige-light: #f8f4f0;
+    --beige-medium: #ede8e0;
+    --cream-light: #f2ede5;
+    --cream-medium: #e8e0d1;
+    --sand-light: #e8e0d1;
+    --sand-medium: #d4c4a8;
+    --sand-dark: #b8a890;
+    --brown-light: #7a6347;
+    --brown-medium: #5a4a35;
+    --brown-dark: #3d2f1f;
+    --brown-very-dark: #1f1a12;
+}
+
+/* Fond de page beige clair */
+body {
+    background-color: var(--beige-light);
+}
+
+/* Classes utilitaires pour les couleurs */
+.text-brown-dark { color: var(--brown-dark) !important; }
+.text-brown-medium { color: var(--brown-medium) !important; }
+.text-brown-light { color: var(--brown-light) !important; }
+.text-sand-dark { color: var(--sand-dark) !important; }
+.text-sand-light { color: var(--sand-light) !important; }
+
+.bg-sand-light { background-color: var(--sand-light) !important; }
+.bg-cream-light { background-color: var(--cream-light) !important; }
+.bg-beige-medium { background-color: var(--beige-medium) !important; }
+
+.border-sand { border-color: var(--sand-medium) !important; }
+
+/* Ombres sable */
+.shadow-sand {
+    box-shadow: 0 4px 20px rgba(212, 196, 168, 0.3) !important;
+}
+
+/* Bouton sable */
+.btn-sand {
+    background: linear-gradient(135deg, var(--sand-dark) 0%, var(--brown-light) 100%);
+    border: none;
+    color: white;
+    transition: all 0.3s ease;
+}
+
+.btn-sand:hover {
+    background: linear-gradient(135deg, var(--brown-light) 0%, var(--brown-medium) 100%);
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 25px rgba(212, 196, 168, 0.4);
+}
+
+.btn-sand:focus {
+    background: linear-gradient(135deg, var(--brown-light) 0%, var(--brown-medium) 100%);
+    color: white;
+    box-shadow: 0 0 0 0.2rem rgba(212, 196, 168, 0.25);
+}
+
+/* Cartes avec fond blanc cassé */
+.card {
+    background-color: var(--cream-light);
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(212, 196, 168, 0.4) !important;
+}
+
+/* Formulaires */
+.form-control, .form-select {
+    background-color: white;
+    border: 2px solid var(--sand-medium);
+    transition: all 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--sand-dark);
+    box-shadow: 0 0 0 0.2rem rgba(212, 196, 168, 0.25);
+    background-color: white;
+}
+
+.form-control::placeholder {
+    color: var(--brown-medium);
+    opacity: 0.7;
+}
+
+/* Range slider personnalisé */
+.form-range::-webkit-slider-thumb {
+    background: var(--sand-dark);
+}
+
+.form-range::-moz-range-thumb {
+    background: var(--sand-dark);
+}
+
+.form-range::-ms-thumb {
+    background: var(--sand-dark);
+}
+
+/* Animation pour le loading */
+.spinner-border {
+    color: var(--sand-dark);
+}
+
+/* Styles pour les résultats */
+.alert-info {
+    background: linear-gradient(135deg, var(--cream-light) 0%, var(--beige-medium) 100%);
+    border: none;
+    border-radius: 12px;
+    color: var(--brown-dark);
+}
+
+.card-title {
+    color: var(--brown-dark);
+    font-weight: 600;
+}
+
+.badge {
+    font-size: 0.8rem;
+    padding: 0.5rem 0.8rem;
+}
+
+.badge.bg-primary {
+    background: linear-gradient(135deg, var(--sand-dark) 0%, var(--brown-light) 100%) !important;
+}
+
+/* Accordéons */
+.accordion-button {
+    background-color: var(--cream-light);
+    color: var(--brown-dark);
+    border: none;
+}
+
+.accordion-button:not(.collapsed) {
+    background: linear-gradient(135deg, var(--sand-dark) 0%, var(--brown-light) 100%);
+    color: white;
+}
+
+.accordion-button:focus {
+    box-shadow: 0 0 0 0.2rem rgba(212, 196, 168, 0.25);
+}
+
+.accordion-item {
+    background-color: var(--cream-light);
+    border: none;
+}
+
+/* Cartes métriques */
+.card.border-0.shadow-sm {
+    background-color: white;
+    border: 1px solid var(--sand-light) !important;
+}
+
+/* Icônes colorées */
+.text-primary { color: var(--sand-dark) !important; }
+.text-success { color: var(--brown-light) !important; }
+.text-info { color: var(--brown-medium) !important; }
+.text-warning { color: var(--sand-dark) !important; }
+.text-danger { color: var(--brown-medium) !important; }
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .container {
+        padding: 0 15px;
+    }
+    
+    .card-body {
+        padding: 1.5rem;
+    }
+    
+    .display-5 {
+        font-size: 2rem;
+    }
+    
+    .lead {
+        font-size: 1rem;
+    }
+    
+    .rounded-2xl {
+        border-radius: 1rem !important;
+    }
+}
+
+/* Coins arrondis 2xl */
+.rounded-2xl {
+    border-radius: 1.5rem !important;
+}
+
+.rounded-top-2xl {
+    border-top-left-radius: 1.5rem !important;
+    border-top-right-radius: 1.5rem !important;
+}
+
+/* Liens et éléments interactifs */
+a {
+    color: var(--brown-medium);
+    transition: color 0.3s ease;
+}
+
+a:hover {
+    color: var(--brown-dark);
+}
+
+/* Textes principaux */
+p, .text-muted {
+    color: var(--brown-medium) !important;
+}
+
+/* Titres */
+h1, h2, h3, h4, h5, h6 {
+    color: var(--brown-dark);
+}
+
+/* Boutons de formulaire */
+.btn:focus {
+    box-shadow: 0 0 0 0.2rem rgba(212, 196, 168, 0.25);
+}
+
+/* Alertes d'erreur */
+.alert-danger {
+    background: linear-gradient(135deg, #fdf2f2 0%, #fde8e8 100%);
+    border: 1px solid #fecaca;
+    color: var(--brown-dark);
+}
+
+/* Loading spinner */
+.spinner-border {
+    color: var(--sand-dark);
+}
+
+/* Hover effects pour les cartes de résultats */
+.card.mb-3.border-0.shadow-sm:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 25px rgba(212, 196, 168, 0.3) !important;
+}
